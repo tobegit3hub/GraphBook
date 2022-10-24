@@ -1,0 +1,3 @@
+pymysql
+graphviz
+#sqlite3
