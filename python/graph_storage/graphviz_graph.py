@@ -6,17 +6,20 @@ def build_graph(graph: model.Graph) -> None:
 
     # Add nodes
     for node in graph.nodes:
-        g_graph.node(node.name, node.display_name)
+        g_graph.node(node.name, node.display_name, color='white', shape="circle",
+        imagescale="true", fixedsize="true", style="filled",
+        image="/Users/tobe/code/GraphGame/images/{}.png".format(node.name))
 
     # Add edges
     for edge in graph.edges:
         g_graph.edge(edge.source, edge.target, edge.relation)
 
+    # Display graph
     g_graph.view()
 
-def main():
-    db_config = model.DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")
+def main() -> None:
     graph = model.Graph()
+    db_config = model.DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")
     graph.load_from_db(db_config)
     build_graph(graph)
 
