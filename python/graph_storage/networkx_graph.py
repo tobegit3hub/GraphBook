@@ -21,7 +21,7 @@ def build_graph(graph: model.Graph) -> None:
     #formatted_edge_labels = {(edge.source, edge.target): edge.relation for edge in graph.edges}
     #pos = nx.spring_layout(n_graph)
     #nx.draw_networkx_edge_labels(n_graph, pos, edge_labels=formatted_edge_labels)
-    
+
     plt.show()
 
 def main() -> None:
