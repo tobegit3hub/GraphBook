@@ -5,6 +5,13 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 @dataclass
+class DbConfig:
+    host: str
+    user: str
+    password: str
+    db: str
+
+@dataclass
 class Node:
     id: int
     name: str
@@ -44,7 +51,13 @@ class Graph:
     def add_group(self, group: Group) -> None:
         self.groups.append(group)
     
-    def load_from_db(self, connection) -> None:
+    def load_from_db(self, db_config: DbConfig) -> None:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
         with connection.cursor() as cursor:
             sql = "SELECT * FROM nodes"
             cursor.execute(sql)
@@ -72,22 +85,11 @@ class Graph:
 
 
 def main():
-    mysql_host = "localhost"
-    mysql_user = "root"
-    mysql_password = "root"
-    mysql_db = "cyberpunk_edgerunner"
-
-    # Connect to the database
-    connection = pymysql.connect(host=mysql_host,
-                                user=mysql_user,
-                                password=mysql_password,
-                                database=mysql_db,
-                                cursorclass=pymysql.cursors.DictCursor)
-
-
+    db_config = DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")
     graph = Graph()
-    graph.load_from_db(connection)
+    graph.load_from_db(db_config)
     print(graph)
+
 
 if __name__ == "__main__":
     main()
