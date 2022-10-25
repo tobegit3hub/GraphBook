@@ -7,7 +7,7 @@ def main() -> None:
 
     pd.set_option('display.expand_frame_repr', False)
 
-    sql_engine = create_engine('mysql+pymysql://root:wawa316@127.0.0.1', pool_recycle=3600)
+    sql_engine = create_engine('mysql+pymysql://root:root@127.0.0.1', pool_recycle=3600)
     with sql_engine.connect() as connection:
         nodes_df = pd.read_sql("select * from cyberpunk_edgerunner.nodes", connection);
         new_nodes_df = nodes_df.rename(columns={"id": "uid", "name": "id"})

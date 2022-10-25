@@ -14,11 +14,13 @@ def build_graph(graph: model.Graph) -> None:
         net.add_edge(edge.source, edge.target)
 
     net.toggle_physics(True)
+    net.show_buttons(filter_=['physics'])
+
     net.show('pyvis_graph.html')
 
 def main() -> None:
     graph = model.Graph()
-    db_config = model.DbConfig("localhost", "root", "wawa316", "cyberpunk_edgerunner")
+    db_config = model.DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")
     graph.load_from_db(db_config)
     build_graph(graph)
 
