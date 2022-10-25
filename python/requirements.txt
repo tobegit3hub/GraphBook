@@ -2,3 +2,6 @@ pymysql
 graphviz
 matplotlib
 #sqlite3
+jaal
+pandas
+sqlalchemy
