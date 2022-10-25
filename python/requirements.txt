@@ -7,3 +7,4 @@ pandas
 sqlalchemy
 dash_cytoscape
 plotly
+pyvis
