@@ -5,3 +5,5 @@ matplotlib
 jaal
 pandas
 sqlalchemy
+dash_cytoscape
+plotly
