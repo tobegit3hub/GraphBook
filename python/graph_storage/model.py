@@ -83,6 +83,32 @@ class Graph:
                 self.add_group(group)
                 logging.info("Load group: {}".format(group))
 
+    def get_nodes_for_frontend(self, db_config: DbConfig) -> None:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
+            sql = "SELECT name FROM nodes"
+            cursor.execute(sql)
+            result_set = cursor.fetchall()
+            return result_set
+
+    def get_edges_for_frontend(self, db_config: DbConfig) -> None:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
+            sql = "SELECT source, target FROM edges"
+            cursor.execute(sql)
+            result_set = cursor.fetchall()
+            return result_set
+
 
 def main():
     db_config = DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")

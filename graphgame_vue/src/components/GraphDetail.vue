@@ -12,6 +12,10 @@
 
 <script>
 
+import VChart, { THEME_KEY } from "vue-echarts";
+import { ref, defineComponent } from "vue";
+import { onMounted } from '@vue/runtime-core';
+
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart } from "echarts/charts";
@@ -21,10 +25,6 @@ import {
   LegendComponent
 } from "echarts/components";
 
-
-import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, defineComponent } from "vue";
-
 use([
   CanvasRenderer,
   PieChart,
@@ -32,7 +32,6 @@ use([
   TooltipComponent,
   LegendComponent
 ]);
-
 
 export default defineComponent({
   name: "GraphDetail",
@@ -43,6 +42,17 @@ export default defineComponent({
     [THEME_KEY]: "dark"
   },
   setup: () => {
+
+    onMounted(async () => {
+      self.nodes = await fetch("http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes")
+        .then(res => res.json()).then(data => data.nodes);
+      console.log("Get nodes: " + self.nodes);
+
+      self.edges = await fetch("http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges")
+        .then(res => res.json()).then(data => data.edges);
+      console.log("Get edges: " + self.edges);
+    });
+
     const option = ref({
       backgroundColor: '#f6f5f3',
       color: [
@@ -75,18 +85,12 @@ export default defineComponent({
         type: 'graph', // 类型设置为关系图
         legendHoverLink: true,  // 可以点击图例来隐藏一个组
         layout: 'force',
-        categories: [
-          { name: '西天取经团队', symbolSize: 60 },
-          { name: '佛法家族', symbolSize: 60 },
-          { name: '道法家族', symbolSize: 60 }
-        ],
         force: {
           repulsion: [1000, 1200], //每个节点之间的斥力因子，越大离的越远
           layoutAnimation: true,
           friction: 0.3, //刷新时节点的移动速度，越大越快，0 - 1 之间
           edgeLength: [100, 130] //两节点之间的距离
         },
-    
         label: {
           show: true, // 节点圆盘上的文字
           fontStyle: 'italic', //文字风格，normal，italic，oblique 三种可选
@@ -118,192 +122,8 @@ export default defineComponent({
           width: 2,
           curveness: 0 //节点连线的曲率，0-1 越大越弯。
         },
-        data: [
-          {
-            name: '玄奘',
-            symbolSize: 80,
-            category: '西天取经团队'
-          },
-          {
-            name: '孙悟空',
-            category: '西天取经团队'
-          },
-          {
-            name: '猪八戒',
-            category: '西天取经团队'
-          },
-          {
-            name: '沙僧',
-            category: '西天取经团队'
-          },
-          {
-            name: '白龙马',
-            category: '西天取经团队'
-          },
-          {
-            name: '如来佛祖',
-            symbolSize: 80,
-            category: '佛法家族'
-          },
-          {
-            name: '观世音菩萨',
-            category: '佛法家族'
-          },
-          {
-            name: '菩提祖师',
-            category: '佛法家族'
-          },
-          {
-            name: '文殊菩萨',
-            category: '佛法家族'
-          },
-          {
-            name: '弥勒佛',
-            category: '佛法家族'
-          },
-          {
-            name: '玉皇大帝',
-            symbolSize: 80,
-            category: '道法家族'
-          },
-          {
-            name: '太上老君',
-            category: '道法家族'
-          },
-          {
-            name: '托塔天王',
-            category: '道法家族'
-          },
-          {
-            name: '王母娘娘',
-            category: '道法家族'
-          },
-          {
-            name: '龙王',
-            category: '道法家族'
-          },
-          {
-            name: '哪吒',
-            category: '道法家族'
-          }
-        ],
-        links: [
-          {
-            source: '玄奘',
-            target: '孙悟空'
-          },
-          {
-            source: '玄奘',
-            target: '猪八戒'
-          },
-          {
-            source: '玄奘',
-            target: '沙僧'
-          },
-          {
-            source: '玄奘',
-            target: '白龙马'
-          },
-          {
-            source: '如来佛祖',
-            target: '文殊菩萨'
-          },
-          {
-            source: '如来佛祖',
-            target: '菩提祖师'
-          },
-          {
-            source: '如来佛祖',
-            target: '弥勒佛'
-          },
-          {
-            source: '如来佛祖',
-            target: '观世音菩萨'
-          },
-          {
-            source: '如来佛祖',
-            target: '孙悟空'
-          },
-          {
-            source: '观世音菩萨',
-            target: '孙悟空'
-          },
-                  {
-            source: '太上老君',
-            target: '孙悟空'
-          },
-                      {
-            source: '龙王',
-            target: '孙悟空'
-          },
-                        {
-            source: '龙王',
-            target: '玄奘'
-          },               {
-            source: '弥勒佛',
-            target: '玄奘'
-          },
-          {
-          source: '菩提祖师',
-            target: '玄奘'
-          },
-          {
-            source: '龙王',
-            target: '白龙马'
-          },
-          {
-            source: '玉皇大帝',
-            target: '王母娘娘'
-          },
-          {
-            source: '玉皇大帝',
-            target: '玄奘'
-          },
-          {
-            source: '托塔天王',
-            target: '哪吒'
-          },
-          {
-            source: '玉皇大帝',
-            target: '太上老君'
-          },
-          {
-            source: '玉皇大帝',
-            target: '托塔天王'
-          },
-          {
-            source: '玉皇大帝',
-            target: '龙王'
-          },
-          {
-            source: '孙悟空',
-            target: '哪吒'
-          },
-          {
-            source: '如来佛祖',
-            target: '玉皇大帝'
-          },
-          {
-            source: '王母娘娘',
-            target: '孙悟空'
-          },
-          {
-            source: '观世音菩萨',
-            target: '孙悟空'
-          },
-          {
-            source: '观世音菩萨',
-            target: '玄奘'
-          },
-          {
-            source: '玉皇大帝',
-            target: '孙悟空'
-          },
-          {
-            source: '如来佛祖',
-            target: '玄奘'
-          }
-        ]
+        data: self.nodes,
+        links: self.edges
     }
     ]
     });

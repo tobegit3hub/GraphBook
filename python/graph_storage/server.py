@@ -43,7 +43,7 @@ for arg in vars(args):
 
 db_config = model.DbConfig("localhost", "root", "wawa316", "cyberpunk_edgerunner")
 graph = model.Graph()
-graph.load_from_db(db_config)
+#graph.load_from_db(db_config)
 
 """
 @app.route('/')
@@ -55,15 +55,13 @@ def index():
 @app.route('/api/<db>/nodes', methods=['GET'])
 @cross_origin()
 def get_nodes(db):
-    print(graph.nodes)
-    result = {"nodes": graph.nodes}
+    result = {"nodes": graph.get_nodes_for_frontend(db_config)}
     return jsonify(result)
 
 @app.route('/api/<db>/edges', methods=['GET'])
 @cross_origin()
 def get_edges(db):
-    print(graph.edges)
-    result = {"edges": graph.edges}
+    result = {"edges": graph.get_edges_for_frontend(db_config)}
     return jsonify(result)
 
 @app.route('/api/<db>/groups', methods=['GET'])
