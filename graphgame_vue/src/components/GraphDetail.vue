@@ -1,19 +1,14 @@
 
 <template>
 
-  <h1>
-    GraphDetail
-  </h1>
+  <h1>GraphDetail</h1>
 
   <v-chart class="chart" :option="option" />
 
 </template>
 
-
 <script>
-
 import VChart, { THEME_KEY } from "vue-echarts";
-
 import axios from 'axios'
 
 import { use } from "echarts/core";
@@ -77,7 +72,7 @@ export default {
           label: {
             show: true, // 节点圆盘上的文字
             fontStyle: 'italic', //文字风格，normal，italic，oblique 三种可选
-            fontSize: 12,
+            fontSize: 16,
             color: '#000000',
           },
           symbolSize: 60, //全局节点尺寸
@@ -91,6 +86,16 @@ export default {
           draggable: true, //节点是否支持鼠标拖拽。
           edgeSymbol: ['circle', 'arrow'],//两节点连线的样式
           edgeSymbolSize: [5, 10],
+          edgeLabel: {
+            show: true,
+            formatter: (params) => {
+              return params.data.relation;
+            },
+            textStyle: {
+              fontSize: 12,
+              color: '#000000'
+            }
+          },
           cursor: 'pointer', //鼠标悬浮时在图形元素上时鼠标的样式
           labelLayout: {
             moveOverlap: 'shiftX', //标签重叠时，挪动标签防止重叠
@@ -163,28 +168,27 @@ export default {
   mounted () {
 
     axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
-        params: {
-          num: -1
-        }
-      }).then(response => {
-          this.nodes = response.data.nodes;
-          console.log("Get nodes: " + this.nodes);
-          // Do not add all nodes at once
-          //this.option.series[0].data.push(...this.nodes)
-      }, response => {
-          console.log("Fail to get nodes");
-      }); 
+      params: {
+        num: -1
+      }
+    }).then(response => {
+        this.nodes = response.data.nodes;
+        console.log("Get nodes: " + this.nodes);
+        // Do not add all nodes at once
+        this.option.series[0].data.push(...this.nodes)
+    }, response => {
+        console.log("Fail to get nodes");
+    }); 
 
-      axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
-          this.edges = response.data.edges;
-          console.log("Get edges: " + this.edges);
-          this.option.series[0].links.push(...this.edges)
-      }, response => {
-          console.log("Fail to get edges");
-      });
+    axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
+        this.edges = response.data.edges;
+        console.log("Get edges: " + this.edges);
+        this.option.series[0].links.push(...this.edges)
+    }, response => {
+        console.log("Fail to get edges");
+    });
 
-
-      this.start_increase_nodes();
+    //this.start_increase_nodes();
   }
 };
 
