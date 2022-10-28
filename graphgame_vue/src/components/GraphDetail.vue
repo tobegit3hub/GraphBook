@@ -46,6 +46,9 @@ export default {
       nodes: [],
       links: [],
 
+      increase_nodes_timer: null,
+      current_node_count: 0,
+
       option: {
         backgroundColor: '#f6f5f3',
         title: {
@@ -110,27 +113,78 @@ export default {
     };
   },
   methods: {
+
+    update_graph() {
+      axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
+        params: {
+          num: this.current_node_count
+        }
+      }).then(response => {
+          this.nodes = response.data.nodes;
+          console.log("Get nodes: " + this.nodes);
+          this.option.series[0].data.push(...this.nodes)
+      }, response => {
+          console.log("Fail to get nodes");
+      }); 
+
+      axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
+          this.edges = response.data.edges;
+          console.log("Get edges: " + this.edges);
+          this.option.series[0].links.push(...this.edges)
+      }, response => {
+          console.log("Fail to get edges");
+      });
+    },
+    
+    start_increase_nodes() {
+      const max_node_count = 9;
+      const add_node_interval = 100;
+
+      this.increase_nodes_timer = setInterval(() => {
+          console.log("Current node count: " + this.current_node_count)
+
+          if (this.current_node_count >= max_node_count) {
+            this.stop_increase_nodes()
+          } else {
+            this.option.series[0].data.push(this.nodes[this.current_node_count]);
+            this.current_node_count += 1;
+          }
+      }, add_node_interval);
+
+    },
+
+    stop_increase_nodes() {
+      clearInterval(this.increase_nodes_timer);
+      this.increase_nodes_timer = null
+      console.log("Stop increase nodes timer")
+    }
+    
   },
   mounted () {
-    axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
-      params: {
-        num: 4
-      }
-    }).then(response => {
-        this.nodes = response.data.nodes;
-        console.log("Get nodes: " + this.nodes);
-        this.option.series[0].data.push(...this.nodes)
-    }, response => {
-        console.log("Fail to get nodes");
-    }); 
 
-    axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
-        this.edges = response.data.edges;
-        console.log("Get edges: " + this.edges);
-        this.option.series[0].links.push(...this.edges)
-    }, response => {
-        console.log("Fail to get edges");
-    });
+    axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
+        params: {
+          num: -1
+        }
+      }).then(response => {
+          this.nodes = response.data.nodes;
+          console.log("Get nodes: " + this.nodes);
+          // Do not add all nodes at once
+          //this.option.series[0].data.push(...this.nodes)
+      }, response => {
+          console.log("Fail to get nodes");
+      }); 
+
+      axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
+          this.edges = response.data.edges;
+          console.log("Get edges: " + this.edges);
+          this.option.series[0].links.push(...this.edges)
+      }, response => {
+          console.log("Fail to get edges");
+      });
+
+
+      this.start_increase_nodes();
   }
 };
 
