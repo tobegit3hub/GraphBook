@@ -57,7 +57,13 @@ export default {
         },
         tooltip: {
           trigger: "item",
-          formatter: "{a} <br/>{b} : {c} ({d}%)"
+          formatter: (param) => {
+              if (param.data.display_name) {
+                return param.data.display_name;
+              } else {
+                return param.data.name;
+              }
+          }
         },
         series: [
         {
