@@ -51,15 +51,11 @@ export default defineComponent({
       self.edges = await fetch("http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges")
         .then(res => res.json()).then(data => data.edges);
       console.log("Get edges: " + self.edges);
+
     });
 
     const option = ref({
       backgroundColor: '#f6f5f3',
-      color: [
-        '#02c9c9',
-        '#bccf3d',
-        '#ffc300'
-      ],
       title: {
         text: "cyberpunk_edgerunner",
         textStyle: {
@@ -73,13 +69,6 @@ export default defineComponent({
         trigger: "item",
         formatter: "{a} <br/>{b} : {c} ({d}%)"
       },
-      legend: [
-        {
-          x: 'right',
-          show: true,
-          data: ['西天取经团队', '佛法家族', '道法家族']
-        }
-      ],
       series: [
       {
         type: 'graph', // 类型设置为关系图
@@ -122,7 +111,7 @@ export default defineComponent({
           width: 2,
           curveness: 0 //节点连线的曲率，0-1 越大越弯。
         },
-        data: self.nodes,
+        data: self.nodes, 
         links: self.edges
     }
     ]
