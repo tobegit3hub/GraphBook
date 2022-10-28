@@ -13,8 +13,6 @@
 <script>
 
 import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, defineComponent } from "vue";
-import { onMounted, onUpdated } from '@vue/runtime-core';
 
 import axios from 'axios'
 
@@ -35,7 +33,7 @@ use([
   LegendComponent
 ]);
 
-export default defineComponent({
+export default {
   name: "GraphDetail",
   components: {
     VChart
@@ -43,135 +41,98 @@ export default defineComponent({
   provide: {
     [THEME_KEY]: "dark"
   },
-  setup: () => {
+  data() {
+    return {
+      nodes: [],
+      links: [],
 
-    onMounted(async () => {
-      self.node_count = 1;
-      console.log(self.node_count)
-
-      await axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
-        params: {
-          num: 6
-        }
-      }).then(response => {
-          self.nodes = response.data.nodes;
-          console.log("Get nodes: " + self.nodes);
-      }, response => {
-          console.log("error");
-      });
-
-      await axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
-          self.edges = response.data.edges;
-          console.log("Get edges: " + self.edges);
-      }, response => {
-          console.log("error");
-      });
-
-      /*
-      self.nodes = await fetch("http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes")
-        .then(res => res.json()).then(data => data.nodes);
-      console.log("Get nodes: " + self.nodes);
-
-      self.edges = await fetch("http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges")
-        .then(res => res.json()).then(data => data.edges);
-      console.log("Get edges: " + self.edges);
-      */
-
-    });
-
-    onUpdated(() => {
-      // text content should be the same as current `count.value`  
-      console.log("call on updated")
-      
-    })
-
-    const option = ref({
-      backgroundColor: '#f6f5f3',
-      title: {
-        text: "cyberpunk_edgerunner",
-        textStyle: {
-          color: '#368cbf',
-          fontWeight: 700,
-          fontSize: 30,
-          left: 'center'
-        }
-      },
-      tooltip: {
-        trigger: "item",
-        formatter: "{a} <br/>{b} : {c} ({d}%)"
-      },
-      series: [
-      {
-        type: 'graph', // 类型设置为关系图
-        layout: 'force',
-        force: {
-          repulsion: [1000, 1200], //每个节点之间的斥力因子，越大离的越远
-          layoutAnimation: true,
-          friction: 0.3, //刷新时节点的移动速度，越大越快，0 - 1 之间
-          edgeLength: [100, 130] //两节点之间的距离
+      option: {
+        backgroundColor: '#f6f5f3',
+        title: {
+          text: "cyberpunk_edgerunner",
+          textStyle: {
+            color: '#368cbf',
+            fontWeight: 700,
+            fontSize: 30,
+            left: 'center'
+          }
         },
-        label: {
-          show: true, // 节点圆盘上的文字
-          fontStyle: 'italic', //文字风格，normal，italic，oblique 三种可选
-          fontSize: 12,
-          color: '#000000',
+        tooltip: {
+          trigger: "item",
+          formatter: "{a} <br/>{b} : {c} ({d}%)"
         },
-        symbolSize: 60, //全局节点尺寸
-        itemStyle: {  // 给节点加上阴影，显着立体
-          shadowColor: '#C0C0C0', 
-          shadowOffsetX: 2,
-          shadowOffsetY: 2
-        },
-          //让节点可以通过鼠标拖拽和移动的设置
-        roam: true, //开启鼠标平移及缩放
-        draggable: true, //节点是否支持鼠标拖拽。
-        edgeSymbol: ['circle', 'arrow'],//两节点连线的样式
-        edgeSymbolSize: [5, 10],
-        cursor: 'pointer', //鼠标悬浮时在图形元素上时鼠标的样式
-        labelLayout: {
-          moveOverlap: 'shiftX', //标签重叠时，挪动标签防止重叠
-          draggable: true //节点标签是否允许鼠标拖拽定位
-        },
-        emphasis: {
-          scale: true, //节点放大效果
-          focus: 'adjacency'
-        },
-        lineStyle: {
-          color: '#3d3d3f',
-          width: 2,
-          curveness: 0 //节点连线的曲率，0-1 越大越弯。
-        },
-        roam: true,
-        data: self.nodes,
-        links: self.edges
-    }]
-    });
-
-/*
-    setInterval(function () {
-      if (self.node_num >= 10) {
-        return
+        series: [
+        {
+          type: 'graph', // 类型设置为关系图
+          layout: 'force',
+          force: {
+            repulsion: [1000, 1200], //每个节点之间的斥力因子，越大离的越远
+            layoutAnimation: true,
+            friction: 0.3, //刷新时节点的移动速度，越大越快，0 - 1 之间
+            edgeLength: [100, 130] //两节点之间的距离
+          },
+          label: {
+            show: true, // 节点圆盘上的文字
+            fontStyle: 'italic', //文字风格，normal，italic，oblique 三种可选
+            fontSize: 12,
+            color: '#000000',
+          },
+          symbolSize: 60, //全局节点尺寸
+          itemStyle: {  // 给节点加上阴影，显着立体
+            shadowColor: '#C0C0C0', 
+            shadowOffsetX: 2,
+            shadowOffsetY: 2
+          },
+            //让节点可以通过鼠标拖拽和移动的设置
+          roam: true, //开启鼠标平移及缩放
+          draggable: true, //节点是否支持鼠标拖拽。
+          edgeSymbol: ['circle', 'arrow'],//两节点连线的样式
+          edgeSymbolSize: [5, 10],
+          cursor: 'pointer', //鼠标悬浮时在图形元素上时鼠标的样式
+          labelLayout: {
+            moveOverlap: 'shiftX', //标签重叠时，挪动标签防止重叠
+            draggable: true //节点标签是否允许鼠标拖拽定位
+          },
+          emphasis: {
+            scale: true, //节点放大效果
+            focus: 'adjacency'
+          },
+          lineStyle: {
+            color: '#3d3d3f',
+            width: 2,
+            curveness: 0 //节点连线的曲率，0-1 越大越弯。
+          },
+          roam: true,
+          data: [],
+          links: []
+      }]
+    }
+    };
+  },
+  methods: {
+  },
+  mounted () {
+    axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
+      params: {
+        num: 4
       }
-      self.node_num += 1 
+    }).then(response => {
+        this.nodes = response.data.nodes;
+        console.log("Get nodes: " + this.nodes);
+        this.option.series[0].data.push(...this.nodes)
+    }, response => {
+        console.log("Fail to get nodes");
+    }); 
 
-      //console.log(self.node_num)
-
-      axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
-        params: {
-          num: self.node_num 
-        }
-      }).then(response => {
-          self.nodes = response.data.nodes; 
-          console.log(self.node_num)
-          console.log(response.data.nodes);
-      }, response => {
-          console.log("error");
-      });
-    }, 200);
-*/
-    return { option };
+    axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
+        this.edges = response.data.edges;
+        console.log("Get edges: " + this.edges);
+        this.option.series[0].links.push(...this.edges)
+    }, response => {
+        console.log("Fail to get edges");
+    });
   }
-});
+};
 
 </script>
 
