@@ -14,7 +14,9 @@
 
 import VChart, { THEME_KEY } from "vue-echarts";
 import { ref, defineComponent } from "vue";
-import { onMounted } from '@vue/runtime-core';
+import { onMounted, onUpdated } from '@vue/runtime-core';
+
+import axios from 'axios'
 
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
@@ -44,6 +46,28 @@ export default defineComponent({
   setup: () => {
 
     onMounted(async () => {
+      self.node_count = 1;
+      console.log(self.node_count)
+
+      await axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
+        params: {
+          num: 6
+        }
+      }).then(response => {
+          self.nodes = response.data.nodes;
+          console.log("Get nodes: " + self.nodes);
+      }, response => {
+          console.log("error");
+      });
+
+      await axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
+          self.edges = response.data.edges;
+          console.log("Get edges: " + self.edges);
+      }, response => {
+          console.log("error");
+      });
+
+      /*
       self.nodes = await fetch("http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes")
         .then(res => res.json()).then(data => data.nodes);
       console.log("Get nodes: " + self.nodes);
@@ -51,8 +75,15 @@ export default defineComponent({
       self.edges = await fetch("http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges")
         .then(res => res.json()).then(data => data.edges);
       console.log("Get edges: " + self.edges);
+      */
 
     });
+
+    onUpdated(() => {
+      // text content should be the same as current `count.value`  
+      console.log("call on updated")
+      
+    })
 
     const option = ref({
       backgroundColor: '#f6f5f3',
@@ -72,7 +103,6 @@ export default defineComponent({
       series: [
       {
         type: 'graph', // 类型设置为关系图
-        legendHoverLink: true,  // 可以点击图例来隐藏一个组
         layout: 'force',
         force: {
           repulsion: [1000, 1200], //每个节点之间的斥力因子，越大离的越远
@@ -111,12 +141,34 @@ export default defineComponent({
           width: 2,
           curveness: 0 //节点连线的曲率，0-1 越大越弯。
         },
-        data: self.nodes, 
+        roam: true,
+        data: self.nodes,
         links: self.edges
-    }
-    ]
+    }]
     });
 
+/*
+    setInterval(function () {
+      if (self.node_num >= 10) {
+        return
+      }
+      self.node_num += 1 
+
+      //console.log(self.node_num)
+
+      axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
+        params: {
+          num: self.node_num 
+        }
+      }).then(response => {
+          self.nodes = response.data.nodes; 
+          console.log(self.node_num)
+          console.log(response.data.nodes);
+      }, response => {
+          console.log("error");
+      });
+    }, 200);
+*/
     return { option };
   }
 });
