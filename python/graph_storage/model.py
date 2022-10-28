@@ -83,7 +83,7 @@ class Graph:
                 self.add_group(group)
                 logging.info("Load group: {}".format(group))
 
-    def get_nodes_for_frontend(self, db_config: DbConfig) -> None:
+    def get_nodes_for_frontend(self, db_config: DbConfig, limit_num: int=-1) -> None:
         connection = pymysql.connect(host=db_config.host,
                                     user=db_config.user,
                                     password=db_config.password,
@@ -91,8 +91,13 @@ class Graph:
                                     cursorclass=pymysql.cursors.DictCursor)
                                             
         with connection.cursor() as cursor:
-            sql = "SELECT name FROM nodes"
-            cursor.execute(sql)
+            if limit_num > 0:
+                sql = "SELECT name FROM nodes ORDER BY id LIMIT %s".format()
+                cursor.execute(sql, (limit_num))
+            else:
+                sql = "SELECT name FROM nodes"
+                cursor.execute(sql)
+            
             result_set = cursor.fetchall()
             return result_set
 
