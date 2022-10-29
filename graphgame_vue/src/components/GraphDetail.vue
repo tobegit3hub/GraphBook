@@ -39,7 +39,7 @@ export default {
   data() {
     return {
       nodes: [],
-      links: [],
+      edges: [],
 
       increase_nodes_timer: null,
       current_node_count: 0,
@@ -125,28 +125,6 @@ export default {
   },
   methods: {
 
-    update_graph() {
-      axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
-        params: {
-          num: this.current_node_count
-        }
-      }).then(response => {
-          this.nodes = response.data.nodes;
-          console.log("Get nodes: " + this.nodes);
-          this.option.series[0].data.push(...this.nodes)
-      }, response => {
-          console.log("Fail to get nodes");
-      }); 
-
-      axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
-          this.edges = response.data.edges;
-          console.log("Get edges: " + this.edges);
-          this.option.series[0].links.push(...this.edges)
-      }, response => {
-          console.log("Fail to get edges");
-      });
-    },
-    
     start_increase_nodes() {
       const max_node_count = 9;
       const add_node_interval = 100;
@@ -168,9 +146,113 @@ export default {
       clearInterval(this.increase_nodes_timer);
       this.increase_nodes_timer = null
       console.log("Stop increase nodes timer")
-    }
+    },
     
+    
+    getImgData(imgSrc) {
+ 
+      var fun = function (resolve) {
+          const canvas = document.createElement('canvas');
+          const contex = canvas.getContext('2d');
+          const img = new Image();
+          img.crossOrigin = '';
+
+          img.onload = function () {
+              //设置图形宽高比例
+              var center = {
+                  x: img.width / 2,
+                  y: img.height / 2
+              }
+              var diameter = img.width;//半径
+              canvas.width = diameter;
+              canvas.height = diameter;
+              contex.clearRect(0, 0, diameter, diameter);
+              contex.save();
+              contex.beginPath();
+              var radius = img.width / 2;
+              contex.arc(radius, radius, radius, 0, 2 * Math.PI); //画出圆
+              contex.clip(); //裁剪上面的圆形
+              contex.drawImage(img, center.x - radius, center.y - radius, diameter, diameter, 0, 0,
+                  diameter, diameter); // 在刚刚裁剪的园上画图
+              contex.restore(); // 还原状态
+              resolve(canvas.toDataURL('image/png', 1))
+          }
+          img.src = imgSrc;
+      }
+
+      var promise = new Promise(fun);
+
+      return promise
+    },
+
+    getImgData2(imgSrc, callback) {
+          const canvas = document.createElement('canvas');
+          const contex = canvas.getContext('2d');
+          const img = new Image();
+          img.crossOrigin = '';
+
+          img.onload = function() {
+
+            //设置图形宽高比例
+            const center = {
+                x: img.width / 2,
+                y: img.height / 2
+            }
+            var diameter = img.width;//半径
+            canvas.width = diameter;
+            canvas.height = diameter;
+            contex.clearRect(0, 0, diameter, diameter);
+            contex.save();
+            contex.beginPath();    
+            const radius = img.width / 2;
+            contex.arc(radius, radius, radius, 0, 2 * Math.PI); //画出圆
+            contex.clip(); //裁剪上面的圆形
+            contex.drawImage(img, center.x - radius, center.y - radius, diameter, diameter, 0, 0,
+                diameter, diameter); // 在刚刚裁剪的园上画图
+            contex.restore(); // 还原状态
+            const result =  "image://" + canvas.toDataURL('image/png', 0.1);
+
+            callback(result);
+
+          }
+
+          img.src = imgSrc;
+      }
   },
+
+  update_image_func(images) {
+    console.log("call update image func");
+
+     var symbol;
+      for (var i = 0; i < images.length; i++) {
+                    var img = "image://" + images[i];
+                    console.log(img);
+                    //androidMap[i].symbol = img;
+                    response.data.nodes[0]["symbol"] = img;
+                    symbol = img;
+                    
+
+                }
+
+                response.data.nodes[0]["symbol"] = symbol;
+
+                console.log('abcdefg');
+                console.log(symbol)
+
+                this.option.series[0].data.push(...response.data.nodes);
+        
+    },
+
+    my_callback(that, result){ 
+      console.log("Get callback result");
+      console.log(result);
+      response.data.nodes[0]["symbol"] = result;
+      console.log(that.nodes);
+      console.log(that.option);
+//      this.option.series[0].data.push(...response.data.nodes);
+//      response.data.nodes[0]["symbol"] = 'image://data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7';
+    },
+  
   mounted () {
 
     axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
@@ -181,7 +263,21 @@ export default {
         this.nodes = response.data.nodes;
         console.log("Get nodes: " + this.nodes);
         // Do not add all nodes at once
-        this.option.series[0].data.push(...this.nodes)
+//        this.option.series[0].data.push(...response.data.nodes);
+
+    const test_image_path = "http://localhost:7788/images/cyberpunk_edgerunner/david.png";
+
+    const vue_this = this;
+    this.getImgData2(test_image_path, function(result){ 
+      console.log("Get callback result");
+      console.log(result);
+      response.data.nodes[0]["symbol"] = result;
+
+      vue_this.option.series[0].data.push(...response.data.nodes);
+    })
+
+      //this.option.series[0].data.push(...response.data.nodes);
+
     }, response => {
         console.log("Fail to get nodes");
     }); 
@@ -195,6 +291,7 @@ export default {
     });
 
     //this.start_increase_nodes();
+
   }
 };
 

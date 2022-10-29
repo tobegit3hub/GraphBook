@@ -92,10 +92,10 @@ class Graph:
                                             
         with connection.cursor() as cursor:
             if limit_num > 0:
-                sql = "SELECT name FROM nodes ORDER BY id LIMIT %s".format()
+                sql = "SELECT name, display_name FROM nodes ORDER BY id LIMIT %s".format()
                 cursor.execute(sql, (limit_num))
             else:
-                sql = "SELECT name FROM nodes"
+                sql = "SELECT name, display_name FROM nodes"
                 cursor.execute(sql)
             
             result_set = cursor.fetchall()
@@ -109,7 +109,7 @@ class Graph:
                                     cursorclass=pymysql.cursors.DictCursor)
                                             
         with connection.cursor() as cursor:
-            sql = "SELECT source, target FROM edges"
+            sql = "SELECT source, target, relation FROM edges"
             cursor.execute(sql)
             result_set = cursor.fetchall()
             return result_set
