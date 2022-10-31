@@ -56,13 +56,14 @@ def index():
 @cross_origin()
 def get_nodes(db):
     num = request.args.get('num', default = -1, type = int)
-    result = {"nodes": graph.get_nodes_for_frontend(db_config, num)}
+    result = {"nodes": graph.get_nodes_for_frontend(db_config, db, num)}
     return jsonify(result)
 
 @app.route('/api/<db>/edges', methods=['GET'])
 @cross_origin()
 def get_edges(db):
-    result = {"edges": graph.get_edges_for_frontend(db_config)}
+    print("Get edges from db: " + db);
+    result = {"edges": graph.get_edges_for_frontend(db_config, db)}
     return jsonify(result)
 
 @app.route('/api/<db>/groups', methods=['GET'])

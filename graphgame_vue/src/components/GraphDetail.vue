@@ -38,6 +38,10 @@ export default {
   },
   data() {
     return {
+      dbName: "cyberpunk_edgerunner",
+//      dbName: "pantheon",
+      dynamicNodeWeight: false,
+
       nodes: [],
       edges: [],
 
@@ -47,7 +51,7 @@ export default {
       option: {
         backgroundColor: '#f6f5f3',
         title: {
-          text: "cyberpunk_edgerunner",
+          text: "cyberpunk_edgerunner",//this.db_name,
           textStyle: {
             color: '#368cbf',
             fontWeight: 700,
@@ -88,7 +92,7 @@ export default {
             shadowOffsetY: 2
           },
             //让节点可以通过鼠标拖拽和移动的设置
-          roam: true, //开启鼠标平移及缩放
+          roam: false, //开启鼠标平移及缩放
           draggable: true, //节点是否支持鼠标拖拽。
           edgeSymbol: ['circle', 'arrow'],//两节点连线的样式
           edgeSymbolSize: [5, 10],
@@ -97,15 +101,13 @@ export default {
             formatter: (params) => {
               return params.data.relation;
             },
-            textStyle: {
-              fontSize: 12,
-              color: '#000000'
-            }
+            fontSize: 12,
+            color: '#000000'
           },
           cursor: 'pointer', //鼠标悬浮时在图形元素上时鼠标的样式
           labelLayout: {
             moveOverlap: 'shiftX', //标签重叠时，挪动标签防止重叠
-            draggable: true //节点标签是否允许鼠标拖拽定位
+            draggable: false //节点标签是否允许鼠标拖拽定位
           },
           emphasis: {
             scale: true, //节点放大效果
@@ -116,7 +118,6 @@ export default {
             width: 2,
             curveness: 0 //节点连线的曲率，0-1 越大越弯。
           },
-          roam: true,
           data: [],
           links: []
       }]
@@ -183,35 +184,40 @@ export default {
       }
   },
   
-  mounted () {
+  mounted() {
 
-    axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/nodes', {
+    axios.get(`http://127.0.0.1:7788/api/${this.dbName}/nodes`, {
       params: {
         num: -1
       }
     }).then(response => {
-        this.nodes = response.data.nodes;
-        console.log("Get nodes: " + this.nodes);
-        // Do not add all nodes at once
-        //this.option.series[0].data.push(...response.data.nodes);
+      const vue_this = this;
 
-    const test_image_path = "http://localhost:7788/images/cyberpunk_edgerunner/david.png";
+      this.nodes = response.data.nodes;
+      console.log("Get nodes: " + this.nodes);
 
-    const vue_this = this;
-    this.asyncCropImage(test_image_path, function(result){ 
-      console.log("Get callback result");
-      console.log(result);
+      this.nodes.forEach(function(node, index, array) {
+        if (vue_this.dynamicNodeWeight) {
+          // Update symbol size for node
+          response.data.nodes[index]["symbolSize"] = node.weight * 700;
+        }
 
-      vue_this.option.series[0].data[0]["symbol"] = result;
-    })
+        // Get image and crop for node
+        const test_image_path = `http://localhost:7788/images/${vue_this.dbName}/${node.name}.png`;
+        vue_this.asyncCropImage(test_image_path, function(result){
+          // TODO: Handle if can not load image
+          vue_this.option.series[0].data[index]["symbol"] = result;
+        })
+      });
 
+      // Comment out if do not add all nodes at once
       this.option.series[0].data.push(...response.data.nodes);
 
     }, response => {
         console.log("Fail to get nodes");
     }); 
 
-    axios.get('http://127.0.0.1:7788/api/cyberpunk_edgerunner/edges').then(response => {
+    axios.get(`http://127.0.0.1:7788/api/${this.dbName}/edges`).then(response => {
         this.edges = response.data.edges;
         console.log("Get edges: " + this.edges);
         this.option.series[0].links.push(...this.edges)
