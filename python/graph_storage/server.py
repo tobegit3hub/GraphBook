@@ -62,16 +62,14 @@ def get_nodes(db):
 @app.route('/api/<db>/edges', methods=['GET'])
 @cross_origin()
 def get_edges(db):
-    print("Get edges from db: " + db);
     result = {"edges": graph.get_edges_for_frontend(db_config, db)}
     return jsonify(result)
 
 @app.route('/api/<db>/groups', methods=['GET'])
 @cross_origin()
 def get_groups(db):
-    print(graph.groups)
-    result = {"groups": graph.groups}
-    return jsonify(result)    
+    result = {"groups": graph.get_groups_for_frontend(db_config, db)}
+    return jsonify(result)
 
 def main():
   # Start web browser if possible

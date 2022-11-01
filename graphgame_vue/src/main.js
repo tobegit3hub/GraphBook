@@ -5,8 +5,8 @@ import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
 
 function useTable (app) {
-    app.use(VXETable)
-  }
+  app.use(VXETable)
+}
 
 //import './assets/main.css'
 

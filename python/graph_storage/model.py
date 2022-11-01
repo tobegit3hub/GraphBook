@@ -114,6 +114,18 @@ class Graph:
             result_set = cursor.fetchall()
             return result_set
 
+    def get_groups_for_frontend(self, db_config: DbConfig, db: str) -> None:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM {}.teams".format(db)
+            cursor.execute(sql)
+            result_set = cursor.fetchall()
+            return result_set
 
 def main():
     db_config = DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")
