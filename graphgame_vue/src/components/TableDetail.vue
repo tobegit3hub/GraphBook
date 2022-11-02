@@ -62,13 +62,11 @@ export default defineComponent({
     let edges = ref([]);
     let groups = ref([]);
 
-
-
     const nodesGridTable = ref<VxeGridInstance>()
     const nodesTableOptions = reactive<VxeGridProps>({
       border: true,
       keepSource: true,
-      id: 'toolbar_demo_1',
+      id: 'node_table',
       height: 530,
       printConfig: {},
       importConfig: {},
@@ -85,34 +83,25 @@ export default defineComponent({
         showStatus: true
       },
       columns: [
-        { field: 'id', title: 'Id', slots: { edit: 'id_edit' } },
-        { field: 'name', title: 'Name', slots: { edit: 'name_edit' } },
-        { field: 'display_name', title: 'Display Name', slots: { edit: 'display_name_edit' } },
-        { field: 'note', title: 'Note', slots: { edit: 'note_edit' } },
-        { field: 'weight', title: 'Weight', slots: { edit: 'weight_edit' } }
+        { type: 'checkbox', width: 50 },
+        { field: 'id', title: 'Id', editRender: {}, slots: { edit: 'id_edit' } },
+        { field: 'name', title: 'Name', editRender: {}, slots: { edit: 'name_edit' } },
+        { field: 'display_name', title: 'Display Name', editRender: {}, slots: { edit: 'display_name_edit' } },
+        { field: 'note', title: 'Note', editRender: {}, slots: { edit: 'note_edit' } },
+        { field: 'weight', title: 'Weight', editRender: {}, slots: { edit: 'weight_edit' } }
       ],
       toolbarConfig: {
         buttons: [
-          { code: 'myInsert', name: 'New', status: 'primary' },
-          { code: 'mySave', name: 'Save', status: 'success' },
+          { code: 'insertButton', name: 'New', status: 'primary' },
+          { code: 'saveButton', name: 'Save', status: 'success' },
+          { code: 'deleteButton', name: 'Delete', status: "warning" },
         ],
-        import: true,
+        import: false, // TODO: Support and test
         export: true,
         zoom: true,
-        custom: true
+        custom: true,
+        refresh: true
       },
-      /*
-      data: [
-      {
-        "display_name": "David Martinez", 
-        "name": "david", 
-        "weight": 0.238291
-      }, 
-      {
-        "display_name": "Lucy", 
-        "name": "lucy", 
-        "weight": 0.123158
-      }]*/
       data: []
     })
 
@@ -120,36 +109,38 @@ export default defineComponent({
       toolbarButtonClick ({ code }) {
         const $grid = nodesGridTable.value
         switch (code) {
-          case 'myInsert': {
+          case 'insertButton': {
             $grid.insert({
-              
             })
             break
           }
-          case 'mySave': {
+          case 'saveButton': {
             const { insertRecords, removeRecords, updateRecords } = $grid.getRecordset()
-            VXETable.modal.message({ content: `新增 ${insertRecords.length} 条，删除 ${removeRecords.length} 条，更新 ${updateRecords.length} 条`, status: 'success' })
-            break
-          }
-          case 'myExport': {
-            $grid.exportData({
-              type: 'csv'
+            VXETable.modal.message({ content: `Add ${insertRecords.length} rows, delete ${removeRecords.length} rows, update ${updateRecords.length} rows`, status: 'success' })
+
+            console.log('tobetest');
+            console.log(insertRecords.length);
+            console.log(updateRecords.length);
+
+            axios.post(`http://127.0.0.1:7788/api/${dbName.value}/nodes`, {
+              insert_nodes: insertRecords,
+              update_nodes: updateRecords
             })
+            .then(function (response) {
+              console.log(response);
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+
             break
           }
-        }
-      },
-      toolbarToolClick ({ code }) {
-        const $grid = nodesGridTable.value
-        switch (code) {
-          case 'myPrint': {
-            $grid.print()
-            break
+          case 'saveButton': {
+
           }
         }
       }
     }
-
 
     onMounted(() => {
 
@@ -179,8 +170,6 @@ export default defineComponent({
           console.log(error);
         });
     })
-
-
 
 
     return {
