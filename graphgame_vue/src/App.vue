@@ -4,9 +4,7 @@ import TableDetail from './components/TableDetail.vue';
 </script>
 
 <template>
-    <TableDetail></TableDetail>
+    <!-- <GraphDetail></GraphDetail> -->
+    <TableDetail db-name="cyberpunk_edgerunner"></TableDetail>
 
-    <GraphDetail></GraphDetail>
-
-    
 </template>

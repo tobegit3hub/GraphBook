@@ -54,13 +54,13 @@ import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-t
 export default defineComponent({
   name: "TableDetail",
   props: {
-    page_name: String,
+    dbName: String,
   },
-  setup () {
-    const dbName = ref("cyberpunk_edgerunner");
+  setup (props) {
     let nodes = ref([]);
     let edges = ref([]);
     let groups = ref([]);
+
 
     const nodesGridTable = ref<VxeGridInstance>()
     const nodesTableOptions = reactive<VxeGridProps>({
@@ -122,7 +122,7 @@ export default defineComponent({
             console.log(insertRecords.length);
             console.log(updateRecords.length);
 
-            axios.post(`http://127.0.0.1:7788/api/${dbName.value}/nodes`, {
+            axios.post(`http://127.0.0.1:7788/api/${props.dbName.value}/nodes`, {
               insert_nodes: insertRecords,
               update_nodes: updateRecords
             })
@@ -144,7 +144,7 @@ export default defineComponent({
 
     onMounted(() => {
 
-      axios.get(`http://127.0.0.1:7788/api/${dbName.value}/nodes`)
+      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`)
         .then(response => {
           nodes.value = response.data.nodes;
 
@@ -154,7 +154,7 @@ export default defineComponent({
           console.log(error);
         });
 
-      axios.get(`http://127.0.0.1:7788/api/${dbName.value}/edges`)
+      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/edges`)
         .then(response => {
           edges.value = response.data.edges;
         })
@@ -162,7 +162,7 @@ export default defineComponent({
           console.log(error);
         });
 
-      axios.get(`http://127.0.0.1:7788/api/${dbName.value}/groups`)
+      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/groups`)
         .then(response => {
           groups.value = response.data.groups;
         })
