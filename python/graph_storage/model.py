@@ -184,6 +184,35 @@ class Graph:
 
         connection.commit()
 
+    def update_groups(self, db_config: DbConfig, db: str, insert_groups: array, update_groups: array, delete_groups: array) -> None:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
+            if len(insert_groups) > 0:
+                sql = "INSERT INTO {}.teams (group_name, node_name) VALUES (%s, %s)".format(db);
+                insert_groups_data = [(insert_group["group_name"], insert_group["node_name"]) for insert_group in insert_groups]
+                print("Try to execute sql: {}, data: {}".format(sql, insert_groups_data))
+                cursor.executemany(sql, insert_groups_data)
+
+            for update_group in update_groups:
+                sql = "UPDATE {}.teams SET group_name=%s, node_name=%s WHERE id=%s".format(db)
+                update_groups_data = (update_group["group_name"], update_group["node_name"], update_group["id"])
+                print("Try to execute sql: {}, data: {}".format(sql, update_groups_data))
+                cursor.execute(sql, update_groups_data)
+
+            if len(delete_groups) > 0:
+                sql = "DELETE FROM {}.teams WHERE id=%s".format(db);
+                delete_groups_data = [(delete_group["id"]) for delete_group in delete_groups]
+                print("Try to execute sql: {}, data: {}".format(sql, delete_groups_data))
+                cursor.executemany(sql, delete_groups_data)
+
+        connection.commit()
+
+
 def main():
     db_config = DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")
     graph = Graph()

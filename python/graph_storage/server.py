@@ -79,13 +79,18 @@ def get_edges(db):
         graph.update_edges(db_config, db, insert_edges, update_edges, delete_edges)
         return jsonify({"code": 0})
 
-
-@app.route('/api/<db>/groups', methods=['GET'])
+@app.route('/api/<db>/groups', methods=['GET', 'POST'])
 @cross_origin()
 def get_groups(db):
-    result = {"groups": graph.get_groups_for_frontend(db_config, db)}
-    return jsonify(result)
-
+    if request.method == "GET":
+        result = {"groups": graph.get_groups_for_frontend(db_config, db)}
+        return jsonify(result)
+    elif request.method == "POST":
+        insert_groups = request.json["insert_groups"]
+        update_groups = request.json["update_groups"]
+        delete_groups = request.json["delete_groups"]
+        graph.update_groups(db_config, db, insert_groups, update_groups, delete_groups)
+        return jsonify({"code": 0})
 
 
 def main():
