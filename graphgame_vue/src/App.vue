@@ -6,10 +6,10 @@ import GroupsTable from './components/GroupsTable.vue';
 </script>
 
 <template>
-    <GraphDetail></GraphDetail>
-
+    <GraphDetail db-name="cyberpunk_edgerunner"></GraphDetail>
+<!--
     <NodesTable db-name="cyberpunk_edgerunner"></NodesTable>
     <EdgesTable db-name="cyberpunk_edgerunner"></EdgesTable>
     <GroupsTable db-name="cyberpunk_edgerunner"></GroupsTable>
-
+-->
 </template>

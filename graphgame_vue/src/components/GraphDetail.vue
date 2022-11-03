@@ -8,7 +8,8 @@
 </template>
 
 <script>
-import VChart, { THEME_KEY } from "vue-echarts";
+import { defineComponent, ref, onMounted} from 'vue'
+
 import axios from 'axios'
 
 import { use } from "echarts/core";
@@ -19,6 +20,7 @@ import {
   TooltipComponent,
   LegendComponent
 } from "echarts/components";
+import VChart, { THEME_KEY } from "vue-echarts";
 
 use([
   CanvasRenderer,
@@ -28,27 +30,28 @@ use([
   LegendComponent
 ]);
 
-export default {
+export default defineComponent({
   name: "GraphDetail",
+  props: {
+    dbName: String,
+  },
   components: {
     VChart
   },
   provide: {
     [THEME_KEY]: "dark"
   },
-  data() {
-    return {
-      dbName: "cyberpunk_edgerunner",
-//      dbName: "pantheon",
-      dynamicNodeWeight: false,
+  setup (props) {
 
-      nodes: [],
-      edges: [],
+      const dynamicNodeWeight = false;
 
-      increase_nodes_timer: null,
-      current_node_count: 0,
+      let nodes = ref([]);
+      let edges = ref([]);
 
-      option: {
+      let increase_nodes_timer = null;
+      let current_node_count = 0;
+
+      const option = ref({
         backgroundColor: '#f6f5f3',
         title: {
           text: "cyberpunk_edgerunner",//this.db_name,
@@ -120,13 +123,10 @@ export default {
           },
           data: [],
           links: []
-      }]
-    }
-    };
-  },
-  methods: {
+        }]
+      })
 
-    startIncreaseNodes() {
+    const startIncreaseNodes = () => {
       const max_node_count = 9;
       const add_node_interval = 100;
 
@@ -141,15 +141,15 @@ export default {
           }
       }, add_node_interval);
 
-    },
+    }
 
-    stopIncreaseNodes() {
+    const stopIncreaseNodes = () => {
       clearInterval(this.increase_nodes_timer);
       this.increase_nodes_timer = null
       console.log("Stop increase nodes timer")
-    },
-    
-    asyncCropImage(imgSrc, callback) {
+    }
+
+    const asyncCropImage = (imgSrc, callback) => {
           const canvas = document.createElement('canvas');
           const contex = canvas.getContext('2d');
           const img = new Image();
@@ -182,53 +182,61 @@ export default {
 
           img.src = imgSrc;
       }
-  },
-  
-  mounted() {
 
-    axios.get(`http://127.0.0.1:7788/api/${this.dbName}/nodes`, {
-      params: {
-        num: -1
-      }
-    }).then(response => {
-      const vue_this = this;
 
-      this.nodes = response.data.nodes;
-      console.log("Get nodes: " + this.nodes);
-
-      this.nodes.forEach(function(node, index, array) {
-        if (vue_this.dynamicNodeWeight) {
-          // Update symbol size for node
-          response.data.nodes[index]["symbolSize"] = node.weight * 700;
+    onMounted(() => {
+        axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
+        params: {
+          num: -1
         }
+      }).then(response => {
+        const vue_this = this;
 
-        // Get image and crop for node
-        const test_image_path = `http://localhost:7788/images/${vue_this.dbName}/${node.name}.png`;
-        vue_this.asyncCropImage(test_image_path, function(result){
-          // TODO: Handle if can not load image
-          vue_this.option.series[0].data[index]["symbol"] = result;
-        })
+        nodes.value = response.data.nodes;
+        console.log("Get nodes: " + nodes.value);
+
+        
+        nodes.value.forEach(function(node, index, array) {
+          
+          if (dynamicNodeWeight) {
+            // Update symbol size for node
+            response.data.nodes[index]["symbolSize"] = node.weight * 700;
+          }
+          
+          // Get image and crop for node
+          const test_image_path = `http://localhost:7788/images/${props.dbName}/${node.name}.png`;
+          asyncCropImage(test_image_path, function(result){
+            // TODO: Handle if can not load image
+            option.value.series[0].data[index]["symbol"] = result;
+          })
+        });
+
+        // Comment out if do not add all nodes at once
+        option.value.series[0].data.push(...response.data.nodes);
+
+      }, response => {
+          console.log("Fail to get nodes");
+      }); 
+
+      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/edges`).then(response => {
+          edges.value = response.data.edges;
+          console.log("Get edges: " + edges.value);
+          option.value.series[0].links.push(...response.data.edges);
+      }, response => {
+          console.log("Fail to get edges");
       });
 
-      // Comment out if do not add all nodes at once
-      this.option.series[0].data.push(...response.data.nodes);
+      //this.startIncreaseNodes();
+    })
 
-    }, response => {
-        console.log("Fail to get nodes");
-    }); 
-
-    axios.get(`http://127.0.0.1:7788/api/${this.dbName}/edges`).then(response => {
-        this.edges = response.data.edges;
-        console.log("Get edges: " + this.edges);
-        this.option.series[0].links.push(...this.edges)
-    }, response => {
-        console.log("Fail to get edges");
-    });
-
-    //this.startIncreaseNodes();
+    return {
+      option,
+      nodes,
+      edges
+    }
 
   }
-};
+})
 
 </script>
 
