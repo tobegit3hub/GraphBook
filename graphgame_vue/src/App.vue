@@ -1,10 +1,10 @@
 <script setup>
 import GraphDetail from './components/GraphDetail.vue';
-import TableDetail from './components/TableDetail.vue';
+import NodesTable from './components/NodesTable.vue';
 </script>
 
 <template>
     <!-- <GraphDetail></GraphDetail> -->
-    <TableDetail db-name="cyberpunk_edgerunner"></TableDetail>
+    <NodesTable db-name="cyberpunk_edgerunner"></NodesTable>
 
 </template>
