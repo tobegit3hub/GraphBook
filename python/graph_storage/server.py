@@ -52,12 +52,18 @@ def index():
     return render_template("index.html")
 """
 
-@app.route('/api/<db>/nodes', methods=['GET'])
+@app.route('/api/<db>/nodes', methods=['GET', 'POST'])
 @cross_origin()
 def get_nodes(db):
-    num = request.args.get('num', default = -1, type = int)
-    result = {"nodes": graph.get_nodes_for_frontend(db_config, db, num)}
-    return jsonify(result)
+    if request.method == "GET":
+        num = request.args.get('num', default = -1, type = int)
+        result = {"nodes": graph.get_nodes_for_frontend(db_config, db, num)}
+        return jsonify(result)
+    elif request.method == "POST":
+        insert_nodes = request.json["insert_nodes"]
+        update_nodes = request.json["update_nodes"]
+        graph.insert_and_update_nodes(db_config, db, insert_nodes, update_nodes)
+        return jsonify({"code": 0})
 
 @app.route('/api/<db>/edges', methods=['GET'])
 @cross_origin()
@@ -70,6 +76,8 @@ def get_edges(db):
 def get_groups(db):
     result = {"groups": graph.get_groups_for_frontend(db_config, db)}
     return jsonify(result)
+
+
 
 def main():
   # Start web browser if possible

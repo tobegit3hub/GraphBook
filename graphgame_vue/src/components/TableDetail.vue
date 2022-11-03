@@ -122,7 +122,7 @@ export default defineComponent({
             console.log(insertRecords.length);
             console.log(updateRecords.length);
 
-            axios.post(`http://127.0.0.1:7788/api/${props.dbName.value}/nodes`, {
+            axios.post(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
               insert_nodes: insertRecords,
               update_nodes: updateRecords
             })

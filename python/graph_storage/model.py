@@ -1,3 +1,4 @@
+from array import array
 import pymysql.cursors
 from dataclasses import dataclass
 import logging
@@ -92,10 +93,10 @@ class Graph:
                                             
         with connection.cursor() as cursor:
             if limit_num > 0:
-                sql = "SELECT name, display_name, weight FROM {}.nodes ORDER BY id LIMIT %s".format(db)
+                sql = "SELECT name, display_name, note, weight FROM {}.nodes ORDER BY id LIMIT %s".format(db)
                 cursor.execute(sql, (limit_num))
             else:
-                sql = "SELECT name, display_name, weight FROM {}.nodes".format(db)
+                sql = "SELECT name, display_name, note, weight FROM {}.nodes".format(db)
                 cursor.execute(sql)
             
             result_set = cursor.fetchall()
@@ -109,7 +110,7 @@ class Graph:
                                     cursorclass=pymysql.cursors.DictCursor)
                                             
         with connection.cursor() as cursor:
-            sql = "SELECT source, target, relation FROM {}.edges".format(db)
+            sql = "SELECT * FROM {}.edges".format(db)
             cursor.execute(sql)
             result_set = cursor.fetchall()
             return result_set
@@ -126,6 +127,34 @@ class Graph:
             cursor.execute(sql)
             result_set = cursor.fetchall()
             return result_set
+
+    def insert_and_update_nodes(self, db_config: DbConfig, db: str, insert_nodes: array, update_nodes: array) -> None:
+        # [{'id': None, 'name': 'ss', 'display_name': None, 'note': None, 'weight': None, '_X_ROW_KEY': 'row_78'}]
+        # [{'display_name': 'David Martinez', 'name': 'davidss', 'weight': 0.238291, '_X_ROW_KEY': 'row_56'}]
+
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
+            insert_num = len(insert_nodes)
+            if insert_num > 0:
+                sql = "INSERT INTO {}.nodes (name, display_name, note) VALUES (%s, %s, %s)".format(db);
+                insert_nodes_data = [(insert_node["name"], insert_node["display_name"], insert_node["note"]) for insert_node in insert_nodes]
+                print("Try to execute sql: {}, data: {}".format(sql, insert_nodes_data))
+                cursor.executemany(sql, insert_nodes_data)
+
+            for update_node in update_nodes:
+                sql = "UPDATE {}.nodes SET display_name=%s, note=%s WHERE name=%s".format(db)
+                update_nodes_data = (update_node["display_name"], update_node["note"], update_node["name"])
+                print("Try to execute sql: {}, data: {}".format(sql, update_nodes_data))
+                cursor.execute(sql, update_nodes_data)
+
+        connection.commit()
+            
+
 
 def main():
     db_config = DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")
