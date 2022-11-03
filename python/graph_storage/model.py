@@ -128,7 +128,7 @@ class Graph:
             result_set = cursor.fetchall()
             return result_set
 
-    def insert_and_update_nodes(self, db_config: DbConfig, db: str, insert_nodes: array, update_nodes: array) -> None:
+    def insert_and_update_nodes(self, db_config: DbConfig, db: str, insert_nodes: array, update_nodes: array, delete_nodes: array) -> None:
         # [{'id': None, 'name': 'ss', 'display_name': None, 'note': None, 'weight': None, '_X_ROW_KEY': 'row_78'}]
         # [{'display_name': 'David Martinez', 'name': 'davidss', 'weight': 0.238291, '_X_ROW_KEY': 'row_56'}]
 
@@ -139,8 +139,7 @@ class Graph:
                                     cursorclass=pymysql.cursors.DictCursor)
                                             
         with connection.cursor() as cursor:
-            insert_num = len(insert_nodes)
-            if insert_num > 0:
+            if len(insert_nodes) > 0:
                 sql = "INSERT INTO {}.nodes (name, display_name, note) VALUES (%s, %s, %s)".format(db);
                 insert_nodes_data = [(insert_node["name"], insert_node["display_name"], insert_node["note"]) for insert_node in insert_nodes]
                 print("Try to execute sql: {}, data: {}".format(sql, insert_nodes_data))
@@ -152,8 +151,13 @@ class Graph:
                 print("Try to execute sql: {}, data: {}".format(sql, update_nodes_data))
                 cursor.execute(sql, update_nodes_data)
 
+            if len(delete_nodes) > 0:
+                sql = "DELETE FROM {}.nodes WHERE name IN (%s)".format(db);
+                delete_nodes_data = [(delete_node["name"]) for delete_node in delete_nodes]
+                print("Try to execute sql: {}, data: {}".format(sql, delete_nodes_data))
+                cursor.executemany(sql, delete_nodes_data)
+
         connection.commit()
-            
 
 
 def main():

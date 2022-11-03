@@ -62,7 +62,8 @@ def get_nodes(db):
     elif request.method == "POST":
         insert_nodes = request.json["insert_nodes"]
         update_nodes = request.json["update_nodes"]
-        graph.insert_and_update_nodes(db_config, db, insert_nodes, update_nodes)
+        delete_nodes = request.json["delete_nodes"]
+        graph.insert_and_update_nodes(db_config, db, insert_nodes, update_nodes, delete_nodes)
         return jsonify({"code": 0})
 
 @app.route('/api/<db>/edges', methods=['GET'])

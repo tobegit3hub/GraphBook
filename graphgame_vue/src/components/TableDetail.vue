@@ -3,6 +3,11 @@
   <h1>TableDetail</h1>
 
   <vxe-grid ref="nodesGridTable" v-bind="nodesTableOptions" v-on="nodesTableEvents">
+
+    <template #operate="{ row }">
+      <vxe-button title="Delete" circle @click="removeNode(row)" status="danger"></vxe-button>
+    </template>
+
     <template #id_edit="{ row }">
       <vxe-input v-model="row.row_id"></vxe-input>
     </template>
@@ -13,7 +18,7 @@
       <vxe-input v-model="row.display_name"></vxe-input>
     </template>
     <template #note_edit="{ row }">
-      <vxe-input v-model="row.note"></vxe-input>
+      <vxe-textarea v-model="row.note" :autosize="{ minRows: 1, maxRows: 8 }"></vxe-textarea>
     </template>
     <template #weight_edit="{ row }">
       <vxe-input v-model="row.weight"></vxe-input>
@@ -61,7 +66,6 @@ export default defineComponent({
     let edges = ref([]);
     let groups = ref([]);
 
-
     const nodesGridTable = ref<VxeGridInstance>()
     const nodesTableOptions = reactive<VxeGridProps>({
       border: true,
@@ -84,10 +88,11 @@ export default defineComponent({
       },
       columns: [
         { field: 'row_id', title: 'Id', slots: { edit: 'id_edit' } },
-        { field: 'name', title: 'Name', slots: { edit: 'name_edit' } },
+        { field: 'name', title: 'Name', editRender: {}, slots: { edit: 'name_edit' } },
         { field: 'display_name', title: 'Display Name', editRender: {}, slots: { edit: 'display_name_edit' } },
         { field: 'note', title: 'Note', editRender: {}, slots: { edit: 'note_edit' } },
-        { field: 'weight', title: 'Weight', slots: { edit: 'weight_edit' } }
+        { field: 'weight', title: 'Weight', slots: { edit: 'weight_edit' } },
+        { title: 'Delete', width: 200, slots: { default: 'operate' } }
       ],
       toolbarConfig: {
         buttons: [
@@ -98,7 +103,7 @@ export default defineComponent({
         export: true,
         zoom: true,
         custom: true,
-        refresh: true
+        refresh: false
       },
       data: []
     })
@@ -116,13 +121,10 @@ export default defineComponent({
             const { insertRecords, removeRecords, updateRecords } = $grid.getRecordset()
             VXETable.modal.message({ content: `Add ${insertRecords.length} rows, delete ${removeRecords.length} rows, update ${updateRecords.length} rows`, status: 'success' })
 
-            console.log('tobetest');
-            console.log(insertRecords.length);
-            console.log(updateRecords.length);
-
             axios.post(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
               insert_nodes: insertRecords,
-              update_nodes: updateRecords
+              update_nodes: updateRecords,
+              delete_nodes: removeRecords
             })
             .then(function (response) {
               console.log(response);
@@ -169,6 +171,16 @@ export default defineComponent({
         });
     })
 
+    const removeNode = async (row: any) => {
+      const type = await VXETable.modal.confirm("Are you sure to delete?")
+      const $grid = nodesGridTable.value
+      if ($grid) {
+        if (type === 'confirm') {
+          await $grid.remove(row)
+        }
+      }
+    }
+
 
     return {
       nodes,
@@ -176,7 +188,8 @@ export default defineComponent({
       groups,
       nodesGridTable,
       nodesTableOptions,
-      nodesTableEvents
+      nodesTableEvents,
+      removeNode
     }
   }
 })
