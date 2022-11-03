@@ -93,10 +93,10 @@ class Graph:
                                             
         with connection.cursor() as cursor:
             if limit_num > 0:
-                sql = "SELECT name, display_name, note, weight FROM {}.nodes ORDER BY id LIMIT %s".format(db)
+                sql = "SELECT id as row_id, name, display_name, note, weight FROM {}.nodes ORDER BY id LIMIT %s".format(db)
                 cursor.execute(sql, (limit_num))
             else:
-                sql = "SELECT name, display_name, note, weight FROM {}.nodes".format(db)
+                sql = "SELECT id as row_id, name, display_name, note, weight FROM {}.nodes".format(db)
                 cursor.execute(sql)
             
             result_set = cursor.fetchall()

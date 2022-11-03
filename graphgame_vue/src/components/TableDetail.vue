@@ -4,7 +4,7 @@
 
   <vxe-grid ref="nodesGridTable" v-bind="nodesTableOptions" v-on="nodesTableEvents">
     <template #id_edit="{ row }">
-      <vxe-input v-model="row.id"></vxe-input>
+      <vxe-input v-model="row.row_id"></vxe-input>
     </template>
     <template #name_edit="{ row }">
       <vxe-input v-model="row.name"></vxe-input>
@@ -23,7 +23,7 @@
 
   <h2>Nodes:</h2>
   <vxe-table border :data="nodes">
-    <vxe-column field="id" title="Id"></vxe-column>
+    <vxe-column field="row_id" title="Id"></vxe-column>
     <vxe-column field="name" title="Name"></vxe-column>
     <vxe-column field="display_name" title="Display Name"></vxe-column>
     <vxe-column field="note" title="Note"></vxe-column>
@@ -83,18 +83,16 @@ export default defineComponent({
         showStatus: true
       },
       columns: [
-        { type: 'checkbox', width: 50 },
-        { field: 'id', title: 'Id', editRender: {}, slots: { edit: 'id_edit' } },
-        { field: 'name', title: 'Name', editRender: {}, slots: { edit: 'name_edit' } },
+        { field: 'row_id', title: 'Id', slots: { edit: 'id_edit' } },
+        { field: 'name', title: 'Name', slots: { edit: 'name_edit' } },
         { field: 'display_name', title: 'Display Name', editRender: {}, slots: { edit: 'display_name_edit' } },
         { field: 'note', title: 'Note', editRender: {}, slots: { edit: 'note_edit' } },
-        { field: 'weight', title: 'Weight', editRender: {}, slots: { edit: 'weight_edit' } }
+        { field: 'weight', title: 'Weight', slots: { edit: 'weight_edit' } }
       ],
       toolbarConfig: {
         buttons: [
           { code: 'insertButton', name: 'New', status: 'primary' },
-          { code: 'saveButton', name: 'Save', status: 'success' },
-          { code: 'deleteButton', name: 'Delete', status: "warning" },
+          { code: 'saveButton', name: 'Save', status: 'success' }
         ],
         import: false, // TODO: Support and test
         export: true,
