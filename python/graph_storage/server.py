@@ -63,14 +63,22 @@ def get_nodes(db):
         insert_nodes = request.json["insert_nodes"]
         update_nodes = request.json["update_nodes"]
         delete_nodes = request.json["delete_nodes"]
-        graph.insert_and_update_nodes(db_config, db, insert_nodes, update_nodes, delete_nodes)
+        graph.update_nodes(db_config, db, insert_nodes, update_nodes, delete_nodes)
         return jsonify({"code": 0})
 
-@app.route('/api/<db>/edges', methods=['GET'])
+@app.route('/api/<db>/edges', methods=['GET', 'POST'])
 @cross_origin()
 def get_edges(db):
-    result = {"edges": graph.get_edges_for_frontend(db_config, db)}
-    return jsonify(result)
+    if request.method == "GET":
+        result = {"edges": graph.get_edges_for_frontend(db_config, db)}
+        return jsonify(result)
+    elif request.method == "POST":
+        insert_edges = request.json["insert_edges"]
+        update_edges = request.json["update_edges"]
+        delete_edges = request.json["delete_edges"]
+        graph.update_edges(db_config, db, insert_edges, update_edges, delete_edges)
+        return jsonify({"code": 0})
+
 
 @app.route('/api/<db>/groups', methods=['GET'])
 @cross_origin()

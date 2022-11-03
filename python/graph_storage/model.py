@@ -128,10 +128,7 @@ class Graph:
             result_set = cursor.fetchall()
             return result_set
 
-    def insert_and_update_nodes(self, db_config: DbConfig, db: str, insert_nodes: array, update_nodes: array, delete_nodes: array) -> None:
-        # [{'id': None, 'name': 'ss', 'display_name': None, 'note': None, 'weight': None, '_X_ROW_KEY': 'row_78'}]
-        # [{'display_name': 'David Martinez', 'name': 'davidss', 'weight': 0.238291, '_X_ROW_KEY': 'row_56'}]
-
+    def update_nodes(self, db_config: DbConfig, db: str, insert_nodes: array, update_nodes: array, delete_nodes: array) -> None:
         connection = pymysql.connect(host=db_config.host,
                                     user=db_config.user,
                                     password=db_config.password,
@@ -152,13 +149,40 @@ class Graph:
                 cursor.execute(sql, update_nodes_data)
 
             if len(delete_nodes) > 0:
-                sql = "DELETE FROM {}.nodes WHERE name IN (%s)".format(db);
+                sql = "DELETE FROM {}.nodes WHERE name=%s".format(db);
                 delete_nodes_data = [(delete_node["name"]) for delete_node in delete_nodes]
                 print("Try to execute sql: {}, data: {}".format(sql, delete_nodes_data))
                 cursor.executemany(sql, delete_nodes_data)
 
         connection.commit()
 
+    def update_edges(self, db_config: DbConfig, db: str, insert_edges: array, update_edges: array, delete_edges: array) -> None:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
+            if len(insert_edges) > 0:
+                sql = "INSERT INTO {}.edges (source, target, relation, note) VALUES (%s, %s, %s, %s)".format(db);
+                insert_edges_data = [(insert_edge["source"], insert_edge["target"], insert_edge["relation"], insert_edge["note"]) for insert_edge in insert_edges]
+                print("Try to execute sql: {}, data: {}".format(sql, insert_edges_data))
+                cursor.executemany(sql, insert_edges_data)
+
+            for update_edge in update_edges:
+                sql = "UPDATE {}.edges SET relation=%s, note=%s WHERE source=%s AND target=%s".format(db)
+                update_edges_data = (update_edge["relation"], update_edge["note"], update_edge["source"], update_edge["target"])
+                print("Try to execute sql: {}, data: {}".format(sql, update_edges_data))
+                cursor.execute(sql, update_edges_data)
+
+            if len(delete_edges) > 0:
+                sql = "DELETE FROM {}.edges WHERE source=%s AND target=%s".format(db);
+                delete_edges_data = [(delete_edge["source"], delete_edge["target"]) for delete_edge in delete_edges]
+                print("Try to execute sql: {}, data: {}".format(sql, delete_edges_data))
+                cursor.executemany(sql, delete_edges_data)
+
+        connection.commit()
 
 def main():
     db_config = DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")
