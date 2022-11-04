@@ -57,7 +57,8 @@ def index():
 def get_nodes(db):
     if request.method == "GET":
         num = request.args.get('num', default = -1, type = int)
-        result = {"nodes": graph.get_nodes_for_frontend(db_config, db, num)}
+        group_name = request.args.get('group', default = "", type = str)
+        result = {"nodes": graph.get_nodes_for_frontend(db_config, db, num, group_name)}
         return jsonify(result)
     elif request.method == "POST":
         insert_nodes = request.json["insert_nodes"]
@@ -91,6 +92,13 @@ def get_groups(db):
         delete_groups = request.json["delete_groups"]
         graph.update_groups(db_config, db, insert_groups, update_groups, delete_groups)
         return jsonify({"code": 0})
+
+@app.route('/api/<db>/group_names', methods=['GET'])
+@cross_origin()
+def get_group_names(db):
+    if request.method == "GET":
+        result = {"group_names": graph.get_group_names(db_config, db)}
+        return jsonify(result)
 
 
 def main():

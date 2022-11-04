@@ -3,7 +3,17 @@
 
   <h1>GraphDetail</h1>
 
-  <v-chart class="chart" :option="option" />
+  <v-chart class="chart" :option="vuechartOption" />
+
+  <h3>Groups:</h3>
+  <ul>
+    <li>
+      <button @click="changeGroup('')">All Groups</button>
+    </li>
+    <li v-for="group_name in group_names">
+      <button @click="changeGroup(group_name)">{{ group_name }}</button>
+    </li>
+  </ul>
 
 </template>
 
@@ -47,14 +57,16 @@ export default defineComponent({
 
       let nodes = ref([]);
       let edges = ref([]);
+      let group_names = ref([]);
+      let current_group_name = ref("");
 
       let increase_nodes_timer = null;
       let current_node_count = 0;
 
-      const option = ref({
+      const vuechartOption = ref({
         backgroundColor: '#f6f5f3',
         title: {
-          text: "cyberpunk_edgerunner",//this.db_name,
+          text: props.dbName,
           textStyle: {
             color: '#368cbf',
             fontWeight: 700,
@@ -127,77 +139,99 @@ export default defineComponent({
       })
 
     const startIncreaseNodes = () => {
-      const max_node_count = 9;
-      const add_node_interval = 100;
+    const max_node_count = 9;
+    const add_node_interval = 100;
 
-      this.increase_nodes_timer = setInterval(() => {
-          console.log("Current node count: " + this.current_node_count)
+    this.increase_nodes_timer = setInterval(() => {
+        console.log("Current node count: " + this.current_node_count)
 
-          if (this.current_node_count >= max_node_count) {
-            this.stopIncreaseNodes()
-          } else {
-            this.option.series[0].data.push(this.nodes[this.current_node_count]);
-            this.current_node_count += 1;
+        if (this.current_node_count >= max_node_count) {
+          this.stopIncreaseNodes()
+        } else {
+          this.option.series[0].data.push(this.nodes[this.current_node_count]);
+          this.current_node_count += 1;
+        }
+    }, add_node_interval);
+
+  }
+
+  const stopIncreaseNodes = () => {
+    clearInterval(this.increase_nodes_timer);
+    this.increase_nodes_timer = null
+    console.log("Stop increase nodes timer")
+  }
+
+  const asyncCropImage = (imgSrc, callback) => {
+        const canvas = document.createElement('canvas');
+        const contex = canvas.getContext('2d');
+        const img = new Image();
+        img.crossOrigin = '';
+
+        img.onload = function() {
+          const center = {
+              x: img.width / 2,
+              y: img.height / 2
           }
-      }, add_node_interval);
+          var diameter = img.width;
+          canvas.width = diameter;
+          canvas.height = diameter;
+          contex.clearRect(0, 0, diameter, diameter);
+          contex.save();
+          contex.beginPath();    
+          const radius = img.width / 2;
+          contex.arc(radius, radius, radius, 0, 2 * Math.PI);
+          contex.clip();
+          contex.drawImage(img, center.x - radius, center.y - radius, diameter, diameter, 0, 0,
+              diameter, diameter);
+          contex.restore();
+          const result =  "image://" + canvas.toDataURL('image/png', 0.1);
 
+          callback(result);
+        }
+
+        img.src = imgSrc;
     }
 
-    const stopIncreaseNodes = () => {
-      clearInterval(this.increase_nodes_timer);
-      this.increase_nodes_timer = null
-      console.log("Stop increase nodes timer")
+    const changeGroup = (group_name) => {
+      console.log("Change group: " + group_name);
+      current_group_name.value = group_name;
+
+
+      updateNodes();
     }
 
-    const asyncCropImage = (imgSrc, callback) => {
-          const canvas = document.createElement('canvas');
-          const contex = canvas.getContext('2d');
-          const img = new Image();
-          img.crossOrigin = '';
+    const updateNodes = () => {
+      console.log("Call update nodes");
 
-          img.onload = function() {
+      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
+        params: {
+          num: -1,
+          group: current_group_name.value
+        }
+      }).then(response => {
+        nodes.value = response.data.nodes;
 
-            //设置图形宽高比例
-            const center = {
-                x: img.width / 2,
-                y: img.height / 2
-            }
-            var diameter = img.width;//半径
-            canvas.width = diameter;
-            canvas.height = diameter;
-            contex.clearRect(0, 0, diameter, diameter);
-            contex.save();
-            contex.beginPath();    
-            const radius = img.width / 2;
-            contex.arc(radius, radius, radius, 0, 2 * Math.PI); //画出圆
-            contex.clip(); //裁剪上面的圆形
-            contex.drawImage(img, center.x - radius, center.y - radius, diameter, diameter, 0, 0,
-                diameter, diameter); // 在刚刚裁剪的园上画图
-            contex.restore(); // 还原状态
-            const result =  "image://" + canvas.toDataURL('image/png', 0.1);
+        // Reset nodes data
+        // TODO: Update the image symbol as well
+        let series_0 = vuechartOption.value.series[0];
+        series_0.data = response.data.nodes;
+        vuechartOption.value.series[0] = series_0;
 
-            callback(result);
-
-          }
-
-          img.src = imgSrc;
-      }
-
+      }, response => {
+          console.log("Fail to get nodes");
+      }); 
+    }
 
     onMounted(() => {
-        axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
+
+      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
         params: {
           num: -1
         }
       }).then(response => {
-        const vue_this = this;
-
         nodes.value = response.data.nodes;
-        console.log("Get nodes: " + nodes.value);
 
-        
         nodes.value.forEach(function(node, index, array) {
-          
           if (dynamicNodeWeight) {
             // Update symbol size for node
             response.data.nodes[index]["symbolSize"] = node.weight * 700;
@@ -207,12 +241,12 @@ export default defineComponent({
           const test_image_path = `http://localhost:7788/images/${props.dbName}/${node.name}.png`;
           asyncCropImage(test_image_path, function(result){
             // TODO: Handle if can not load image
-            option.value.series[0].data[index]["symbol"] = result;
+            vuechartOption.value.series[0].data[index]["symbol"] = result;
           })
         });
 
         // Comment out if do not add all nodes at once
-        option.value.series[0].data.push(...response.data.nodes);
+        vuechartOption.value.series[0].data.push(...response.data.nodes);
 
       }, response => {
           console.log("Fail to get nodes");
@@ -220,8 +254,13 @@ export default defineComponent({
 
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/edges`).then(response => {
           edges.value = response.data.edges;
-          console.log("Get edges: " + edges.value);
-          option.value.series[0].links.push(...response.data.edges);
+          vuechartOption.value.series[0].links.push(...response.data.edges);
+      }, response => {
+          console.log("Fail to get edges");
+      });
+
+      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/group_names`).then(response => {
+          group_names.value = response.data.group_names;
       }, response => {
           console.log("Fail to get edges");
       });
@@ -230,9 +269,12 @@ export default defineComponent({
     })
 
     return {
-      option,
+      vuechartOption,
       nodes,
-      edges
+      edges,
+      group_names,
+      current_group_name,
+      changeGroup
     }
 
   }

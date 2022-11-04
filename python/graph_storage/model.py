@@ -84,7 +84,7 @@ class Graph:
                 self.add_group(group)
                 logging.info("Load group: {}".format(group))
 
-    def get_nodes_for_frontend(self, db_config: DbConfig, db: str, limit_num: int=-1) -> None:
+    def get_nodes_for_frontend(self, db_config: DbConfig, db: str, limit_num: int=-1, group_name: str="") -> None:
         connection = pymysql.connect(host=db_config.host,
                                     user=db_config.user,
                                     password=db_config.password,
@@ -92,13 +92,16 @@ class Graph:
                                     cursorclass=pymysql.cursors.DictCursor)
                                             
         with connection.cursor() as cursor:
+            sql = "SELECT id as row_id, name, display_name, note, weight FROM {}.nodes".format(db)
+
+            if group_name != "":
+                sql += " WHERE name IN (SELECT node_name FROM teams WHERE group_name = '{}')".format(group_name)
+
             if limit_num > 0:
-                sql = "SELECT id as row_id, name, display_name, note, weight FROM {}.nodes ORDER BY id LIMIT %s".format(db)
-                cursor.execute(sql, (limit_num))
-            else:
-                sql = "SELECT id as row_id, name, display_name, note, weight FROM {}.nodes".format(db)
-                cursor.execute(sql)
+                sql = sql + " ORDER BY id LIMIT {}".format(limit_num)
             
+            print("Try to execute sql: {}".format(sql))
+            cursor.execute(sql)
             result_set = cursor.fetchall()
             return result_set
 
@@ -127,6 +130,20 @@ class Graph:
             cursor.execute(sql)
             result_set = cursor.fetchall()
             return result_set
+
+    def get_group_names(self, db_config: DbConfig, db: str) -> array:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
+            sql = "SELECT distinct(group_name) FROM {}.teams".format(db)
+            cursor.execute(sql)
+            result_set = cursor.fetchall()
+            group_names = [row["group_name"] for row in result_set]
+            return group_names
 
     def update_nodes(self, db_config: DbConfig, db: str, insert_nodes: array, update_nodes: array, delete_nodes: array) -> None:
         connection = pymysql.connect(host=db_config.host,
