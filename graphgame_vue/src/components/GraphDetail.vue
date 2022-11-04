@@ -77,11 +77,16 @@ export default defineComponent({
         tooltip: {
           trigger: "item",
           formatter: (param) => {
+              let template = param.data.name
               if (param.data.display_name) {
-                return param.data.display_name;
-              } else {
-                return param.data.name;
+                template = param.data.display_name
               }
+              // TODO: Display image, handle image not found
+              if (param.data.name) {
+                template += '</br></br>'
+                template += `<img src='http://localhost:7788/images/${props.dbName}/${param.data.name}.png' width="100">`;
+              }
+              return template;
           }
         },
         series: [
