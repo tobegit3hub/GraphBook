@@ -5,53 +5,62 @@ import pymysql.cursors
 
 import model
 
-def build_graph(graph: model.Graph) -> nx.DiGraph:
-    n_graph = nx.DiGraph() 
+class NetworkxUtil(object):
 
-    # Add nodes
-    for node in graph.nodes:
-        n_graph.add_node(node.name)
+    def __init__(self, db_config: model.DbConfig, db: str) -> None:
+        self.db_config = db_config
+        self.db = db
+        self.graph = model.Graph()
+        self.graph.load_from_db(db_config, db)
+        self.n_graph = self.build_graph()
 
-    # Add edges
-    for edge in graph.edges:
-        n_graph.add_edge(edge.source, edge.target)
+    def build_graph(self) -> nx.DiGraph:
+        n_graph = nx.DiGraph() 
 
-    return n_graph
+        # Add nodes
+        for node in self.graph.nodes:
+            n_graph.add_node(node.name)
 
-def page_rank(n_graph: nx.DiGraph) -> map:
-    # Compute rank
-    page_rank_map = nx.pagerank(n_graph)
-    logging.info("Compute page rank: " + str(page_rank_map))
-    return page_rank_map
+        # Add edges
+        for edge in self.graph.edges:
+            n_graph.add_edge(edge.source, edge.target)
 
+        return n_graph
 
-def update_weight(db_config: model.DbConfig, page_rank_map: map) -> None:
+    @staticmethod
+    def page_rank(n_graph: nx.DiGraph) -> map:
+        # Compute rank
+        page_rank_map = nx.pagerank(n_graph)
+        logging.info("Compute page rank: " + str(page_rank_map))
+        return page_rank_map
 
-    connection = pymysql.connect(host=db_config.host,
-                                user=db_config.user,
-                                password=db_config.password,
-                                database=db_config.db,
-                                cursorclass=pymysql.cursors.DictCursor)
-                                        
-    with connection.cursor() as cursor:
+    @staticmethod
+    def update_db_weight(db_config: model.DbConfig, db: str, page_rank_map: map) -> None:
 
-        for name, rank_value in page_rank_map.items():
-            sql = "UPDATE nodes SET weight = {} WHERE name = \"{}\";".format(rank_value, name)
-            logging.info("Execute the SQL: " + sql)
-            cursor.execute(sql)
-    
-    connection.commit()
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
 
+            for name, rank_value in page_rank_map.items():
+                sql = "UPDATE {}.nodes SET weight = {} WHERE name = '{}';".format(db, rank_value, name)
+                logging.info("Execute the SQL: " + sql)
+                cursor.execute(sql)
+        
+        connection.commit()
+
+    def update_wight(self) -> None:
+        page_rank_map = NetworkxUtil.page_rank(self.n_graph)
+        NetworkxUtil.update_db_weight(self.db_config, self.db, page_rank_map)
 
 def main() -> None:
-    graph = model.Graph()
-    db_config = model.DbConfig("localhost", "root", "root", "cyberpunk_edgerunner")
-    graph.load_from_db(db_config)
-    
-    n_graph = build_graph(graph)
-    page_rank_map = page_rank(n_graph)
-    update_weight(db_config, page_rank_map)
-
+    db_config = model.DbConfig("localhost", "root", "wawa316", "")
+    db = "pantheon"
+    util = NetworkxUtil(db_config, db)
+    util.update_wight()
 
 if __name__ == "__main__":
     main()

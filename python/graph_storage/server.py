@@ -8,6 +8,7 @@ from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS, cross_origin
 import pymysql.cursors
 
+import db_service
 import model
 
 logger = logging.getLogger("openmldb_server")
@@ -42,8 +43,9 @@ for arg in vars(args):
     logger.info("{}: {}".format(arg, getattr(args, arg)))
 
 db_config = model.DbConfig("localhost", "root", "wawa316", "cyberpunk_edgerunner")
-graph = model.Graph()
+#graph = model.Graph()
 #graph.load_from_db(db_config)
+db_service = db_service.DbService()
 
 """
 @app.route('/')
@@ -58,46 +60,68 @@ def get_nodes(db):
     if request.method == "GET":
         num = request.args.get('num', default = -1, type = int)
         group_name = request.args.get('group', default = "", type = str)
-        result = {"nodes": graph.get_nodes_for_frontend(db_config, db, num, group_name)}
+        result = {"nodes": db_service.get_nodes_for_frontend(db_config, db, num, group_name)}
         return jsonify(result)
     elif request.method == "POST":
         insert_nodes = request.json["insert_nodes"]
         update_nodes = request.json["update_nodes"]
         delete_nodes = request.json["delete_nodes"]
-        graph.update_nodes(db_config, db, insert_nodes, update_nodes, delete_nodes)
+        db_service.update_nodes(db_config, db, insert_nodes, update_nodes, delete_nodes)
         return jsonify({"code": 0})
+
+@app.route('/api/<db>/nodes/<name>/downstream', methods=['GET'])
+@cross_origin()
+def get_node_downstream(db, name):
+    if request.method == "GET":
+        result = {"nodes": db_service.get_node_downstream(db_config, db, name)}
+        return jsonify(result)
+
+@app.route('/api/<db>/nodes/<name>/upstream', methods=['GET'])
+@cross_origin()
+def get_node_upstream(db, name):
+    if request.method == "GET":
+        result = {"nodes": db_service.get_node_upstream(db_config, db, name)}
+        return jsonify(result)
+
+@app.route('/api/<db>/nodes/weight', methods=['PUT'])
+@cross_origin()
+def update_nodes_weight(db, name):
+    if request.method == "GET":
+        db_service.update_nodes_weight(db_config, db, name)
+        result = {"code": 0}
+        return jsonify(result)
 
 @app.route('/api/<db>/edges', methods=['GET', 'POST'])
 @cross_origin()
 def get_edges(db):
     if request.method == "GET":
-        result = {"edges": graph.get_edges_for_frontend(db_config, db)}
+        result = {"edges": db_service.get_edges_for_frontend(db_config, db)}
         return jsonify(result)
     elif request.method == "POST":
         insert_edges = request.json["insert_edges"]
         update_edges = request.json["update_edges"]
         delete_edges = request.json["delete_edges"]
-        graph.update_edges(db_config, db, insert_edges, update_edges, delete_edges)
+        db_service.update_edges(db_config, db, insert_edges, update_edges, delete_edges)
         return jsonify({"code": 0})
 
 @app.route('/api/<db>/groups', methods=['GET', 'POST'])
 @cross_origin()
 def get_groups(db):
     if request.method == "GET":
-        result = {"groups": graph.get_groups_for_frontend(db_config, db)}
+        result = {"groups": db_service.get_groups_for_frontend(db_config, db)}
         return jsonify(result)
     elif request.method == "POST":
         insert_groups = request.json["insert_groups"]
         update_groups = request.json["update_groups"]
         delete_groups = request.json["delete_groups"]
-        graph.update_groups(db_config, db, insert_groups, update_groups, delete_groups)
+        db_service.update_groups(db_config, db, insert_groups, update_groups, delete_groups)
         return jsonify({"code": 0})
 
 @app.route('/api/<db>/group_names', methods=['GET'])
 @cross_origin()
 def get_group_names(db):
     if request.method == "GET":
-        result = {"group_names": graph.get_group_names(db_config, db)}
+        result = {"group_names": db_service.get_group_names(db_config, db)}
         return jsonify(result)
 
 
