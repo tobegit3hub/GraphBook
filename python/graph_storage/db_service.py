@@ -3,6 +3,7 @@ import pymysql.cursors
 import logging
 
 import model
+import networkx_util
 
 logging.basicConfig(level=logging.INFO)
 
@@ -10,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 class DbService(object):
     def __init__(self) -> None:
         pass
-    
+
     def get_nodes_for_frontend(self, db_config: model.DbConfig, db: str, limit_num: int=-1, group_name: str="") -> None:
         connection = pymysql.connect(host=db_config.host,
                                     user=db_config.user,
@@ -60,19 +61,15 @@ class DbService(object):
             result_set = cursor.fetchall()
             return result_set
 
-    def update_nodes_weight(self, db_config: model.DbConfig, db: str, node_name: str) -> None:
+    def update_nodes_weight(self, db_config: model.DbConfig, db: str) -> None:
         connection = pymysql.connect(host=db_config.host,
                                     user=db_config.user,
                                     password=db_config.password,
                                     database=db_config.db,
                                     cursorclass=pymysql.cursors.DictCursor)
-                                            
-        with connection.cursor() as cursor:
-            sql = "SELECT * FROM {}.nodes WHERE name in (SELECT source FROM edges WHERE target = %s)".format(db)
-            print("Try to execute sql: {}".format(sql))
-            cursor.execute(sql, node_name)
-            result_set = cursor.fetchall()
-            return result_set
+
+        util = networkx_util.NetworkxUtil(db_config, db)
+        util.update_wight()
 
 
     def get_edges_for_frontend(self, db_config: model.DbConfig, db: str) -> None:

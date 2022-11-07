@@ -85,9 +85,9 @@ def get_node_upstream(db, name):
 
 @app.route('/api/<db>/nodes/weight', methods=['PUT'])
 @cross_origin()
-def update_nodes_weight(db, name):
-    if request.method == "GET":
-        db_service.update_nodes_weight(db_config, db, name)
+def update_nodes_weight(db):
+    if request.method == "PUT":
+        db_service.update_nodes_weight(db_config, db)
         result = {"code": 0}
         return jsonify(result)
 
