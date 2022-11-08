@@ -5,6 +5,21 @@
 
   <v-chart class="chart" :option="vuechartOption" />
 
+
+
+  <h3>Users:</h3>
+  <div>
+    <a-checkbox
+      v-model:checked="checkAll"
+      :indeterminate="indeterminate"
+      @change="onCheckAllChange"
+      >
+      Choose all
+    </a-checkbox>
+  </div>
+  <a-divider />
+  <a-checkbox-group v-model:value="checkedList" :options="plainOptions" />
+
   <h3>Groups:</h3>
   <ul>
     <li>
@@ -18,7 +33,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted} from 'vue'
+import { defineComponent, ref, reactive, watch, toRefs, onMounted} from 'vue'
 
 import axios from 'axios'
 
@@ -39,6 +54,8 @@ use([
   TooltipComponent,
   LegendComponent
 ]);
+
+const plainOptions = ['Apple', 'Pear', 'Orange'];
 
 export default defineComponent({
   name: "GraphDetail",
@@ -227,6 +244,25 @@ export default defineComponent({
       }); 
     }
 
+    // tobedev
+    const state = reactive({
+      indeterminate: true,
+      checkAll: false,
+      checkedList: ['Apple', 'Orange'],
+    });
+
+    const onCheckAllChange = e => {
+      Object.assign(state, {
+        checkedList: e.target.checked ? plainOptions : [],
+        indeterminate: false,
+      });
+    };
+
+    watch(() => state.checkedList, val => {
+      state.indeterminate = !!val.length && val.length < plainOptions.length;
+      state.checkAll = val.length === plainOptions.length;
+    });
+
     onMounted(() => {
 
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
@@ -279,7 +315,10 @@ export default defineComponent({
       edges,
       group_names,
       current_group_name,
-      changeGroup
+      changeGroup,
+      ...toRefs(state),
+      plainOptions,
+      onCheckAllChange,
     }
 
   }
