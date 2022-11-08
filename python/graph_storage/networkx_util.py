@@ -38,11 +38,17 @@ class NetworkxUtil(object):
             nondirected_graph.add_edge(edge.source, edge.target)
         return nondirected_graph        
 
-    def get_all_path(self, source, target, cutoff=-1):
-        if cutoff > 0:
-            return nx.all_simple_paths(self.nondirected_graph, source, target, cutoff=cutoff) 
+    def get_all_path(self, source, target, cutoff: int=-1, only_directed: bool=False):
+        if only_directed:
+            if cutoff > 0:
+                return list(nx.all_simple_paths(self.n_graph, source, target, cutoff=cutoff))
+            else:
+                return list(nx.all_simple_paths(self.n_graph, source, target))
         else:
-            return nx.all_simple_paths(self.nondirected_graph, source, target)
+            if cutoff > 0:
+                return list(nx.all_simple_paths(self.nondirected_graph, source, target, cutoff=cutoff))
+            else:
+                return list(nx.all_simple_paths(self.nondirected_graph, source, target))
 
 
     @staticmethod
@@ -76,13 +82,14 @@ class NetworkxUtil(object):
 
 def main() -> None:
     db_config = model.DbConfig("localhost", "root", "wawa316", "")
-    db = "pantheon"
+    db = "cyberpunk_edgerunner"
     util = NetworkxUtil(db_config, db)
     #util.update_wight()
 
-    paths = util.get_all_path("holstrom", "caspian")
-    for path in paths:
-        print(path)
+    paths = util.get_all_path("david", "rebecca", only_directed=True)
+    print(list(paths))
+    #for path in paths:
+    #    print(path)
 
 
 

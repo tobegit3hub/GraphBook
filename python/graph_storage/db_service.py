@@ -204,10 +204,10 @@ class DbService(object):
 
         connection.commit()
 
-    def get_node_node_paths(self, db_config: model.DbConfig, db: str, source: str, target, str, cutoff: int=-1) -> None:
+    def get_node_node_paths(self, db_config: model.DbConfig, db: str, source: str, target: str, cutoff: int=-1, only_directed: bool=False) -> None:
         util = networkx_util.NetworkxUtil(db_config, db)
         # TODO: Add more info for front-end
-        return util.get_all_path(source, target, cutoff)
+        return util.get_all_path(source, target, cutoff, only_directed)
 
 def main():
     db_config = model.DbConfig("localhost", "root", "wawa316", "cyberpunk_edgerunner")
