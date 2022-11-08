@@ -62,12 +62,6 @@ class DbService(object):
             return result_set
 
     def update_nodes_weight(self, db_config: model.DbConfig, db: str) -> None:
-        connection = pymysql.connect(host=db_config.host,
-                                    user=db_config.user,
-                                    password=db_config.password,
-                                    database=db_config.db,
-                                    cursorclass=pymysql.cursors.DictCursor)
-
         util = networkx_util.NetworkxUtil(db_config, db)
         util.update_wight()
 
@@ -196,6 +190,10 @@ class DbService(object):
 
         connection.commit()
 
+    def get_node_node_paths(self, db_config: model.DbConfig, db: str, source: str, target, str, cutoff: int=-1) -> None:
+        util = networkx_util.NetworkxUtil(db_config, db)
+        # TODO: Add more info for front-end
+        return util.get_all_path(source, target, cutoff)
 
 def main():
     db_config = model.DbConfig("localhost", "root", "wawa316", "cyberpunk_edgerunner")

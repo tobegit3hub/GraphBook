@@ -13,6 +13,7 @@ class NetworkxUtil(object):
         self.graph = model.Graph()
         self.graph.load_from_db(db_config, db)
         self.n_graph = self.build_graph()
+        self.nondirected_graph = self.build_nondirected_graph()
 
     def build_graph(self) -> nx.DiGraph:
         n_graph = nx.DiGraph() 
@@ -26,6 +27,23 @@ class NetworkxUtil(object):
             n_graph.add_edge(edge.source, edge.target)
 
         return n_graph
+
+    def build_nondirected_graph(self) -> nx.DiGraph:
+        nondirected_graph = nx.Graph()
+
+        for node in self.graph.nodes:
+            nondirected_graph.add_node(node.name)
+
+        for edge in self.graph.edges:
+            nondirected_graph.add_edge(edge.source, edge.target)
+        return nondirected_graph        
+
+    def get_all_path(self, source, target, cutoff=-1):
+        if cutoff > 0:
+            return nx.all_simple_paths(self.nondirected_graph, source, target, cutoff=cutoff) 
+        else:
+            return nx.all_simple_paths(self.nondirected_graph, source, target)
+
 
     @staticmethod
     def page_rank(n_graph: nx.DiGraph) -> map:
@@ -60,7 +78,13 @@ def main() -> None:
     db_config = model.DbConfig("localhost", "root", "wawa316", "")
     db = "pantheon"
     util = NetworkxUtil(db_config, db)
-    util.update_wight()
+    #util.update_wight()
+
+    paths = util.get_all_path("holstrom", "caspian")
+    for path in paths:
+        print(path)
+
+
 
 if __name__ == "__main__":
     main()

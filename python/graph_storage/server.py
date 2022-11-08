@@ -124,6 +124,21 @@ def get_group_names(db):
         result = {"group_names": db_service.get_group_names(db_config, db)}
         return jsonify(result)
 
+@app.route('/api/<db>/nodes', methods=['GET'])
+@cross_origin()
+def get_node_node_paths(db):
+    if request.method == "GET":
+        source = request.args.get('source', type = str)
+        target = request.args.get('source', type = str)
+        cutoff = request.args.get('cutoff', default = -1, type = int)
+        if source and target:
+            paths = db_service.get_node_node_paths(db_config, db, source, target, cutoff)
+            result = {"paths": paths}
+        else:
+            # TODO: Throw errors
+            result = {"code": -1}
+        return jsonify(result)
+
 
 def main():
   # Start web browser if possible
