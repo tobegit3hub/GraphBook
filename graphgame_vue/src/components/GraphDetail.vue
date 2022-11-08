@@ -10,15 +10,14 @@
   <h3>Users:</h3>
   <div>
     <a-checkbox
-      v-model:checked="checkAll"
-      :indeterminate="indeterminate"
-      @change="onCheckAllChange"
+      v-model:checked="isChooseAllUsers"
+      :indeterminate="chooseUserIndeterminateState"
+      @change="onChooseAllUsers"
       >
       Choose all
     </a-checkbox>
   </div>
-  <a-divider />
-  <a-checkbox-group v-model:value="checkedList" :options="plainOptions" />
+  <a-checkbox-group v-model:value="currentChosenUserNames" :options="allNodeNames" />
 
   <h3>Groups:</h3>
   <ul>
@@ -54,8 +53,6 @@ use([
   TooltipComponent,
   LegendComponent
 ]);
-
-const plainOptions = ['Apple', 'Pear', 'Orange'];
 
 export default defineComponent({
   name: "GraphDetail",
@@ -215,16 +212,38 @@ export default defineComponent({
     }
 
     const changeGroup = (group_name) => {
-      console.log("Change group: " + group_name);
       current_group_name.value = group_name;
-
 
       updateNodes();
     }
 
     const updateNodes = () => {
-      console.log("Call update nodes");
 
+      // Get nodes data from chosen nodes
+      if (chooseUserCheckboxState.currentChosenUserNames.length > 0) {
+          axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
+          params: {
+            chosen_nodes: chooseUserCheckboxState.currentChosenUserNames,
+          }
+        }).then(response => {
+          // Reset nodes data
+          // TODO: Update the image symbol as well
+          let series_0 = vuechartOption.value.series[0];
+          series_0.data = response.data.nodes;
+          vuechartOption.value.series[0] = series_0;
+        }, response => {
+            console.log("Fail to get nodes");
+        });
+        return;
+      } else if (chooseUserCheckboxState.currentChosenUserNames.length == 0) {
+        let series_0 = vuechartOption.value.series[0];
+        series_0.data = [];
+        vuechartOption.value.series[0] = series_0;
+        return;
+      }
+
+      // TODO: Support select by group as well
+      // Get all nodes or select from groups
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
         params: {
           num: -1,
@@ -238,29 +257,33 @@ export default defineComponent({
         let series_0 = vuechartOption.value.series[0];
         series_0.data = response.data.nodes;
         vuechartOption.value.series[0] = series_0;
-
       }, response => {
           console.log("Fail to get nodes");
-      }); 
+      });
     }
 
-    // tobedev
-    const state = reactive({
-      indeterminate: true,
-      checkAll: false,
-      checkedList: ['Apple', 'Orange'],
+
+    let allNodeNames = ref([]);
+    const chooseUserCheckboxState = reactive({
+      chooseUserIndeterminateState: false,
+      isChooseAllUsers: false,
+      currentChosenUserNames: [],
     });
 
-    const onCheckAllChange = e => {
-      Object.assign(state, {
-        checkedList: e.target.checked ? plainOptions : [],
-        indeterminate: false,
+    const onChooseAllUsers = e => {
+      Object.assign(chooseUserCheckboxState, {
+        currentChosenUserNames: e.target.checked ? allNodeNames.value : [],
+        chooseUserIndeterminateState: false,
       });
+
+      updateNodes();
     };
 
-    watch(() => state.checkedList, val => {
-      state.indeterminate = !!val.length && val.length < plainOptions.length;
-      state.checkAll = val.length === plainOptions.length;
+    watch(() => chooseUserCheckboxState.currentChosenUserNames, val => {
+      chooseUserCheckboxState.chooseUserIndeterminateState = !!val.length && val.length < allNodeNames.value.length;
+      chooseUserCheckboxState.isChooseAllUsers = val.length === allNodeNames.value.length;
+
+      updateNodes();
     });
 
     onMounted(() => {
@@ -271,6 +294,12 @@ export default defineComponent({
         }
       }).then(response => {
         nodes.value = response.data.nodes;
+
+        var nodeNameList = []
+        response.data.nodes.forEach(function(node) {
+          nodeNameList.push(node["name"])
+        });
+        allNodeNames.value =  nodeNameList;
 
         nodes.value.forEach(function(node, index, array) {
           if (dynamicNodeWeight) {
@@ -316,9 +345,9 @@ export default defineComponent({
       group_names,
       current_group_name,
       changeGroup,
-      ...toRefs(state),
-      plainOptions,
-      onCheckAllChange,
+      ...toRefs(chooseUserCheckboxState),
+      allNodeNames,
+      onChooseAllUsers,
     }
 
   }

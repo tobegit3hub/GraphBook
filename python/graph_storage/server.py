@@ -60,7 +60,8 @@ def get_nodes(db):
     if request.method == "GET":
         num = request.args.get('num', default = -1, type = int)
         group_name = request.args.get('group', default = "", type = str)
-        result = {"nodes": db_service.get_nodes_for_frontend(db_config, db, num, group_name)}
+        chosen_nodes = request.args.getlist('chosen_nodes[]')
+        result = {"nodes": db_service.get_nodes_for_frontend(db_config, db, num, group_name, chosen_nodes)}
         return jsonify(result)
     elif request.method == "POST":
         insert_nodes = request.json["insert_nodes"]

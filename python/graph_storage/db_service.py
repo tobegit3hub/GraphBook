@@ -12,7 +12,7 @@ class DbService(object):
     def __init__(self) -> None:
         pass
 
-    def get_nodes_for_frontend(self, db_config: model.DbConfig, db: str, limit_num: int=-1, group_name: str="") -> None:
+    def get_nodes_for_frontend(self, db_config: model.DbConfig, db: str, limit_num: int=-1, group_name: str="", chosen_node_names: list=[]) -> list:
         connection = pymysql.connect(host=db_config.host,
                                     user=db_config.user,
                                     password=db_config.password,
@@ -20,18 +20,32 @@ class DbService(object):
                                     cursorclass=pymysql.cursors.DictCursor)
                                             
         with connection.cursor() as cursor:
-            sql = "SELECT id as row_id, name, display_name, note, weight FROM {}.nodes".format(db)
+            # If pass chosen nodes
+            if len(chosen_node_names) > 0:
+                # Generate the SQL parameter, for example: "'kiwi','pilar','rebecca'"
+                names_str = ",".join(["'{}'".format(name) for name in chosen_node_names])
+                sql = "SELECT id as row_id, name, display_name, note, weight FROM {}.nodes WHERE name IN ({})".format(db, names_str)                
+                print("Try to execute sql: {}".format(sql))
+                cursor.execute(sql)
+                result_set = cursor.fetchall()
+                return result_set
+            else:
+                sql = "SELECT id as row_id, name, display_name, note, weight FROM {}.nodes".format(db)
 
-            if group_name != "":
-                sql += " WHERE name IN (SELECT node_name FROM teams WHERE group_name = '{}')".format(group_name)
+                if group_name != "":
+                    sql += " WHERE name IN (SELECT node_name FROM teams WHERE group_name = '{}')".format(group_name)
 
-            if limit_num > 0:
-                sql = sql + " ORDER BY id LIMIT {}".format(limit_num)
-            
-            print("Try to execute sql: {}".format(sql))
-            cursor.execute(sql)
-            result_set = cursor.fetchall()
-            return result_set
+                if limit_num > 0:
+                    sql = sql + " ORDER BY id LIMIT {}".format(limit_num)
+
+                
+                    chosen_nodes
+                    sql += " IN ()"
+                
+                print("Try to execute sql: {}".format(sql))
+                cursor.execute(sql)
+                result_set = cursor.fetchall()
+                return result_set
 
     def get_node_downstream(self, db_config: model.DbConfig, db: str, node_name: str) -> None:
         connection = pymysql.connect(host=db_config.host,
