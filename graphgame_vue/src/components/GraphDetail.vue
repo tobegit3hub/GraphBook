@@ -74,10 +74,28 @@ export default defineComponent({
     let increase_nodes_timer = null;
     let current_node_count = 0;
 
+    const formatGraphTitle = (value) => {
+      return `Graph of ${value}`;
+    };
+
+    const briefNodeNote = (note) => {
+      if (note) {
+        // TODO: Support word wrap and substring more characters
+        if (note.length > 6) {
+          return note.substring(0, 6) + "...";
+        } else {
+          return note;
+        }
+      } else {
+        return null;
+      }
+
+    };
+
     const vuechartOption = ref({
       backgroundColor: '#f6f5f3',
       title: {
-        text: props.dbName,
+        text: formatGraphTitle(props.dbName),
         textStyle: {
           color: '#368cbf',
           fontWeight: 700,
@@ -96,6 +114,10 @@ export default defineComponent({
           if (param.data.name) {
             template += '</br></br>'
             template += `<img src='http://localhost:7788/images/${props.dbName}/${param.data.name}.png' width="100">`;
+            template += '</br></br>'
+            if (param.data.note) {
+              template += '<div style="width: 100px">' + briefNodeNote(param.data.note) + '</div>';
+            }            
           }
           return template;
         }
