@@ -293,7 +293,7 @@ export default defineComponent({
     let allGroupNames = ref([]);
     const chooseGroupCheckboxState = reactive({
       isChooseGroupIndeterminateState: false,
-      isChooseAllGroups: true,
+      isChooseAllGroups: false,
       currentChosenGroupNames: [],
     });
 
@@ -308,7 +308,6 @@ export default defineComponent({
       chooseGroupCheckboxState.isChooseGroupIndeterminateState = !!val.length && val.length < allGroupNames.value.length;
       chooseGroupCheckboxState.isChooseAllGroups = val.length === allGroupNames.value.length;
 
-      // TODO: we choose all groups by default but it may not get all node at start
       updateGroup();
     });
 
@@ -339,7 +338,6 @@ export default defineComponent({
 
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/group_names`).then(response => {
         allGroupNames.value = response.data.group_names;
-        chooseGroupCheckboxState.currentChosenGroupNames = allGroupNames.value;
       }, response => {
         console.log("Fail to get edges");
       });
