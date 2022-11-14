@@ -1,2 +1,5 @@
-# GraphGame
-The games for any knowledge graph
+# GraphBook
+
+The tools for creating and sharing knowledge graphs.
+
+
