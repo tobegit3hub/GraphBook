@@ -1,11 +1,9 @@
 
 <template>
 
-  <h1>GraphDetail</h1>
-
   <v-chart class="chart" :option="vuechartOption" />
 
-  <h3>Users:</h3>
+  <h3>Characters:</h3>
   <div>
     <a-checkbox
       v-model:checked="isChooseAllUsers"
@@ -264,7 +262,7 @@ export default defineComponent({
     let allNodeNames = ref([]);
     const chooseUserCheckboxState = reactive({
       chooseUserIndeterminateState: false,
-      isChooseAllUsers: false,
+      isChooseAllUsers: true,
       currentChosenUserNames: [],
     });
 
@@ -301,6 +299,8 @@ export default defineComponent({
         });
 
         allNodeNames.value =  nodeNameList;
+
+        chooseUserCheckboxState.currentChosenUserNames = nodeNameList;
 
         nodes.value.forEach(function(node, index, array) {
           if (dynamicNodeWeight) {
