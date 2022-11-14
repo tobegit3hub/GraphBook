@@ -21,6 +21,18 @@
   </div>
   <a-checkbox-group v-model:value="currentChosenGroupNames" :options="allGroupNames" />
 
+  <h3>Resize with weight:</h3>
+  <div>
+    <a-row>
+      <a-col :span="8">
+        <a-slider v-model:value="nodeWeightFactor" @change="handleEnableNodeWeight" />
+      </a-col>
+      <a-col :span="8">
+        <a-switch v-model:checked="isEnableNodeWeight" @change="handleEnableNodeWeight"/>
+      </a-col>
+    </a-row>
+  </div>
+
 </template>
 
 <script>
@@ -58,8 +70,6 @@ export default defineComponent({
     [THEME_KEY]: "dark"
   },
   setup(props) {
-
-    const dynamicNodeWeight = false;
 
     let increase_nodes_timer = null;
     let current_node_count = 0;
@@ -207,7 +217,7 @@ export default defineComponent({
       vuechartOption.value.series[0] = series_0;
 
       nodes.forEach(function (node, index, array) {
-        if (dynamicNodeWeight) {
+        if (isEnableNodeWeight.value) {
           // Update symbol size for node
           nodes[index]["symbolSize"] = node.weight * 700;
         }
@@ -258,10 +268,7 @@ export default defineComponent({
             chosen_groups: chooseGroupCheckboxState.currentChosenGroupNames,
           }
         }).then(response => {
-          console.log("tobetest");
-          console.log(response.data.nodes);
           chooseUserCheckboxState.currentChosenUserNames = [...response.data.nodes];
-
         }, response => {
           console.log("Fail to get nodes");
         });
@@ -311,6 +318,29 @@ export default defineComponent({
       updateGroup();
     });
 
+
+    const nodeWeightFactor = ref(50);
+    const isEnableNodeWeight = ref(false);
+
+    const handleEnableNodeWeight = () => {
+      // TODO: If isEnableNodeWeight is false, no need to handle when changing nodeWeightFactor
+
+      let series_0 = vuechartOption.value.series[0];
+
+      // Copy the objects and only reset symbolSize
+      let nodes = series_0.data;
+      nodes.forEach(function (node, index, array) {
+        if (isEnableNodeWeight.value) {
+          // Update symbol size for node
+          nodes[index]["symbolSize"] = node.weight * nodeWeightFactor.value * 20;
+        } else {
+          nodes[index]["symbolSize"] = null;
+        }
+
+        vuechartOption.value.series[0] = series_0;
+      });
+    }
+
     onMounted(() => {
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
         params: {
@@ -353,7 +383,11 @@ export default defineComponent({
 
       ...toRefs(chooseGroupCheckboxState),
       allGroupNames,
-      handleChooseAllGroups
+      handleChooseAllGroups,
+
+      nodeWeightFactor,
+      isEnableNodeWeight,
+      handleEnableNodeWeight
     }
 
   }
