@@ -66,10 +66,6 @@ class DbService(object):
 
                 if limit_num > 0:
                     sql = sql + " ORDER BY id LIMIT {}".format(limit_num)
-
-                
-                    chosen_nodes
-                    sql += " IN ()"
                 
                 print("Try to execute sql: {}".format(sql))
                 cursor.execute(sql)
@@ -148,6 +144,25 @@ class DbService(object):
             result_set = cursor.fetchall()
             group_names = [row["group_name"] for row in result_set]
             return group_names
+
+    def get_nodes_in_groups(self, db_config: model.DbConfig, db: str, chosen_groups: list) -> array:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+              
+        with connection.cursor() as cursor:
+            if len(chosen_groups) > 0:
+                group_str = ",".join(["'{}'".format(name) for name in chosen_groups])
+                sql = "SELECT distinct(node_name) FROM {}.teams WHERE group_name IN ({})".format(db, group_str)
+            else:
+                sql = "SELECT distinct(node_name) FROM {}.teams".format(db)
+            print("Try to execute sql: {}".format(sql))
+            cursor.execute(sql)
+            result_set = cursor.fetchall()
+            node_names = [row["node_name"] for row in result_set]
+            return node_names
 
     def update_nodes(self, db_config: model.DbConfig, db: str, insert_nodes: array, update_nodes: array, delete_nodes: array) -> None:
         connection = pymysql.connect(host=db_config.host,

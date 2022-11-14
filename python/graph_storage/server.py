@@ -81,6 +81,14 @@ def get_nodes(db):
         db_service.update_nodes(db_config, db, insert_nodes, update_nodes, delete_nodes)
         return jsonify({"code": 0})
 
+@app.route('/api/<db>/node_names', methods=['GET'])
+@cross_origin()
+def get_node_names(db):
+    if request.method == "GET":
+        chosen_groups = request.args.getlist('chosen_groups[]')
+        result = {"nodes": db_service.get_nodes_in_groups(db_config, db, chosen_groups)}
+        return jsonify(result)
+
 @app.route('/api/<db>/nodes/<name>/downstream', methods=['GET'])
 @cross_origin()
 def get_node_downstream(db, name):

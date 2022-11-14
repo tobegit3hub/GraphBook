@@ -5,7 +5,7 @@
 
   <h3>Characters:</h3>
   <div>
-    <a-checkbox v-model:checked="isChooseAllUsers" :indeterminate="chooseUserIndeterminateState"
+    <a-checkbox v-model:checked="isChooseAllUsers" :indeterminate="isChooseUserIndeterminateState"
       @change="handleChooseAllUsers">
       Choose all
     </a-checkbox>
@@ -13,14 +13,13 @@
   <a-checkbox-group v-model:value="currentChosenUserNames" :options="allNodeNames" />
 
   <h3>Groups:</h3>
-  <ul>
-    <li>
-      <button @click="changeGroup('')">All Groups</button>
-    </li>
-    <li v-for="group_name in group_names">
-      <button @click="changeGroup(group_name)">{{ group_name }}</button>
-    </li>
-  </ul>
+  <div>
+    <a-checkbox v-model:checked="isChooseAllGroups" :indeterminate="isChooseGroupIndeterminateState"
+      @change="handleChooseAllGroups">
+      Choose all
+    </a-checkbox>
+  </div>
+  <a-checkbox-group v-model:value="currentChosenGroupNames" :options="allGroupNames" />
 
 </template>
 
@@ -61,11 +60,6 @@ export default defineComponent({
   setup(props) {
 
     const dynamicNodeWeight = false;
-
-    let nodes = ref([]);
-    let edges = ref([]);
-    let group_names = ref([]);
-    let current_group_name = ref("");
 
     let increase_nodes_timer = null;
     let current_node_count = 0;
@@ -173,6 +167,7 @@ export default defineComponent({
       console.log("Stop increase nodes timer")
     }
 
+    // Crop the image for echart graph
     const asyncCropImage = (imgSrc, callback) => {
       const canvas = document.createElement('canvas');
       const contex = canvas.getContext('2d');
@@ -204,11 +199,6 @@ export default defineComponent({
       img.src = imgSrc;
     }
 
-    const changeGroup = (group_name) => {
-      current_group_name.value = group_name;
-
-      updateGraphNodes();
-    }
 
     // Copy the original data and only update the data of vuechart
     const updateGraphNodesData = (nodes) => {
@@ -258,9 +248,31 @@ export default defineComponent({
       }
     }
 
+    // Update the nodes by accessing chooseGroupCheckboxState
+    const updateGroup = () => {
+
+      if (chooseGroupCheckboxState.currentChosenGroupNames.length > 0) {
+        // Get nodes data from chosen group
+        axios.get(`http://127.0.0.1:7788/api/${props.dbName}/node_names`, {
+          params: {
+            chosen_groups: chooseGroupCheckboxState.currentChosenGroupNames,
+          }
+        }).then(response => {
+          console.log("tobetest");
+          console.log(response.data.nodes);
+          chooseUserCheckboxState.currentChosenUserNames = [...response.data.nodes];
+
+        }, response => {
+          console.log("Fail to get nodes");
+        });
+      } else {
+        chooseUserCheckboxState.currentChosenUserNames = [];
+      }
+    }
+
     let allNodeNames = ref([]);
     const chooseUserCheckboxState = reactive({
-      chooseUserIndeterminateState: false,
+      isChooseUserIndeterminateState: false,
       isChooseAllUsers: true,
       currentChosenUserNames: [],
     });
@@ -268,15 +280,36 @@ export default defineComponent({
     const handleChooseAllUsers = e => {
       Object.assign(chooseUserCheckboxState, {
         currentChosenUserNames: e.target.checked ? allNodeNames.value : [],
-        chooseUserIndeterminateState: false,
+        isChooseUserIndeterminateState: false,
       });
     };
 
     watch(() => chooseUserCheckboxState.currentChosenUserNames, val => {
-      chooseUserCheckboxState.chooseUserIndeterminateState = !!val.length && val.length < allNodeNames.value.length;
+      chooseUserCheckboxState.isChooseUserIndeterminateState = !!val.length && val.length < allNodeNames.value.length;
       chooseUserCheckboxState.isChooseAllUsers = val.length === allNodeNames.value.length;
-
       updateGraphNodes();
+    });
+
+    let allGroupNames = ref([]);
+    const chooseGroupCheckboxState = reactive({
+      isChooseGroupIndeterminateState: false,
+      isChooseAllGroups: true,
+      currentChosenGroupNames: [],
+    });
+
+    const handleChooseAllGroups = e => {
+      Object.assign(chooseGroupCheckboxState, {
+        currentChosenGroupNames: e.target.checked ? allGroupNames.value : [],
+        isChooseGroupIndeterminateState: false,
+      });
+    };
+
+    watch(() => chooseGroupCheckboxState.currentChosenGroupNames, val => {
+      chooseGroupCheckboxState.isChooseGroupIndeterminateState = !!val.length && val.length < allGroupNames.value.length;
+      chooseGroupCheckboxState.isChooseAllGroups = val.length === allGroupNames.value.length;
+
+      // TODO: we choose all groups by default but it may not get all node at start
+      updateGroup();
     });
 
     onMounted(() => {
@@ -285,51 +318,44 @@ export default defineComponent({
           num: -1
         }
       }).then(response => {
-        nodes.value = response.data.nodes;
-
         // The list of node names, used for choose users to display
         var nodeNameList = []
-
         response.data.nodes.forEach(function (node) {
           nodeNameList.push(node["name"])
         });
-
         allNodeNames.value = nodeNameList;
-
         chooseUserCheckboxState.currentChosenUserNames = nodeNameList;
 
         updateGraphNodes();
-
       }, response => {
         console.log("Fail to get nodes");
       });
 
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/edges`).then(response => {
-        edges.value = response.data.edges;
         vuechartOption.value.series[0].links.push(...response.data.edges);
       }, response => {
         console.log("Fail to get edges");
       });
 
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/group_names`).then(response => {
-        group_names.value = response.data.group_names;
+        allGroupNames.value = response.data.group_names;
+        chooseGroupCheckboxState.currentChosenGroupNames = allGroupNames.value;
       }, response => {
         console.log("Fail to get edges");
       });
 
-      //this.startIncreaseNodes();
     })
 
     return {
       vuechartOption,
-      nodes,
-      edges,
-      group_names,
-      current_group_name,
-      changeGroup,
+
       ...toRefs(chooseUserCheckboxState),
       allNodeNames,
-      handleChooseAllUsers
+      handleChooseAllUsers,
+
+      ...toRefs(chooseGroupCheckboxState),
+      allGroupNames,
+      handleChooseAllGroups
     }
 
   }
