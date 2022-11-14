@@ -5,11 +5,8 @@
 
   <h3>Characters:</h3>
   <div>
-    <a-checkbox
-      v-model:checked="isChooseAllUsers"
-      :indeterminate="chooseUserIndeterminateState"
-      @change="onChooseAllUsers"
-      >
+    <a-checkbox v-model:checked="isChooseAllUsers" :indeterminate="chooseUserIndeterminateState"
+      @change="handleChooseAllUsers">
       Choose all
     </a-checkbox>
   </div>
@@ -28,7 +25,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, watch, toRefs, onMounted} from 'vue'
+import { defineComponent, ref, reactive, watch, toRefs, onMounted } from 'vue'
 
 import axios from 'axios'
 
@@ -61,45 +58,45 @@ export default defineComponent({
   provide: {
     [THEME_KEY]: "dark"
   },
-  setup (props) {
+  setup(props) {
 
-      const dynamicNodeWeight = false;
+    const dynamicNodeWeight = false;
 
-      let nodes = ref([]);
-      let edges = ref([]);
-      let group_names = ref([]);
-      let current_group_name = ref("");
+    let nodes = ref([]);
+    let edges = ref([]);
+    let group_names = ref([]);
+    let current_group_name = ref("");
 
-      let increase_nodes_timer = null;
-      let current_node_count = 0;
+    let increase_nodes_timer = null;
+    let current_node_count = 0;
 
-      const vuechartOption = ref({
-        backgroundColor: '#f6f5f3',
-        title: {
-          text: props.dbName,
-          textStyle: {
-            color: '#368cbf',
-            fontWeight: 700,
-            fontSize: 30,
-            left: 'center'
+    const vuechartOption = ref({
+      backgroundColor: '#f6f5f3',
+      title: {
+        text: props.dbName,
+        textStyle: {
+          color: '#368cbf',
+          fontWeight: 700,
+          fontSize: 30,
+          left: 'center'
+        }
+      },
+      tooltip: {
+        trigger: "item",
+        formatter: (param) => {
+          let template = param.data.name
+          if (param.data.display_name) {
+            template = param.data.display_name
           }
-        },
-        tooltip: {
-          trigger: "item",
-          formatter: (param) => {
-              let template = param.data.name
-              if (param.data.display_name) {
-                template = param.data.display_name
-              }
-              // TODO: Display image, handle image not found
-              if (param.data.name) {
-                template += '</br></br>'
-                template += `<img src='http://localhost:7788/images/${props.dbName}/${param.data.name}.png' width="100">`;
-              }
-              return template;
+          // TODO: Display image, handle image not found
+          if (param.data.name) {
+            template += '</br></br>'
+            template += `<img src='http://localhost:7788/images/${props.dbName}/${param.data.name}.png' width="100">`;
           }
-        },
-        series: [
+          return template;
+        }
+      },
+      series: [
         {
           type: 'graph', // 类型设置为关系图
           layout: 'force',
@@ -117,11 +114,11 @@ export default defineComponent({
           },
           symbolSize: 60, //全局节点尺寸
           itemStyle: {  // 给节点加上阴影，显着立体
-            shadowColor: '#C0C0C0', 
+            shadowColor: '#C0C0C0',
             shadowOffsetX: 2,
             shadowOffsetY: 2
           },
-            //让节点可以通过鼠标拖拽和移动的设置
+          //让节点可以通过鼠标拖拽和移动的设置
           roam: false, //开启鼠标平移及缩放
           draggable: true, //节点是否支持鼠标拖拽。
           edgeSymbol: ['circle', 'arrow'],//两节点连线的样式
@@ -151,13 +148,13 @@ export default defineComponent({
           data: [],
           links: []
         }]
-      })
+    })
 
     const startIncreaseNodes = () => {
-    const max_node_count = 9;
-    const add_node_interval = 100;
+      const max_node_count = 9;
+      const add_node_interval = 100;
 
-    this.increase_nodes_timer = setInterval(() => {
+      this.increase_nodes_timer = setInterval(() => {
         console.log("Current node count: " + this.current_node_count)
 
         if (this.current_node_count >= max_node_count) {
@@ -166,98 +163,100 @@ export default defineComponent({
           this.option.series[0].data.push(this.nodes[this.current_node_count]);
           this.current_node_count += 1;
         }
-    }, add_node_interval);
+      }, add_node_interval);
 
-  }
+    }
 
-  const stopIncreaseNodes = () => {
-    clearInterval(this.increase_nodes_timer);
-    this.increase_nodes_timer = null
-    console.log("Stop increase nodes timer")
-  }
+    const stopIncreaseNodes = () => {
+      clearInterval(this.increase_nodes_timer);
+      this.increase_nodes_timer = null
+      console.log("Stop increase nodes timer")
+    }
 
-  const asyncCropImage = (imgSrc, callback) => {
-        const canvas = document.createElement('canvas');
-        const contex = canvas.getContext('2d');
-        const img = new Image();
-        img.crossOrigin = '';
+    const asyncCropImage = (imgSrc, callback) => {
+      const canvas = document.createElement('canvas');
+      const contex = canvas.getContext('2d');
+      const img = new Image();
+      img.crossOrigin = '';
 
-        img.onload = function() {
-          const center = {
-              x: img.width / 2,
-              y: img.height / 2
-          }
-          var diameter = img.width;
-          canvas.width = diameter;
-          canvas.height = diameter;
-          contex.clearRect(0, 0, diameter, diameter);
-          contex.save();
-          contex.beginPath();    
-          const radius = img.width / 2;
-          contex.arc(radius, radius, radius, 0, 2 * Math.PI);
-          contex.clip();
-          contex.drawImage(img, center.x - radius, center.y - radius, diameter, diameter, 0, 0,
-              diameter, diameter);
-          contex.restore();
-          const result =  "image://" + canvas.toDataURL('image/png', 0.1);
-
-          callback(result);
+      img.onload = function () {
+        const center = {
+          x: img.width / 2,
+          y: img.height / 2
         }
+        var diameter = img.width;
+        canvas.width = diameter;
+        canvas.height = diameter;
+        contex.clearRect(0, 0, diameter, diameter);
+        contex.save();
+        contex.beginPath();
+        const radius = img.width / 2;
+        contex.arc(radius, radius, radius, 0, 2 * Math.PI);
+        contex.clip();
+        contex.drawImage(img, center.x - radius, center.y - radius, diameter, diameter, 0, 0,
+          diameter, diameter);
+        contex.restore();
+        const result = "image://" + canvas.toDataURL('image/png', 0.1);
 
-        img.src = imgSrc;
+        callback(result);
+      }
+
+      img.src = imgSrc;
     }
 
     const changeGroup = (group_name) => {
       current_group_name.value = group_name;
 
-      updateNodes();
+      updateGraphNodes();
     }
 
-    const updateNodes = () => {
+    // Copy the original data and only update the data of vuechart
+    const updateGraphNodesData = (nodes) => {
+      let series_0 = vuechartOption.value.series[0];
+      series_0.data = nodes;
+      vuechartOption.value.series[0] = series_0;
 
-      // Get nodes data from chosen nodes
-      if (chooseUserCheckboxState.currentChosenUserNames.length > 0) {
-          axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
+      nodes.forEach(function (node, index, array) {
+        if (dynamicNodeWeight) {
+          // Update symbol size for node
+          nodes[index]["symbolSize"] = node.weight * 700;
+        }
+
+        // Get image and crop for node
+        const imagePath = `http://localhost:7788/images/${props.dbName}/${node.name}.png`;
+        asyncCropImage(imagePath, function (result) {
+          // TODO: Handle if can not load image
+          vuechartOption.value.series[0].data[index]["symbol"] = result;
+        })
+      });
+    }
+
+    // Update the graph by reading chooseUserCheckboxState
+    const updateGraphNodes = () => {
+      if (chooseUserCheckboxState.isChooseAllUsers) {
+        // Get all nodes
+        axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`).then(response => {
+          updateGraphNodesData(response.data.nodes);
+        }, response => {
+          console.log("Fail to get nodes");
+        });
+      } else if (chooseUserCheckboxState.currentChosenUserNames.length > 0) {
+        // Get nodes data from chosen nodes
+        axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
           params: {
             chosen_nodes: chooseUserCheckboxState.currentChosenUserNames,
           }
         }).then(response => {
-          // Reset nodes data
-          // TODO: Update the image symbol as well
-          let series_0 = vuechartOption.value.series[0];
-          series_0.data = response.data.nodes;
-          vuechartOption.value.series[0] = series_0;
+          updateGraphNodesData(response.data.nodes);
         }, response => {
-            console.log("Fail to get nodes");
+          console.log("Fail to get nodes");
         });
-        return;
       } else if (chooseUserCheckboxState.currentChosenUserNames.length == 0) {
         let series_0 = vuechartOption.value.series[0];
         series_0.data = [];
         vuechartOption.value.series[0] = series_0;
-        return;
       }
-
-      // TODO: Support select by group as well
-      // Get all nodes or select from groups
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
-        params: {
-          num: -1,
-          group: current_group_name.value
-        }
-      }).then(response => {
-        nodes.value = response.data.nodes;
-
-        // Reset nodes data
-        // TODO: Update the image symbol as well
-        let series_0 = vuechartOption.value.series[0];
-        series_0.data = response.data.nodes;
-        vuechartOption.value.series[0] = series_0;
-      }, response => {
-          console.log("Fail to get nodes");
-      });
     }
-
 
     let allNodeNames = ref([]);
     const chooseUserCheckboxState = reactive({
@@ -266,24 +265,21 @@ export default defineComponent({
       currentChosenUserNames: [],
     });
 
-    const onChooseAllUsers = e => {
+    const handleChooseAllUsers = e => {
       Object.assign(chooseUserCheckboxState, {
         currentChosenUserNames: e.target.checked ? allNodeNames.value : [],
         chooseUserIndeterminateState: false,
       });
-
-      updateNodes();
     };
 
     watch(() => chooseUserCheckboxState.currentChosenUserNames, val => {
       chooseUserCheckboxState.chooseUserIndeterminateState = !!val.length && val.length < allNodeNames.value.length;
       chooseUserCheckboxState.isChooseAllUsers = val.length === allNodeNames.value.length;
 
-      updateNodes();
+      updateGraphNodes();
     });
 
     onMounted(() => {
-
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
         params: {
           num: -1
@@ -293,53 +289,36 @@ export default defineComponent({
 
         // The list of node names, used for choose users to display
         var nodeNameList = []
-        
-        response.data.nodes.forEach(function(node) {
+
+        response.data.nodes.forEach(function (node) {
           nodeNameList.push(node["name"])
         });
 
-        allNodeNames.value =  nodeNameList;
+        allNodeNames.value = nodeNameList;
 
         chooseUserCheckboxState.currentChosenUserNames = nodeNameList;
 
-        nodes.value.forEach(function(node, index, array) {
-          if (dynamicNodeWeight) {
-            // Update symbol size for node
-            response.data.nodes[index]["symbolSize"] = node.weight * 700;
-          }
-          
-          // Get image and crop for node
-          const test_image_path = `http://localhost:7788/images/${props.dbName}/${node.name}.png`;
-          asyncCropImage(test_image_path, function(result){
-            // TODO: Handle if can not load image
-            vuechartOption.value.series[0].data[index]["symbol"] = result;
-          })
-        });
-
-        // Comment out if do not add all nodes at once
-        vuechartOption.value.series[0].data.push(...response.data.nodes);
+        updateGraphNodes();
 
       }, response => {
-          console.log("Fail to get nodes");
-      }); 
+        console.log("Fail to get nodes");
+      });
 
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/edges`).then(response => {
-          edges.value = response.data.edges;
-          vuechartOption.value.series[0].links.push(...response.data.edges);
+        edges.value = response.data.edges;
+        vuechartOption.value.series[0].links.push(...response.data.edges);
       }, response => {
-          console.log("Fail to get edges");
+        console.log("Fail to get edges");
       });
 
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/group_names`).then(response => {
-          group_names.value = response.data.group_names;
+        group_names.value = response.data.group_names;
       }, response => {
-          console.log("Fail to get edges");
+        console.log("Fail to get edges");
       });
 
       //this.startIncreaseNodes();
     })
-
-
 
     return {
       vuechartOption,
@@ -350,7 +329,7 @@ export default defineComponent({
       changeGroup,
       ...toRefs(chooseUserCheckboxState),
       allNodeNames,
-      onChooseAllUsers
+      handleChooseAllUsers
     }
 
   }
