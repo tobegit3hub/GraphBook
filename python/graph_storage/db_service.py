@@ -12,6 +12,35 @@ class DbService(object):
     def __init__(self) -> None:
         pass
 
+    def get_databases(self, db_config: model.DbConfig) -> list:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
+            sql = "SHOW DATABASES WHERE `Database` NOT IN ('mysql', 'performance_schema', 'sys', 'information_schema')"                
+            print("Try to execute sql: {}".format(sql))
+            cursor.execute(sql)
+            result_set = cursor.fetchall()
+            return result_set
+
+    def create_database(self, db_config: model.DbConfig, db_name) -> list:
+        connection = pymysql.connect(host=db_config.host,
+                                    user=db_config.user,
+                                    password=db_config.password,
+                                    database=db_config.db,
+                                    cursorclass=pymysql.cursors.DictCursor)
+                                            
+        with connection.cursor() as cursor:
+            sql = "CREATE DATABASE "                
+            print("Try to execute sql: {}".format(sql))
+            cursor.execute(sql)
+            # TODO: Create table as well
+            result_set = cursor.fetchall()
+            return result_set
+
     def get_nodes_for_frontend(self, db_config: model.DbConfig, db: str, limit_num: int=-1, group_name: str="", chosen_node_names: list=[]) -> list:
         connection = pymysql.connect(host=db_config.host,
                                     user=db_config.user,

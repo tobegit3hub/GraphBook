@@ -9,7 +9,7 @@ def build_graph(graph: model.Graph) -> None:
     for node in graph.nodes:
         g_graph.node(node.name, node.display_name, color='white', shape="circle",
         imagescale="true", fixedsize="true", style="filled",
-        image="/Users/tobe/code/GraphGame/images/cyberpunk_edgerunner/{}.png".format(node.name))
+        image="/Users/tobe/code/GraphBook/images/cyberpunk_edgerunner/{}.png".format(node.name))
     """
     for node in graph.nodes:
         g_graph.node(node.name, node.display_name, color='white', shape="circle",

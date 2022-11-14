@@ -9,7 +9,7 @@ import GroupsTable from './components/GroupsTable.vue';
     <GraphDetail db-name="cyberpunk_edgerunner"></GraphDetail>
 
     <!--
-    <NodesTable db-name="pantheon"></NodesTable>
+    <NodesTable db-name="cyberpunk_edgerunner"></NodesTable>
     <EdgesTable db-name="pantheon"></EdgesTable>
     <GroupsTable db-name="pantheon"></GroupsTable>
     -->

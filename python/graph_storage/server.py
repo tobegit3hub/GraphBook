@@ -54,6 +54,17 @@ def index():
     return render_template("index.html")
 """
 
+@app.route('/api/dbs', methods=['GET', 'POST'])
+@cross_origin()
+def get_dbs():
+    if request.method == "GET":
+        result = {"dbs": db_service.get_databases(db_config)}
+        return jsonify(result)
+    elif request.method == "POST":
+        db_name = request.json["name"]
+        db_service.create_database(db_config, db_name)
+        return jsonify({"code": 0})
+
 @app.route('/api/<db>/nodes', methods=['GET', 'POST'])
 @cross_origin()
 def get_nodes(db):
