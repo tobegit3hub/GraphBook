@@ -4,11 +4,16 @@ import NodesTable from './components/NodesTable.vue';
 import EdgesTable from './components/EdgesTable.vue';
 import GroupsTable from './components/GroupsTable.vue';
 import NodesCards from './components/NodesCards.vue';
+import ComputeNodesPath from './components/ComputeNodesPath.vue'
 </script>
 
 <template>
 
     <GraphDetail db-name="cyberpunk_edgerunner"></GraphDetail>
+
+    <!--
+    <ComputeNodesPath db-name="cyberpunk_edgerunner"></ComputeNodesPath>
+    -->
 
     <!--
     <NodesTable db-name="cyberpunk_edgerunner"></NodesTable>
