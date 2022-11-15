@@ -48,7 +48,7 @@ import axios from 'axios'
 export default defineComponent({
   name: "ComputeNodesPath",
   props: {
-    dbName: String,
+    topic: String,
   },
   setup (props) {
 
@@ -77,7 +77,7 @@ export default defineComponent({
 
     onMounted(() => {
 
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`).then(response => {
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/nodes`).then(response => {
         
         var nodeNameList = [];
         var computePathOptionList = [];
@@ -112,7 +112,7 @@ export default defineComponent({
 
     const handleClickComputePaths = () => {
 
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/paths`, {
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/paths`, {
         params: {
           source: computePathSource.value,
           target: computePathTarget.value,

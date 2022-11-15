@@ -94,10 +94,10 @@ def handle_relations(topic):
         result = {"relations": db_service.get_relations(topic)}
         return jsonify(result)
     elif request.method == "POST":
-        insert_edges = request.json["insert_edges"]
-        update_edges = request.json["update_edges"]
-        delete_edges = request.json["delete_edges"]
-        db_service.update_edges(db_config, db, insert_edges, update_edges, delete_edges)
+        insert_relations = request.json["insert_relations"]
+        update_relations = request.json["update_relations"]
+        delete_relations = request.json["delete_relations"]
+        db_service.update_relations(topic, insert_relations, update_relations, delete_relations)
         return jsonify({"code": 0})
 
 @app.route('/api/topics/<topic>/groups', methods=['GET', 'POST'])
@@ -110,7 +110,7 @@ def handle_groups(topic):
         insert_groups = request.json["insert_groups"]
         update_groups = request.json["update_groups"]
         delete_groups = request.json["delete_groups"]
-        db_service.update_groups(db_config, db, insert_groups, update_groups, delete_groups)
+        db_service.update_groups(topic, insert_groups, update_groups, delete_groups)
         return jsonify({"code": 0})
 
 

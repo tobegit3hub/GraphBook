@@ -37,6 +37,7 @@ export default defineComponent({
       keepSource: true,
       id: 'characters_table',
       exportConfig: {},
+      importConfig: {},
       columnConfig: {
         resizable: true
       },

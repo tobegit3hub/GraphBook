@@ -2,9 +2,6 @@
 <template>
 
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
-    <template #id_edit="{ row }">
-      <vxe-input v-model="row.id"></vxe-input>
-    </template>
     <template #source_edit="{ row }">
       <vxe-input v-model="row.source"></vxe-input>
     </template>
@@ -32,16 +29,16 @@ import { defineComponent, reactive, ref, onMounted} from 'vue'
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
 
 export default defineComponent({
-  name: "EdgesTable",
+  name: "RelatioinsTable",
   props: {
-    dbName: String,
+    topic: String,
   },
   setup (props) {
     const vxeTable = ref<VxeGridInstance>()
     const vxeTableOptions = reactive<VxeGridProps>({
       border: true,
       keepSource: true,
-      id: 'edges_table',
+      id: 'relations_table',
       exportConfig: {},
       columnConfig: {
         resizable: true
@@ -55,7 +52,6 @@ export default defineComponent({
         showStatus: true
       },
       columns: [
-        { field: 'id', title: 'Id', slots: { edit: 'id_edit' } },
         { field: 'source', title: 'Source', editRender: {}, slots: { edit: 'source_edit' } },
         { field: 'target', title: 'Target', editRender: {}, slots: { edit: 'target_edit' } },
         { field: 'relation', title: 'Relation', editRender: {}, slots: { edit: 'relation_edit' } },
@@ -89,10 +85,10 @@ export default defineComponent({
             const { insertRecords, removeRecords, updateRecords } = $grid.getRecordset()
             VXETable.modal.message({ content: `Add ${insertRecords.length} rows, update ${updateRecords.length} rows, delete ${removeRecords.length} rows`, status: 'success' })
 
-            axios.post(`http://127.0.0.1:7788/api/${props.dbName}/edges`, {
-              insert_edges: insertRecords,
-              update_edges: updateRecords,
-              delete_edges: removeRecords
+            axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`, {
+              insert_relations: insertRecords,
+              update_relations: updateRecords,
+              delete_relations: removeRecords
             })
             .then(function (response) {
               console.log(response);
@@ -117,9 +113,9 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/edges`)
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`)
         .then(response => {
-          vxeTableOptions.data = response.data.edges;
+          vxeTableOptions.data = response.data.relations;
         })
         .catch(error => {
           console.log(error);

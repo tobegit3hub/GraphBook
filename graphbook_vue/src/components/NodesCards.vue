@@ -10,7 +10,7 @@
         <a-col :span="4">
           <a-card hoverable style="width: 240px">
           <template #cover>
-            <img :src="'http://localhost:7788/images/' + dbName + '/' + node.name + '.png'" />
+            <img :src="'http://localhost:7788/images/' + topic + '/' + node.name + '.png'" />
           </template>
           <a-card-meta :title="node.display_name">
             <template #description>{{ node.note }}</template>
@@ -35,14 +35,14 @@ import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-t
 export default defineComponent({
   name: "NodesCard",
   props: {
-    dbName: String,
+    topic: String,
   },
   setup (props) {
    
     let nodes = ref([]);
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`)
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/nodes`)
         .then(response => {
           nodes.value = response.data.nodes;
         })

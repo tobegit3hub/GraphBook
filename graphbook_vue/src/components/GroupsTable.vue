@@ -2,14 +2,11 @@
 <template>
 
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
-    <template #id_edit="{ row }">
-      <vxe-input v-model="row.id"></vxe-input>
+    <template #name_edit="{ row }">
+      <vxe-input v-model="row.name"></vxe-input>
     </template>
-    <template #group_name_edit="{ row }">
-      <vxe-input v-model="row.group_name"></vxe-input>
-    </template>
-    <template #node_name_edit="{ row }">
-      <vxe-input v-model="row.node_name"></vxe-input>
+    <template #character_name_edit="{ row }">
+      <vxe-input v-model="row.character_name"></vxe-input>
     </template>
 
     <template #operate="{ row }" slot-scope="scope">
@@ -28,7 +25,7 @@ import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-t
 export default defineComponent({
   name: "GroupsTable",
   props: {
-    dbName: String,
+    topic: String,
   },
   setup (props) {
     const vxeTable = ref<VxeGridInstance>()
@@ -49,9 +46,8 @@ export default defineComponent({
         showStatus: true
       },
       columns: [
-        { field: 'id', title: 'Id', editRender: {}, slots: { edit: 'id_edit' } },
-        { field: 'group_name', title: 'Group Name', editRender: {}, slots: { edit: 'group_name_edit' } },
-        { field: 'node_name', title: 'Node Name', editRender: {}, slots: { edit: 'node_name_edit' } },
+        { field: 'name', title: 'Group Name', editRender: {}, slots: { edit: 'name_edit' } },
+        { field: 'character_name', title: 'Character Name', editRender: {}, slots: { edit: 'character_name_edit' } },
         { title: 'Delete', width: 200, slots: { default: 'operate' } }
       ],
       toolbarConfig: {
@@ -81,7 +77,7 @@ export default defineComponent({
             const { insertRecords, removeRecords, updateRecords } = $grid.getRecordset()
             VXETable.modal.message({ content: `Add ${insertRecords.length} rows, update ${updateRecords.length} rows, delete ${removeRecords.length} rows`, status: 'success' })
 
-            axios.post(`http://127.0.0.1:7788/api/${props.dbName}/groups`, {
+            axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
               insert_groups: insertRecords,
               update_groups: updateRecords,
               delete_groups: removeRecords
@@ -109,7 +105,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/groups`)
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`)
         .then(response => {
           vxeTableOptions.data = response.data.groups;
         })
