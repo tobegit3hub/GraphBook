@@ -21,17 +21,31 @@
   </div>
   <a-checkbox-group v-model:value="currentChosenGroupNames" :options="allGroupNames" />
 
-  <h3>Resize with weight:</h3>
+  <h3>Resize characters with weight:</h3>
   <div>
     <a-row>
       <a-col :span="8">
         <a-slider v-model:value="nodeWeightFactor" @change="handleEnableNodeWeight" />
       </a-col>
       <a-col :span="8">
-        <a-switch v-model:checked="isEnableNodeWeight" @change="handleEnableNodeWeight"/>
+        <a-switch v-model:checked="isEnableNodeWeight" @change="handleEnableNodeWeight" />
       </a-col>
     </a-row>
   </div>
+
+  <h3>Play graph animation:</h3>
+  <div>
+    <a-row>
+      <a-col :span="8">
+        <a-slider v-model:value="playGraphInterval" :min="10" :max="10000" />
+      </a-col>
+      <a-col :span="8">
+        <a-button type="primary" @click="handlePlayGraph">Play Graph</a-button>
+      </a-col>
+    </a-row>
+  </div>
+
+
 
 </template>
 
@@ -117,7 +131,7 @@ export default defineComponent({
             template += '</br></br>'
             if (param.data.note) {
               template += '<div style="width: 100px">' + briefNodeNote(param.data.note) + '</div>';
-            }            
+            }
           }
           return template;
         }
@@ -176,28 +190,6 @@ export default defineComponent({
         }]
     })
 
-    const startIncreaseNodes = () => {
-      const max_node_count = 9;
-      const add_node_interval = 100;
-
-      this.increase_nodes_timer = setInterval(() => {
-        console.log("Current node count: " + this.current_node_count)
-
-        if (this.current_node_count >= max_node_count) {
-          this.stopIncreaseNodes()
-        } else {
-          this.option.series[0].data.push(this.nodes[this.current_node_count]);
-          this.current_node_count += 1;
-        }
-      }, add_node_interval);
-
-    }
-
-    const stopIncreaseNodes = () => {
-      clearInterval(this.increase_nodes_timer);
-      this.increase_nodes_timer = null
-      console.log("Stop increase nodes timer")
-    }
 
     // Crop the image for echart graph
     const asyncCropImage = (imgSrc, callback) => {
@@ -363,6 +355,41 @@ export default defineComponent({
       });
     }
 
+
+    let playGraphTimer = null;
+    const playGraphInterval = ref(1000);
+
+    const startPlayGraph = () => {
+      const maxNodeCount = allNodeNames.value.length;
+      let currentNodeCount = 1;
+
+      // Set chosen users as empty
+      chooseUserCheckboxState.currentChosenUserNames = [];
+
+      playGraphTimer = setInterval(() => {
+
+        if (currentNodeCount > maxNodeCount) {
+          stopIncreaseNodes()
+        } else {
+          // Select the new node to add
+          const addNewNodeName = allNodeNames.value[currentNodeCount - 1];
+          chooseUserCheckboxState.currentChosenUserNames.push(addNewNodeName);
+          updateGraphNodes();
+
+          currentNodeCount += 1;
+        }
+      }, playGraphInterval.value);
+    }
+
+    const stopIncreaseNodes = () => {
+      clearInterval(playGraphTimer);
+      playGraphTimer = null;
+    }
+
+    const handlePlayGraph = () => {
+      startPlayGraph();
+    }
+
     onMounted(() => {
       axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
         params: {
@@ -409,7 +436,10 @@ export default defineComponent({
 
       nodeWeightFactor,
       isEnableNodeWeight,
-      handleEnableNodeWeight
+      handleEnableNodeWeight,
+
+      handlePlayGraph,
+      playGraphInterval
     }
 
   }
