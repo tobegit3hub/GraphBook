@@ -1,7 +1,18 @@
 
 <template>
 
-  <v-chart class="chart" :option="vuechartOption" />
+  <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph"/>
+
+  <a-modal v-model:visible="isNodeModalVisible" :title="currentModalDisplayName">
+    <p>Name: {{ currentModalName }}</p>
+    <p>Display name: {{ currentModalDisplayName }}</p>
+    <p>Weight: {{ currentModalWeight }}</p>
+    <a-image
+      :src="'http://localhost:7788/images/' + dbName + '/' + currentModalName + '.png'"
+    />
+    <p>Note:</p>
+    <p>{{ currentModalNote }}</p>
+  </a-modal>
 
   <h3>Characters:</h3>
   <div>
@@ -182,6 +193,24 @@ export default defineComponent({
         }]
     })
 
+    const isNodeModalVisible = ref(false);
+    const currentModalName = ref("");
+    const currentModalDisplayName = ref("");
+    const currentModalWeight = ref(0.0);
+    //const currentModalImagePath = ref("");
+    const currentModalNote = ref("");
+
+    const handleDoubleClickGraph = (params) => {
+      console.log("Handle double click graph");
+      console.log(params.data);
+
+      isNodeModalVisible.value = true;
+      currentModalName.value = params.data.name;
+      currentModalDisplayName.value = params.data.display_name;
+      currentModalWeight.value = params.data.weight;
+      //currentModalImagePath.value = params.data.symbol;
+      currentModalNote.value = params.data.note;
+    }
 
     // Crop the image for echart graph
     const asyncCropImage = (imgSrc, callback) => {
@@ -417,6 +446,13 @@ export default defineComponent({
 
     return {
       vuechartOption,
+      handleDoubleClickGraph,
+      isNodeModalVisible,
+      currentModalName,
+      currentModalDisplayName,
+      currentModalWeight,
+      //currentModalImagePath,
+      currentModalNote,
 
       ...toRefs(chooseUserCheckboxState),
       allNodeNames,

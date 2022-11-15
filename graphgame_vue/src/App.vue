@@ -7,16 +7,16 @@ import EditGraph from './components/EditGraph.vue';
 
 <template>
 
-    <!--
+
     <GraphDetail db-name="cyberpunk_edgerunner"></GraphDetail>
-    -->
+
 
     <!--
     <ComputeNodesPath db-name="cyberpunk_edgerunner"></ComputeNodesPath>
     -->
-
+    <!--
     <EditGraph db-name="cyberpunk_edgerunner"></EditGraph>
-
+    -->
     <!--
     <NodesCards db-name="cyberpunk_edgerunner"></NodesCards>
     -->
