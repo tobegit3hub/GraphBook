@@ -73,10 +73,10 @@ def handle_characters(topic):
         result = {"characters": db_service.get_characters(topic, chosen_characters_names)}
         return jsonify(result)
     elif request.method == "POST":
-        insert_nodes = request.json["insert_nodes"]
-        update_nodes = request.json["update_nodes"]
-        delete_nodes = request.json["delete_nodes"]
-        db_service.update_nodes(db_config, db, insert_nodes, update_nodes, delete_nodes)
+        insert_characters = request.json["insert_characters"]
+        update_characters = request.json["update_characters"]
+        delete_characters = request.json["delete_characters"]
+        db_service.update_characters(topic, insert_characters, update_characters, delete_characters)
         return jsonify({"code": 0})
 
 @app.route('/api/topics/<topic>/characters_names', methods=['GET'])

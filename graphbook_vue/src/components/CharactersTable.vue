@@ -2,14 +2,8 @@
 <template>
 
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
-    <template #id_edit="{ row }">
-      <vxe-input v-model="row.row_id"></vxe-input>
-    </template>
     <template #name_edit="{ row }">
       <vxe-input v-model="row.name"></vxe-input>
-    </template>
-    <template #display_name_edit="{ row }">
-      <vxe-input v-model="row.display_name"></vxe-input>
     </template>
     <template #note_edit="{ row }">
       <vxe-textarea v-model="row.note" :autosize="{ minRows: 1, maxRows: 8 }"></vxe-textarea>
@@ -32,16 +26,16 @@ import { defineComponent, reactive, ref, onMounted} from 'vue'
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
 
 export default defineComponent({
-  name: "NodesTable",
+  name: "CharactersTable",
   props: {
-    dbName: String,
+    topic: String,
   },
   setup (props) {
     const vxeTable = ref<VxeGridInstance>()
     const vxeTableOptions = reactive<VxeGridProps>({
       border: true,
       keepSource: true,
-      id: 'nodes_table',
+      id: 'characters_table',
       exportConfig: {},
       columnConfig: {
         resizable: true
@@ -55,9 +49,7 @@ export default defineComponent({
         showStatus: true
       },
       columns: [
-        { field: 'row_id', title: 'Id', slots: { edit: 'id_edit' } },
         { field: 'name', title: 'Name', editRender: {}, slots: { edit: 'name_edit' } },
-        { field: 'display_name', title: 'Display Name', editRender: {}, slots: { edit: 'display_name_edit' } },
         { field: 'note', title: 'Note', editRender: {}, slots: { edit: 'note_edit' } },
         { field: 'weight', title: 'Weight', slots: { edit: 'weight_edit' } },
         { title: 'Delete', width: 200, slots: { default: 'operate' } }
@@ -89,10 +81,10 @@ export default defineComponent({
             const { insertRecords, removeRecords, updateRecords } = $grid.getRecordset()
             VXETable.modal.message({ content: `Add ${insertRecords.length} rows, update ${updateRecords.length} rows, delete ${removeRecords.length} rows`, status: 'success' })
 
-            axios.post(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
-              insert_nodes: insertRecords,
-              update_nodes: updateRecords,
-              delete_nodes: removeRecords
+            axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
+              insert_characters: insertRecords,
+              update_characters: updateRecords,
+              delete_characters: removeRecords
             })
             .then(function (response) {
               console.log(response);
@@ -117,9 +109,9 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`)
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
         .then(response => {
-          vxeTableOptions.data = response.data.nodes;
+          vxeTableOptions.data = response.data.characters;
         })
         .catch(error => {
           console.log(error);

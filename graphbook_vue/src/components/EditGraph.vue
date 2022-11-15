@@ -2,28 +2,28 @@
 <template>
 
   <h2>Edit characters:</h2>
-  <NodesTable :db-name="dbName"></NodesTable>
-
+  <CharactersTable :topic="topic"></CharactersTable>
+<!--
   <h2>Edit relations:</h2>
-  <EdgesTable :db-name="dbName"></EdgesTable>
+  <EdgesTable :topic="topic"></EdgesTable>
 
   <h2>Edit groups:</h2>
-  <GroupsTable :db-name="dbName"></GroupsTable>
-
+  <GroupsTable :topic="topic"></GroupsTable>
+-->
 </template>
 
 <script>
 import axios from 'axios'
 import { defineComponent, reactive, ref, onMounted} from 'vue'
 
-import NodesTable from './NodesTable.vue';
+import CharactersTable from './CharactersTable.vue';
 import EdgesTable from './EdgesTable.vue';
 import GroupsTable from './GroupsTable.vue';
 
 export default defineComponent({
   name: "EditGraph",
   props: {
-    dbName: String,
+    topic: String,
   },
   setup (props) {
    
