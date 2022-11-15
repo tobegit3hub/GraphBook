@@ -69,8 +69,8 @@ def handle_topics():
 @cross_origin()
 def handle_characters(topic):
     if request.method == "GET":
-        chosen_nodes = request.args.getlist('chosen_nodes[]')
-        result = {"characters": db_service.get_characters(topic, chosen_nodes)}
+        chosen_characters_names = request.args.getlist('chosen_characters_names[]')
+        result = {"characters": db_service.get_characters(topic, chosen_characters_names)}
         return jsonify(result)
     elif request.method == "POST":
         insert_nodes = request.json["insert_nodes"]
@@ -81,10 +81,10 @@ def handle_characters(topic):
 
 @app.route('/api/topics/<topic>/characters_names', methods=['GET'])
 @cross_origin()
-def get_characters_names(db):
+def get_characters_names(topic):
     if request.method == "GET":
         chosen_groups = request.args.getlist('chosen_groups[]')
-        result = {"nodes": db_service.get_nodes_in_groups(db_config, db, chosen_groups)}
+        result = {"characters_names": db_service.get_characters_names_in_groups(topic, chosen_groups)}
         return jsonify(result)
 
 @app.route('/api/topics/<topic>/relations', methods=['GET', 'POST'])

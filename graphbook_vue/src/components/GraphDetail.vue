@@ -3,10 +3,9 @@
 
   <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph"/>
 
-  <a-modal v-model:visible="isCharacterModalVisible" :title="currentModalDisplayName" @ok="handleCharacterModalOk">
+  <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
     <p>Name: {{ currentCharacterModalName }}</p>
-    <p>Display name: {{ currentModalDisplayName }}</p>
-    <p>Weight: {{ currentModalWeight }}</p>
+    <p>Weight: {{ currentCharacterModalWeight }}</p>
     <a-image
       :src="'http://localhost:7788/images/' + topic + '/' + currentCharacterModalName + '.png'"
     />
@@ -16,12 +15,12 @@
 
   <h3>Characters:</h3>
   <div>
-    <a-checkbox v-model:checked="isChooseAllUsers" :indeterminate="isChooseUserIndeterminateState"
-      @change="handleChooseAllUsers">
+    <a-checkbox v-model:checked="isChooseAllCharacters" :indeterminate="isChooseCharacterIndeterminateState"
+      @change="handleChooseAllCharacters">
       Choose all
     </a-checkbox>
   </div>
-  <a-checkbox-group v-model:value="currentChosenUserNames" :options="allNodeNames" />
+  <a-checkbox-group v-model:value="currentChosenCharacterNames" :options="allCharacterNames" />
 
   <h3>Groups:</h3>
   <div>
@@ -36,10 +35,10 @@
   <div>
     <a-row>
       <a-col :span="8">
-        <a-slider v-model:value="nodeWeightFactor" @change="handleEnableNodeWeight" />
+        <a-slider v-model:value="characterWeightFactor" @change="handleEnableCharacterWeight" />
       </a-col>
       <a-col :span="8">
-        <a-switch v-model:checked="isEnableNodeWeight" @change="handleEnableNodeWeight" />
+        <a-switch v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
       </a-col>
     </a-row>
   </div>
@@ -55,8 +54,6 @@
       </a-col>
     </a-row>
   </div>
-
-
 
 </template>
 
@@ -96,7 +93,7 @@ export default defineComponent({
   },
   setup(props) {
 
-    const simplifyNodeNote = (note) => {
+    const simplifyCharacterNote = (note) => {
       if (note) {
         // TODO: Support word wrap and substring more characters
         if (note.length > 6) {
@@ -124,16 +121,13 @@ export default defineComponent({
         trigger: "item",
         formatter: (param) => {
           let template = param.data.name
-          if (param.data.display_name) {
-            template = param.data.display_name
-          }
           // TODO: Display image, handle image not found
           if (param.data.name) {
             template += '</br>'
             template += `<img src='http://localhost:7788/images/${props.topic}/${param.data.name}.png' width="150">`;
             template += '</br>'
             if (param.data.note) {
-              template += '<div style="width: 100px">' + simplifyNodeNote(param.data.note) + '</div>';
+              template += '<div style="width: 100px">' + simplifyCharacterNote(param.data.note) + '</div>';
             }
           }
           return template;
@@ -195,8 +189,7 @@ export default defineComponent({
 
     const isCharacterModalVisible = ref(false);
     const currentCharacterModalName = ref("");
-    const currentModalDisplayName = ref("");
-    const currentModalWeight = ref(0.0);
+    const currentCharacterModalWeight = ref(0.0);
     //const currentModalImagePath = ref("");
     const currentModalNote = ref("");
 
@@ -207,8 +200,7 @@ export default defineComponent({
     const handleDoubleClickGraph = (params) => {
       isCharacterModalVisible.value = true;
       currentCharacterModalName.value = params.data.name;
-      currentModalDisplayName.value = params.data.display_name;
-      currentModalWeight.value = params.data.weight;
+      currentCharacterModalWeight.value = params.data.weight;
       //currentModalImagePath.value = params.data.symbol;
       currentModalNote.value = params.data.note;
     }
@@ -247,19 +239,19 @@ export default defineComponent({
 
 
     // Copy the original data and only update the data of vuechart
-    const updateGraphNodesData = (nodes) => {
+    const updateGraphCharactersData = (charactersInfos) => {
       let series_0 = vuechartOption.value.series[0];
-      series_0.data = nodes;
+      series_0.data = charactersInfos;
       vuechartOption.value.series[0] = series_0;
 
-      nodes.forEach(function (node, index, array) {
-        if (isEnableNodeWeight.value) {
-          // Update symbol size for node
-          nodes[index]["symbolSize"] = node.weight * 700;
+      charactersInfos.forEach(function (characterInfo, index, array) {
+        if (isEnableCharacterWeight.value) {
+          // Update symbol size for character
+          charactersInfos[index]["symbolSize"] = characterInfo.weight * 700;
         }
 
-        // Get image and crop for node
-        const imagePath = `http://localhost:7788/images/${props.topic}/${node.name}.png`;
+        // Get image and crop for character
+        const imagePath = `http://localhost:7788/images/${props.topic}/${characterInfo.name}.png`;
         asyncCropImage(imagePath, function (result) {
           // TODO: Handle if can not load image
           vuechartOption.value.series[0].data[index]["symbol"] = result;
@@ -267,71 +259,71 @@ export default defineComponent({
       });
     }
 
-    // Update the graph by reading chooseUserCheckboxState
-    const updateGraphNodes = () => {
-      if (chooseUserCheckboxState.isChooseAllUsers) {
-        // Get all nodes
+    // Update the graph by reading chooseCharacterCheckboxState
+    const updateGraphCharacters = () => {
+      if (chooseCharacterCheckboxState.isChooseAllCharacters) {
+        // Get all characters
         axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
-          updateGraphNodesData(response.data.characters);
+          updateGraphCharactersData(response.data.characters);
         }, response => {
-          console.log("Fail to get nodes");
+          console.log("Fail to get characters");
         });
-      } else if (chooseUserCheckboxState.currentChosenUserNames.length > 0) {
-        // Get nodes data from chosen nodes
+      } else if (chooseCharacterCheckboxState.currentChosenCharacterNames.length > 0) {
+        // Get characters data from chosen characters
         axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
           params: {
-            chosen_nodes: chooseUserCheckboxState.currentChosenUserNames,
+            chosen_characters_names: chooseCharacterCheckboxState.currentChosenCharacterNames,
           }
         }).then(response => {
-          updateGraphNodesData(response.data.characters);
+          updateGraphCharactersData(response.data.characters);
         }, response => {
-          console.log("Fail to get nodes");
+          console.log("Fail to get characters");
         });
-      } else if (chooseUserCheckboxState.currentChosenUserNames.length == 0) {
+      } else if (chooseCharacterCheckboxState.currentChosenCharacterNames.length == 0) {
         let series_0 = vuechartOption.value.series[0];
         series_0.data = [];
         vuechartOption.value.series[0] = series_0;
       }
     }
 
-    // Update the nodes by accessing chooseGroupCheckboxState
+    // Update the characters by accessing chooseGroupCheckboxState
     const updateGroup = () => {
 
       if (chooseGroupCheckboxState.currentChosenGroupNames.length > 0) {
-        // Get nodes data from chosen group
-        axios.get(`http://127.0.0.1:7788/api/${props.dbName}/node_names`, {
+        // Get characters data from chosen group
+        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters_names`, {
           params: {
             chosen_groups: chooseGroupCheckboxState.currentChosenGroupNames,
           }
         }).then(response => {
-          chooseUserCheckboxState.currentChosenUserNames = [...response.data.nodes];
+          chooseCharacterCheckboxState.currentChosenCharacterNames = [...response.data.characters_names];
         }, response => {
-          console.log("Fail to get nodes");
+          console.log("Fail to get characters");
         });
       } else {
-        chooseUserCheckboxState.currentChosenUserNames = [];
+        chooseCharacterCheckboxState.currentChosenCharacterNames = [];
       }
     }
 
-    let allNodeNames = ref([]);
-    const chooseUserCheckboxState = reactive({
-      isChooseUserIndeterminateState: false,
-      isChooseAllUsers: true,
-      currentChosenUserNames: [],
+    let allCharacterNames = ref([]);
+    const chooseCharacterCheckboxState = reactive({
+      isChooseCharacterIndeterminateState: false,
+      isChooseAllCharacters: true,
+      currentChosenCharacterNames: [],
     });
 
-    const handleChooseAllUsers = e => {
-      Object.assign(chooseUserCheckboxState, {
-        currentChosenUserNames: e.target.checked ? allNodeNames.value : [],
-        isChooseUserIndeterminateState: false,
+    const handleChooseAllCharacters = e => {
+      Object.assign(chooseCharacterCheckboxState, {
+        currentChosenCharacterNames: e.target.checked ? allCharacterNames.value : [],
+        isChooseCharacterIndeterminateState: false,
       });
     };
 
-    watch(() => chooseUserCheckboxState.currentChosenUserNames, val => {
-      chooseUserCheckboxState.isChooseUserIndeterminateState = !!val.length && val.length < allNodeNames.value.length;
-      chooseUserCheckboxState.isChooseAllUsers = val.length === allNodeNames.value.length;
-      // tobedev
-      //updateGraphNodes();
+    watch(() => chooseCharacterCheckboxState.currentChosenCharacterNames, val => {
+      chooseCharacterCheckboxState.isChooseCharacterIndeterminateState = !!val.length && val.length < allCharacterNames.value.length;
+      chooseCharacterCheckboxState.isChooseAllCharacters = val.length === allCharacterNames.value.length;
+
+      updateGraphCharacters();
     });
 
     let allGroupNames = ref([]);
@@ -341,7 +333,7 @@ export default defineComponent({
       currentChosenGroupNames: [],
     });
 
-    const handleChooseAllGroups = e => {
+    const handleChooseAllGroups = (e) => {
       Object.assign(chooseGroupCheckboxState, {
         currentChosenGroupNames: e.target.checked ? allGroupNames.value : [],
         isChooseGroupIndeterminateState: false,
@@ -352,27 +344,26 @@ export default defineComponent({
       chooseGroupCheckboxState.isChooseGroupIndeterminateState = !!val.length && val.length < allGroupNames.value.length;
       chooseGroupCheckboxState.isChooseAllGroups = val.length === allGroupNames.value.length;
 
-      // tobedev
-      //updateGroup();
+      updateGroup();
     });
 
 
-    const nodeWeightFactor = ref(50);
-    const isEnableNodeWeight = ref(false);
+    const characterWeightFactor = ref(50);
+    const isEnableCharacterWeight = ref(false);
 
-    const handleEnableNodeWeight = () => {
-      // TODO: If isEnableNodeWeight is false, no need to handle when changing nodeWeightFactor
+    const handleEnableCharacterWeight = () => {
+      // TODO: If isEnableCharacterWeight is false, no need to handle when changing characterWeightFactor
 
       let series_0 = vuechartOption.value.series[0];
 
       // Copy the objects and only reset symbolSize
-      let nodes = series_0.data;
-      nodes.forEach(function (node, index, array) {
-        if (isEnableNodeWeight.value) {
-          // Update symbol size for node
-          nodes[index]["symbolSize"] = node.weight * nodeWeightFactor.value * 20;
+      let charactersInfos = series_0.data;
+      charactersInfos.forEach(function (characterInfo, index, array) {
+        if (isEnableCharacterWeight.value) {
+          // Update symbol size for characters
+          charactersInfos[index]["symbolSize"] = characterInfo.weight * characterWeightFactor.value * 20;
         } else {
-          nodes[index]["symbolSize"] = null;
+          charactersInfos[index]["symbolSize"] = null;
         }
 
         vuechartOption.value.series[0] = series_0;
@@ -384,28 +375,30 @@ export default defineComponent({
     const playGraphInterval = ref(1000);
 
     const startPlayGraph = () => {
-      const maxNodeCount = allNodeNames.value.length;
-      let currentNodeCount = 1;
+      const maxCharacterCount = allCharacterNames.value.length;
+      let currentCharacterCount = 1;
 
-      // Set chosen users as empty
-      chooseUserCheckboxState.currentChosenUserNames = [];
+      // Set chosen characters as empty
+      chooseCharacterCheckboxState.currentChosenCharacterNames = [];
 
       playGraphTimer = setInterval(() => {
 
-        if (currentNodeCount > maxNodeCount) {
-          stopIncreaseNodes()
+        if (currentCharacterCount > maxCharacterCount) {
+          stopIncreaseCharacters()
+          // Update state of checkbox of isChooseAllCharacters
+          chooseCharacterCheckboxState.isChooseAllCharacters = true;
         } else {
-          // Select the new node to add
-          const addNewNodeName = allNodeNames.value[currentNodeCount - 1];
-          chooseUserCheckboxState.currentChosenUserNames.push(addNewNodeName);
-          updateGraphNodes();
+          // Select the new character to add
+          const addNewCharacterName = allCharacterNames.value[currentCharacterCount - 1];
+          chooseCharacterCheckboxState.currentChosenCharacterNames.push(addNewCharacterName);
+          updateGraphCharacters();
 
-          currentNodeCount += 1;
+          currentCharacterCount += 1;
         }
       }, playGraphInterval.value);
     }
 
-    const stopIncreaseNodes = () => {
+    const stopIncreaseCharacters = () => {
       clearInterval(playGraphTimer);
       playGraphTimer = null;
     }
@@ -414,25 +407,28 @@ export default defineComponent({
       startPlayGraph();
     }
 
-    onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
-        // The list of node names, used for choose users to display
-        var nodeNameList = []
-        response.data.characters.forEach(function (characterInfo) {
-          nodeNameList.push(characterInfo["name"])
-        });
-        allNodeNames.value = nodeNameList;
-        chooseUserCheckboxState.currentChosenUserNames = nodeNameList;
 
-        updateGraphNodes();
+
+    onMounted(() => {
+
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
+        // The list of character names, used for choose characters to display
+        var characterNameList = []
+        response.data.characters.forEach(function (characterInfo) {
+          characterNameList.push(characterInfo["name"])
+        });
+        allCharacterNames.value = characterNameList;
+        chooseCharacterCheckboxState.currentChosenCharacterNames = characterNameList;
+
+        updateGraphCharacters();
       }, response => {
-        console.log("Fail to get nodes");
+        console.log("Fail to get characters");
       });
 
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`).then(response => {
         vuechartOption.value.series[0].links.push(...response.data.relations);
       }, response => {
-        console.log("Fail to get edges");
+        console.log("Fail to get relations");
       });
 
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`).then(response => {
@@ -442,7 +438,7 @@ export default defineComponent({
         });
         allGroupNames.value = groupNameList;
       }, response => {
-        console.log("Fail to get edges");
+        console.log("Fail to get relations");
       });
 
     })
@@ -453,22 +449,21 @@ export default defineComponent({
       isCharacterModalVisible,
       handleCharacterModalOk,
       currentCharacterModalName,
-      currentModalDisplayName,
-      currentModalWeight,
+      currentCharacterModalWeight,
       //currentModalImagePath,
       currentModalNote,
 
-      ...toRefs(chooseUserCheckboxState),
-      allNodeNames,
-      handleChooseAllUsers,
+      ...toRefs(chooseCharacterCheckboxState),
+      allCharacterNames,
+      handleChooseAllCharacters,
 
       ...toRefs(chooseGroupCheckboxState),
       allGroupNames,
       handleChooseAllGroups,
 
-      nodeWeightFactor,
-      isEnableNodeWeight,
-      handleEnableNodeWeight,
+      characterWeightFactor,
+      isEnableCharacterWeight,
+      handleEnableCharacterWeight,
 
       handlePlayGraph,
       playGraphInterval
