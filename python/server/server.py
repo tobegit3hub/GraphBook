@@ -11,7 +11,7 @@ import pymysql.cursors
 import db_service
 import model
 
-logger = logging.getLogger("openmldb_server")
+logger = logging.getLogger("graph_book")
 
 app = Flask(__name__,
             template_folder="./dist/",
@@ -38,32 +38,33 @@ parser.add_argument(
     help="Enable debug for flask or not(eg. true)",
     type=bool)
 
+# Print used arguments
 args = parser.parse_args(sys.argv[1:])
 for arg in vars(args):
     logger.info("{}: {}".format(arg, getattr(args, arg)))
 
-db_config = model.DbConfig("localhost", "root", "wawa316", "cyberpunk_edgerunner")
-#graph = model.Graph()
-#graph.load_from_db(db_config)
+db_config = model.DbConfig("localhost", "root", "wawa316", "graph_book")
 db_service = db_service.DbService()
 
 """
+# TODO: Integrated with vue single page app
 @app.route('/')
 @cross_origin()
 def index():
     return render_template("index.html")
 """
 
-@app.route('/api/dbs', methods=['GET', 'POST'])
+@app.route('/api/topics', methods=['GET', 'POST'])
 @cross_origin()
-def get_dbs():
+def handle_topics():
     if request.method == "GET":
-        result = {"dbs": db_service.get_databases(db_config)}
+        result = {"topics": db_service.get_topics()}
         return jsonify(result)
     elif request.method == "POST":
-        db_name = request.json["name"]
-        db_service.create_database(db_config, db_name)
+        name = request.json["name"]
+        db_service.create_topic(name)
         return jsonify({"code": 0})
+
 
 @app.route('/api/<db>/nodes', methods=['GET', 'POST'])
 @cross_origin()
