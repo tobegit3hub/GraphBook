@@ -8,7 +8,7 @@ import EditGraph from './components/EditGraph.vue';
 <template>
 
 
-    <GraphDetail db-name="cyberpunk_edgerunner"></GraphDetail>
+    <GraphDetail topic="Cyberpunk Edgerunner"></GraphDetail>
 
 
     <!--

@@ -65,6 +65,54 @@ def handle_topics():
         db_service.create_topic(name)
         return jsonify({"code": 0})
 
+@app.route('/api/topics/<topic>/characters', methods=['GET', 'POST'])
+@cross_origin()
+def handle_characters(topic):
+    if request.method == "GET":
+        chosen_nodes = request.args.getlist('chosen_nodes[]')
+        result = {"characters": db_service.get_characters(topic, chosen_nodes)}
+        return jsonify(result)
+    elif request.method == "POST":
+        insert_nodes = request.json["insert_nodes"]
+        update_nodes = request.json["update_nodes"]
+        delete_nodes = request.json["delete_nodes"]
+        db_service.update_nodes(db_config, db, insert_nodes, update_nodes, delete_nodes)
+        return jsonify({"code": 0})
+
+@app.route('/api/topics/<topic>/characters_names', methods=['GET'])
+@cross_origin()
+def get_characters_names(db):
+    if request.method == "GET":
+        chosen_groups = request.args.getlist('chosen_groups[]')
+        result = {"nodes": db_service.get_nodes_in_groups(db_config, db, chosen_groups)}
+        return jsonify(result)
+
+@app.route('/api/topics/<topic>/relations', methods=['GET', 'POST'])
+@cross_origin()
+def handle_relations(topic):
+    if request.method == "GET":
+        result = {"relations": db_service.get_relations(topic)}
+        return jsonify(result)
+    elif request.method == "POST":
+        insert_edges = request.json["insert_edges"]
+        update_edges = request.json["update_edges"]
+        delete_edges = request.json["delete_edges"]
+        db_service.update_edges(db_config, db, insert_edges, update_edges, delete_edges)
+        return jsonify({"code": 0})
+
+@app.route('/api/topics/<topic>/groups', methods=['GET', 'POST'])
+@cross_origin()
+def handle_groups(topic):
+    if request.method == "GET":
+        result = {"groups": db_service.get_groups(topic)}
+        return jsonify(result)
+    elif request.method == "POST":
+        insert_groups = request.json["insert_groups"]
+        update_groups = request.json["update_groups"]
+        delete_groups = request.json["delete_groups"]
+        db_service.update_groups(db_config, db, insert_groups, update_groups, delete_groups)
+        return jsonify({"code": 0})
+
 
 @app.route('/api/<db>/nodes', methods=['GET', 'POST'])
 @cross_origin()

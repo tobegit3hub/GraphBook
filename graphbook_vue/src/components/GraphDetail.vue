@@ -3,12 +3,12 @@
 
   <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph"/>
 
-  <a-modal v-model:visible="isNodeModalVisible" :title="currentModalDisplayName">
-    <p>Name: {{ currentModalName }}</p>
+  <a-modal v-model:visible="isCharacterModalVisible" :title="currentModalDisplayName" @ok="handleCharacterModalOk">
+    <p>Name: {{ currentCharacterModalName }}</p>
     <p>Display name: {{ currentModalDisplayName }}</p>
     <p>Weight: {{ currentModalWeight }}</p>
     <a-image
-      :src="'http://localhost:7788/images/' + dbName + '/' + currentModalName + '.png'"
+      :src="'http://localhost:7788/images/' + topic + '/' + currentCharacterModalName + '.png'"
     />
     <p>Note:</p>
     <p>{{ currentModalNote }}</p>
@@ -86,7 +86,7 @@ use([
 export default defineComponent({
   name: "GraphDetail",
   props: {
-    dbName: String,
+    topic: String,
   },
   components: {
     VChart
@@ -112,7 +112,7 @@ export default defineComponent({
     const vuechartOption = ref({
       backgroundColor: '#f6f5f3',
       title: {
-        text: props.dbName,
+        text: props.topic,
         textStyle: {
           color: '#368cbf',
           fontWeight: 700,
@@ -129,9 +129,9 @@ export default defineComponent({
           }
           // TODO: Display image, handle image not found
           if (param.data.name) {
-            template += '</br></br>'
-            template += `<img src='http://localhost:7788/images/${props.dbName}/${param.data.name}.png' width="100">`;
-            template += '</br></br>'
+            template += '</br>'
+            template += `<img src='http://localhost:7788/images/${props.topic}/${param.data.name}.png' width="150">`;
+            template += '</br>'
             if (param.data.note) {
               template += '<div style="width: 100px">' + simplifyNodeNote(param.data.note) + '</div>';
             }
@@ -193,19 +193,20 @@ export default defineComponent({
         }]
     })
 
-    const isNodeModalVisible = ref(false);
-    const currentModalName = ref("");
+    const isCharacterModalVisible = ref(false);
+    const currentCharacterModalName = ref("");
     const currentModalDisplayName = ref("");
     const currentModalWeight = ref(0.0);
     //const currentModalImagePath = ref("");
     const currentModalNote = ref("");
 
-    const handleDoubleClickGraph = (params) => {
-      console.log("Handle double click graph");
-      console.log(params.data);
+    const handleCharacterModalOk = (e) => {
+      isCharacterModalVisible.value = false;
+    };
 
-      isNodeModalVisible.value = true;
-      currentModalName.value = params.data.name;
+    const handleDoubleClickGraph = (params) => {
+      isCharacterModalVisible.value = true;
+      currentCharacterModalName.value = params.data.name;
       currentModalDisplayName.value = params.data.display_name;
       currentModalWeight.value = params.data.weight;
       //currentModalImagePath.value = params.data.symbol;
@@ -258,7 +259,7 @@ export default defineComponent({
         }
 
         // Get image and crop for node
-        const imagePath = `http://localhost:7788/images/${props.dbName}/${node.name}.png`;
+        const imagePath = `http://localhost:7788/images/${props.topic}/${node.name}.png`;
         asyncCropImage(imagePath, function (result) {
           // TODO: Handle if can not load image
           vuechartOption.value.series[0].data[index]["symbol"] = result;
@@ -270,19 +271,19 @@ export default defineComponent({
     const updateGraphNodes = () => {
       if (chooseUserCheckboxState.isChooseAllUsers) {
         // Get all nodes
-        axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`).then(response => {
-          updateGraphNodesData(response.data.nodes);
+        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
+          updateGraphNodesData(response.data.characters);
         }, response => {
           console.log("Fail to get nodes");
         });
       } else if (chooseUserCheckboxState.currentChosenUserNames.length > 0) {
         // Get nodes data from chosen nodes
-        axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
+        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
           params: {
             chosen_nodes: chooseUserCheckboxState.currentChosenUserNames,
           }
         }).then(response => {
-          updateGraphNodesData(response.data.nodes);
+          updateGraphNodesData(response.data.characters);
         }, response => {
           console.log("Fail to get nodes");
         });
@@ -329,7 +330,8 @@ export default defineComponent({
     watch(() => chooseUserCheckboxState.currentChosenUserNames, val => {
       chooseUserCheckboxState.isChooseUserIndeterminateState = !!val.length && val.length < allNodeNames.value.length;
       chooseUserCheckboxState.isChooseAllUsers = val.length === allNodeNames.value.length;
-      updateGraphNodes();
+      // tobedev
+      //updateGraphNodes();
     });
 
     let allGroupNames = ref([]);
@@ -350,7 +352,8 @@ export default defineComponent({
       chooseGroupCheckboxState.isChooseGroupIndeterminateState = !!val.length && val.length < allGroupNames.value.length;
       chooseGroupCheckboxState.isChooseAllGroups = val.length === allGroupNames.value.length;
 
-      updateGroup();
+      // tobedev
+      //updateGroup();
     });
 
 
@@ -412,15 +415,11 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/nodes`, {
-        params: {
-          num: -1
-        }
-      }).then(response => {
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
         // The list of node names, used for choose users to display
         var nodeNameList = []
-        response.data.nodes.forEach(function (node) {
-          nodeNameList.push(node["name"])
+        response.data.characters.forEach(function (characterInfo) {
+          nodeNameList.push(characterInfo["name"])
         });
         allNodeNames.value = nodeNameList;
         chooseUserCheckboxState.currentChosenUserNames = nodeNameList;
@@ -430,14 +429,18 @@ export default defineComponent({
         console.log("Fail to get nodes");
       });
 
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/edges`).then(response => {
-        vuechartOption.value.series[0].links.push(...response.data.edges);
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`).then(response => {
+        vuechartOption.value.series[0].links.push(...response.data.relations);
       }, response => {
         console.log("Fail to get edges");
       });
 
-      axios.get(`http://127.0.0.1:7788/api/${props.dbName}/group_names`).then(response => {
-        allGroupNames.value = response.data.group_names;
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`).then(response => {
+        var groupNameList = []
+        response.data.groups.forEach(function (groupInfo) {
+          groupNameList.push(groupInfo["name"])
+        });
+        allGroupNames.value = groupNameList;
       }, response => {
         console.log("Fail to get edges");
       });
@@ -447,8 +450,9 @@ export default defineComponent({
     return {
       vuechartOption,
       handleDoubleClickGraph,
-      isNodeModalVisible,
-      currentModalName,
+      isCharacterModalVisible,
+      handleCharacterModalOk,
+      currentCharacterModalName,
       currentModalDisplayName,
       currentModalWeight,
       //currentModalImagePath,
