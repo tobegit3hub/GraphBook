@@ -6,10 +6,9 @@ import logging
 import argparse
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS, cross_origin
-import pymysql.cursors
 
 import db_service
-import model
+
 
 logger = logging.getLogger("graph_book")
 
@@ -43,7 +42,6 @@ args = parser.parse_args(sys.argv[1:])
 for arg in vars(args):
     logger.info("{}: {}".format(arg, getattr(args, arg)))
 
-db_config = model.DbConfig("localhost", "root", "wawa316", "graph_book")
 db_service = db_service.DbService()
 
 """
@@ -78,6 +76,17 @@ def handle_characters(topic):
         delete_characters = request.json["delete_characters"]
         db_service.update_characters(topic, insert_characters, update_characters, delete_characters)
         return jsonify({"code": 0})
+
+@app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])
+@cross_origin()
+def get_character(topic, character):
+    if request.method == "GET":
+        result = {
+            "character": db_service.get_character(topic, character),
+            "upstream_characters": db_service.get_upstream_characters(topic, character),
+            "downstream_characters": db_service.get_downstream_characters(topic, character)
+        }
+        return jsonify(result)
 
 @app.route('/api/topics/<topic>/characters_names', methods=['GET'])
 @cross_origin()
@@ -126,23 +135,8 @@ def get_node_node_paths(topic):
             paths = db_service.compute_paths(topic, source, target, cutoff, only_directed)
             result = {"paths": paths}
         else:
-            # TODO: Throw errors
+            # TODO: Throw error if failed
             result = {"code": -1}
-        return jsonify(result)
-
-
-@app.route('/api/<db>/nodes/<name>/downstream', methods=['GET'])
-@cross_origin()
-def get_node_downstream(db, name):
-    if request.method == "GET":
-        result = {"nodes": db_service.get_node_downstream(db_config, db, name)}
-        return jsonify(result)
-
-@app.route('/api/<db>/nodes/<name>/upstream', methods=['GET'])
-@cross_origin()
-def get_node_upstream(db, name):
-    if request.method == "GET":
-        result = {"nodes": db_service.get_node_upstream(db_config, db, name)}
         return jsonify(result)
 
 @app.route('/api/topics/<topic>/weights', methods=['PUT'])

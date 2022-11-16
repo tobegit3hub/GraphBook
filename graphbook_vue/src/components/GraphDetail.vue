@@ -59,26 +59,8 @@
 
 <script>
 import { defineComponent, ref, reactive, watch, toRefs, onMounted } from 'vue'
-
 import axios from 'axios'
-
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { PieChart } from "echarts/charts";
-import {
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent
-} from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
-
-use([
-  CanvasRenderer,
-  PieChart,
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent
-]);
+import VChart from "vue-echarts";
 
 export default defineComponent({
   name: "GraphDetail",
@@ -87,9 +69,6 @@ export default defineComponent({
   },
   components: {
     VChart
-  },
-  provide: {
-    [THEME_KEY]: "dark"
   },
   setup(props) {
 
