@@ -1,0 +1,127 @@
+
+<template>
+
+  <a-row>
+
+    <a-col :span="12">
+      <h2>Topics</h2>
+      <a-list bordered :data-source="topics">
+        <template #renderItem="{ item }">
+          <a-list-item>
+            <p>{{ item }}</p>
+            <a-button type="primary" @click="previewGraph(item)">Preview</a-button>
+          </a-list-item>
+        </template>
+      </a-list>
+
+      <!-- Form to create topic -->
+      <a-form layout="inline" :model="formState" @finish="handleFinish" @finishFailed="handleFinishFailed">
+        <a-form-item>
+          <a-input v-model:value="formState.name" placeholder="Topic name">
+          </a-input>
+        </a-form-item>
+        <a-form-item>
+          <a-button type="primary" html-type="submit">
+            Create Topic
+          </a-button>
+        </a-form-item>
+      </a-form>
+
+    </a-col>
+
+    <a-col :span="12">
+      <GraphDetail :topic="chosenTopicName" :only-graph=true></GraphDetail>
+    </a-col>
+  </a-row>
+
+</template>
+
+<script lang="ts">
+import axios from 'axios'
+import { defineComponent, ref, reactive, onMounted } from 'vue'
+import type { UnwrapRef } from 'vue';
+import type { FormProps } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
+
+import GraphDetail from './GraphDetail.vue';
+
+interface FormState {
+  name: string;
+}
+
+export default defineComponent({
+  name: "TopicList",
+  props: {},
+  components: {
+    GraphDetail
+  },
+  setup() {
+
+    const topics = ref([]);
+    const chosenTopicName = ref("");
+
+    const formState: UnwrapRef<FormState> = reactive({
+      name: ''
+    });
+
+    const handleFinish: FormProps['onFinish'] = values => {
+
+      axios.post(`http://127.0.0.1:7788/api/topics`, {
+          "name": formState.name
+        })
+        .then(response => {
+
+          message.success('Success to create topic: ' + formState.name);
+
+          axios.get(`http://127.0.0.1:7788/api/topics`)
+            .then(response => {
+              topics.value = response.data.topics;
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    };
+
+    const handleFinishFailed: FormProps['onFinishFailed'] = errors => {
+      console.log(errors);
+    };
+
+    const previewGraph = (name) => {
+      chosenTopicName.value = name;
+    }
+
+    const getRandomInt = (min, max) => {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    onMounted(() => {
+      axios.get(`http://127.0.0.1:7788/api/topics`)
+        .then(response => {
+          topics.value = response.data.topics;
+
+          // Select the random topic to display by default
+          const randomIndex = getRandomInt(0, response.data.topics.length - 1);
+          chosenTopicName.value = response.data.topics[randomIndex];
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    })
+
+    return {
+      topics,
+      chosenTopicName,
+      formState,
+      handleFinish,
+      handleFinishFailed,
+      previewGraph
+    }
+  }
+})
+</script>

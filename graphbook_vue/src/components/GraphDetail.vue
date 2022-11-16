@@ -3,62 +3,64 @@
 
   <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph"/>
 
-  <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
-    <p>Name: {{ currentCharacterModalName }}</p>
-    <p>Weight: {{ currentCharacterModalWeight }}</p>
-    <a-image
-      :src="'http://localhost:7788/images/' + topic + '/' + currentCharacterModalName + '.png'"
-    />
-    <p>Note:</p>
-    <p>{{ currentModalNote }}</p>
-  </a-modal>
+  <div v-show="!onlyGraph">
+    <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
+      <p>Name: {{ currentCharacterModalName }}</p>
+      <p>Weight: {{ currentCharacterModalWeight }}</p>
+      <a-image
+        :src="'http://localhost:7788/images/' + topic + '/' + currentCharacterModalName + '.png'"
+      />
+      <p>Note:</p>
+      <p>{{ currentModalNote }}</p>
+    </a-modal>
 
-  <h3>Characters:</h3>
-  <div>
-    <a-checkbox v-model:checked="isChooseAllCharacters" :indeterminate="isChooseCharacterIndeterminateState"
-      @change="handleChooseAllCharacters">
-      Choose all
-    </a-checkbox>
-  </div>
-  <a-checkbox-group v-model:value="currentChosenCharacterNames" :options="allCharacterNames" />
+    <h3>Characters:</h3>
+    <div>
+      <a-checkbox v-model:checked="isChooseAllCharacters" :indeterminate="isChooseCharacterIndeterminateState"
+        @change="handleChooseAllCharacters">
+        Choose all
+      </a-checkbox>
+    </div>
+    <a-checkbox-group v-model:value="currentChosenCharacterNames" :options="allCharacterNames" />
 
-  <h3>Groups:</h3>
-  <div>
-    <a-checkbox v-model:checked="isChooseAllGroups" :indeterminate="isChooseGroupIndeterminateState"
-      @change="handleChooseAllGroups">
-      Choose all
-    </a-checkbox>
-  </div>
-  <a-checkbox-group v-model:value="currentChosenGroupNames" :options="allGroupNames" />
+    <h3>Groups:</h3>
+    <div>
+      <a-checkbox v-model:checked="isChooseAllGroups" :indeterminate="isChooseGroupIndeterminateState"
+        @change="handleChooseAllGroups">
+        Choose all
+      </a-checkbox>
+    </div>
+    <a-checkbox-group v-model:value="currentChosenGroupNames" :options="allGroupNames" />
 
-  <h3>Resize characters with weight:</h3>
-  <div>
-    <a-row>
-      <a-col :span="8">
-        <a-slider v-model:value="characterWeightFactor" @change="handleEnableCharacterWeight" />
-      </a-col>
-      <a-col :span="8">
-        <a-switch v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
-      </a-col>
-    </a-row>
-  </div>
+    <h3>Resize characters with weight:</h3>
+    <div>
+      <a-row>
+        <a-col :span="8">
+          <a-slider v-model:value="characterWeightFactor" @change="handleEnableCharacterWeight" />
+        </a-col>
+        <a-col :span="8">
+          <a-switch v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
+        </a-col>
+      </a-row>
+    </div>
 
-  <h3>Play graph animation:</h3>
-  <div>
-    <a-row>
-      <a-col :span="8">
-        <a-slider v-model:value="playGraphInterval" :min="10" :max="10000" />
-      </a-col>
-      <a-col :span="8">
-        <a-button type="primary" @click="handlePlayGraph">Play Graph</a-button>
-      </a-col>
-    </a-row>
+    <h3>Play graph animation:</h3>
+    <div>
+      <a-row>
+        <a-col :span="8">
+          <a-slider v-model:value="playGraphInterval" :min="10" :max="10000" />
+        </a-col>
+        <a-col :span="8">
+          <a-button type="primary" @click="handlePlayGraph">Play Graph</a-button>
+        </a-col>
+      </a-row>
+    </div>
   </div>
 
 </template>
 
 <script>
-import { defineComponent, ref, reactive, watch, toRefs, onMounted } from 'vue'
+import { defineComponent, ref, reactive, watch, toRefs, onMounted, onUpdated } from 'vue'
 import axios from 'axios'
 import VChart from "vue-echarts";
 
@@ -66,6 +68,10 @@ export default defineComponent({
   name: "GraphDetail",
   props: {
     topic: String,
+    onlyGraph: {
+      default: false,
+      type: Boolean
+    }
   },
   components: {
     VChart
@@ -386,10 +392,20 @@ export default defineComponent({
       startPlayGraph();
     }
 
+    watch(() => props.topic, (first, second) => {
+      // Watch the props and update the graph
+      // This used for TopicList componenet which may change topic 
+      init();
 
+      // Manually update the title of the graph
+      vuechartOption.value.title.text = props.topic;
+    });
 
     onMounted(() => {
+      init();
+    })
 
+    const init = () => {
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
         // The list of character names, used for choose characters to display
         var characterNameList = []
@@ -420,7 +436,7 @@ export default defineComponent({
         console.log("Fail to get relations");
       });
 
-    })
+    }
 
     return {
       vuechartOption,

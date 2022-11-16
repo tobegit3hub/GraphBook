@@ -4,16 +4,22 @@ import EditGraph from './components/EditGraph.vue';
 import ComputeNodesPath from './components/ComputeNodesPath.vue'
 import CharactersCards from './components/CharactersCards.vue';
 import CharacterDetail from './components/CharacterDetail.vue';
+import TopicList from './components/TopicList.vue';
 </script>
 
 <template>
 
-    <GraphDetail topic="Cyberpunk Edgerunner"></GraphDetail>
+    <TopicList />
 
+
+    <!--
+    <GraphDetail topic="Cyberpunk Edgerunner"></GraphDetail>
+    -->
+    
     <!--
     <EditGraph topic="Cyberpunk Edgerunner"></EditGraph>
     -->
-    
+
     <!--
     <ComputeNodesPath topic="Cyberpunk Edgerunner"></ComputeNodesPath>
     -->
