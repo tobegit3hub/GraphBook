@@ -5,15 +5,15 @@
     <a-row :gutter="16">
 
 
-      <div v-for="node in nodes">
+      <div v-for="character in characters">
      
         <a-col :span="4">
           <a-card hoverable style="width: 240px">
           <template #cover>
-            <img :src="'http://localhost:7788/images/' + topic + '/' + node.name + '.png'" />
+            <img :src="'http://localhost:7788/images/' + topic + '/' + character.name + '.png'" />
           </template>
-          <a-card-meta :title="node.display_name">
-            <template #description>{{ node.note }}</template>
+          <a-card-meta :title="character.name">
+            <template #description>{{ character.note }}</template>
           </a-card-meta>
         </a-card>
         </a-col>
@@ -33,18 +33,18 @@ import { defineComponent, reactive, ref, onMounted} from 'vue'
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
 
 export default defineComponent({
-  name: "NodesCard",
+  name: "CharactersCard",
   props: {
     topic: String,
   },
   setup (props) {
    
-    let nodes = ref([]);
+    let characters = ref([]);
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/nodes`)
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
         .then(response => {
-          nodes.value = response.data.nodes;
+          characters.value = response.data.characters;
         })
         .catch(error => {
           console.log(error);
@@ -52,7 +52,7 @@ export default defineComponent({
     })
 
     return {
-      nodes
+      characters
     }
   }
 })
