@@ -113,6 +113,22 @@ def handle_groups(topic):
         db_service.update_groups(topic, insert_groups, update_groups, delete_groups)
         return jsonify({"code": 0})
 
+@app.route('/api/topics/<topic>/paths', methods=['GET'])
+@cross_origin()
+def get_node_node_paths(topic):
+    if request.method == "GET":
+        source = request.args.get('source', type = str)
+        target = request.args.get('target', type = str)
+        cutoff = request.args.get('cutoff', default = -1, type = int)
+        only_directed = request.args.get('only_directed', default = False, type=lambda v: v.lower() == 'true')
+
+        if source and target:
+            paths = db_service.compute_paths(topic, source, target, cutoff, only_directed)
+            result = {"paths": paths}
+        else:
+            # TODO: Throw errors
+            result = {"code": -1}
+        return jsonify(result)
 
 @app.route('/api/<db>/nodes', methods=['GET', 'POST'])
 @cross_origin()
@@ -195,7 +211,7 @@ def get_group_names(db):
 
 @app.route('/api/<db>/paths', methods=['GET'])
 @cross_origin()
-def get_node_node_paths(db):
+def get_node_node_paths_old(db):
     if request.method == "GET":
         source = request.args.get('source', type = str)
         target = request.args.get('target', type = str)

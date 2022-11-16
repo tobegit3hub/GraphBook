@@ -77,12 +77,12 @@ export default defineComponent({
 
     onMounted(() => {
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/nodes`).then(response => {
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
         
         var nodeNameList = [];
         var computePathOptionList = [];
 
-        response.data.nodes.forEach(function(node) {
+        response.data.characters.forEach(function(node) {
           nodeNameList.push(node["name"])
           computePathOptionList.push({value: node["name"], label: node["name"]})
         });
@@ -99,12 +99,12 @@ export default defineComponent({
     })
 
 
-    const computePathOnlyDirectedOptions = ref([{value: true, label: "true"}, {value: false, label: "false"}])
+    const computePathOnlyDirectedOptions = ref([{value: "true", label: "true"}, {value: "false", label: "false"}])
     let computedPaths = ref([]);
     let isComputePathOnlyDirected = ref()
     const computePathOptions = ref([]);
     const computePathSource = ref("david");
-    const computePathTarget = ref("rebecca")
+    const computePathTarget = ref("lucy")
 
     const computePathFilterOption = (input, option) => {
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -116,11 +116,10 @@ export default defineComponent({
         params: {
           source: computePathSource.value,
           target: computePathTarget.value,
-          only_directed: isComputePathOnlyDirected.value
+          only_directed: isComputePathOnlyDirected.value === 'true'
           // TODO: Support cutoff
         }
       }).then(response => {
-          console.log(response.data)
           computedPaths.value = response.data.paths;
       }, response => {
           console.log("Fail to get edges");
