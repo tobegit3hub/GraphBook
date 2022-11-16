@@ -1,24 +1,29 @@
 <script setup>
 import GraphDetail from './components/GraphDetail.vue';
-import NodesCards from './components/NodesCards.vue';
-import ComputeNodesPath from './components/ComputeNodesPath.vue'
 import EditGraph from './components/EditGraph.vue';
+import ComputeNodesPath from './components/ComputeNodesPath.vue'
+import CharactersCards from './components/CharactersCards.vue';
+import CharacterDetail from './components/CharacterDetail.vue';
 </script>
 
 <template>
 
-
-<!--
     <GraphDetail topic="Cyberpunk Edgerunner"></GraphDetail>
--->
 
     <!--
-    <ComputeNodesPath db-name="cyberpunk_edgerunner"></ComputeNodesPath>
-    -->
-
     <EditGraph topic="Cyberpunk Edgerunner"></EditGraph>
+    -->
+    
+    <!--
+    <ComputeNodesPath topic="Cyberpunk Edgerunner"></ComputeNodesPath>
+    -->
 
     <!--
-    <NodesCards db-name="cyberpunk_edgerunner"></NodesCards>
+    <CharactersCards topic="Cyberpunk Edgerunner"></CharactersCards>
     -->
+
+    <!--
+    <CharacterDetail topic="Cyberpunk Edgerunner" name="david"></CharacterDetail>
+    -->
+
 </template>

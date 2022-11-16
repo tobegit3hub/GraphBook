@@ -6,13 +6,12 @@
     <p>Name: {{ character.name}}</p>
     <p>Weight: {{character.weight}}</p>
     <p>Note: {{character.note}}</p>
-    <a-image :src="'http://localhost:7788/images/' + topic + '/' + character.name + '.png'" width="30px"/>
+    <a-image :src="'http://localhost:7788/images/' + topic + '/' + character.name + '.png'" width="100px"/>
   </div>
 
   <h2>Character association:</h2>
   <a-switch v-model:checked="isUpstream" checked-children="Upstream" un-checked-children="Downstream" @change="handleUpstreamSwitchChange" />
-  <v-chart class="chart" :option="vuechartOption" />
-
+  <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph"/>
 </template>
 
 <script>
@@ -55,7 +54,7 @@ export default defineComponent({
           emphasis: {
             focus: 'descendant'
           },
-          expandAndCollapse: true,
+          expandAndCollapse: false,
           animationDuration: 550,
           animationDurationUpdate: 750
         }]
@@ -76,6 +75,13 @@ export default defineComponent({
       }
     }
 
+    // TODO: Support modal when double click
+    const isShowModal = ref(false);
+
+    const handleDoubleClickGraph = (params) => {
+      isShowModal.value = true;
+    }
+
     onMounted(() => {
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters/${props.name}`)
         .then(response => {
@@ -85,7 +91,6 @@ export default defineComponent({
             "symbol": `image://http://localhost:7788/images/${props.topic}/${character.value.name}.png`}
 
           response.data.upstream_characters.forEach(function (upstream_character, index) {
-            console.log(`image://http://localhost:7788/images/${props.topic}/${upstream_character.name}.png`);
             upstream_data["children"].push({
               "name": upstream_character.name, 
               "symbolSize": 100,
@@ -114,8 +119,10 @@ export default defineComponent({
     return {
       character,
       vuechartOption,
+      handleDoubleClickGraph,
       isUpstream,
-      handleUpstreamSwitchChange
+      handleUpstreamSwitchChange,
+      isShowModal
     }
   }
 })
