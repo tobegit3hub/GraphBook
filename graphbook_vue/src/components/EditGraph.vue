@@ -1,6 +1,9 @@
 
 <template>
 
+  <h2>Update weights:</h2>
+  <a-button type="primary" @click="updateCharactersWeights">Update with PageRank</a-button>
+
   <h2>Edit characters:</h2>
   <CharactersTable :topic="topic"></CharactersTable>
 
@@ -12,9 +15,10 @@
 
 </template>
 
-<script>
+<script lang="ts">
 import axios from 'axios'
 import { defineComponent, reactive, ref, onMounted} from 'vue'
+import { message } from 'ant-design-vue';
 
 import CharactersTable from './CharactersTable.vue';
 import RelationsTable from './RelationsTable.vue';
@@ -26,9 +30,20 @@ export default defineComponent({
     topic: String,
   },
   setup (props) {
+
+    const updateCharactersWeights = () => {
+      axios.put(`http://127.0.0.1:7788/api/topics/${props.topic}/weights`)
+        .then(function (response) {
+          // TODO: ant css is lost
+          message.success('Success to update characters weights');
+        })
+        .catch(function (error) {
+          message.error('Fail to update characters weights, ' + error);
+        });
+    }
    
     return {
-
+      updateCharactersWeights
     }
   }
 })

@@ -1,7 +1,8 @@
 
 <template>
 
-  <h3>Paths</h3>
+  <h3>Compute Paths</h3>
+  
   <a-select
     v-model:value="computePathSource"
     show-search
