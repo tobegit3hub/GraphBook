@@ -2,14 +2,17 @@
 <template>
 
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
-    <template #name_edit="{ row }">
-      <vxe-input v-model="row.name"></vxe-input>
+    <template #source_edit="{ row }">
+      <vxe-input v-model="row.source"></vxe-input>
+    </template>
+    <template #target_edit="{ row }">
+      <vxe-input v-model="row.target"></vxe-input>
+    </template>
+    <template #relation_edit="{ row }">
+      <vxe-input v-model="row.relation"></vxe-input>
     </template>
     <template #note_edit="{ row }">
       <vxe-textarea v-model="row.note" :autosize="{ minRows: 1, maxRows: 8 }"></vxe-textarea>
-    </template>
-    <template #weight_edit="{ row }">
-      <vxe-input v-model="row.weight"></vxe-input>
     </template>
 
     <template #operate="{ row }" slot-scope="scope">
@@ -26,7 +29,7 @@ import { defineComponent, reactive, ref, onMounted} from 'vue'
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
 
 export default defineComponent({
-  name: "CharactersTable",
+  name: "EditRelations",
   props: {
     topic: String,
   },
@@ -35,9 +38,8 @@ export default defineComponent({
     const vxeTableOptions = reactive<VxeGridProps>({
       border: true,
       keepSource: true,
-      id: 'characters_table',
+      id: 'relations_table',
       exportConfig: {},
-      importConfig: {},
       columnConfig: {
         resizable: true
       },
@@ -50,9 +52,10 @@ export default defineComponent({
         showStatus: true
       },
       columns: [
-        { field: 'name', title: 'Name', editRender: {}, slots: { edit: 'name_edit' } },
+        { field: 'source', title: 'Source', editRender: {}, slots: { edit: 'source_edit' } },
+        { field: 'target', title: 'Target', editRender: {}, slots: { edit: 'target_edit' } },
+        { field: 'relation', title: 'Relation', editRender: {}, slots: { edit: 'relation_edit' } },
         { field: 'note', title: 'Note', editRender: {}, slots: { edit: 'note_edit' } },
-        { field: 'weight', title: 'Weight', slots: { edit: 'weight_edit' } },
         { title: 'Delete', width: 200, slots: { default: 'operate' } }
       ],
       toolbarConfig: {
@@ -82,10 +85,10 @@ export default defineComponent({
             const { insertRecords, removeRecords, updateRecords } = $grid.getRecordset()
             VXETable.modal.message({ content: `Add ${insertRecords.length} rows, update ${updateRecords.length} rows, delete ${removeRecords.length} rows`, status: 'success' })
 
-            axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
-              insert_characters: insertRecords,
-              update_characters: updateRecords,
-              delete_characters: removeRecords
+            axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`, {
+              insert_relations: insertRecords,
+              update_relations: updateRecords,
+              delete_relations: removeRecords
             })
             .then(function (response) {
               console.log(response);
@@ -110,9 +113,9 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`)
         .then(response => {
-          vxeTableOptions.data = response.data.characters;
+          vxeTableOptions.data = response.data.relations;
         })
         .catch(error => {
           console.log(error);

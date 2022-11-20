@@ -83,7 +83,7 @@ interface FormState {
 }
 
 export default defineComponent({
-  name: "GroupsTable",
+  name: "EditGroups",
   props: {
     topic: String,
   },
