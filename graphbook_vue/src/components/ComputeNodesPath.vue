@@ -53,7 +53,7 @@ export default defineComponent({
   },
   setup (props) {
 
-    let allNodeNames = ref([]);
+    let allCharactersNames = ref([]);
     const chooseUserCheckboxState = reactive({
       chooseUserIndeterminateState: false,
       isChooseAllUsers: false,
@@ -62,7 +62,7 @@ export default defineComponent({
 
     const onChooseAllUsers = e => {
       Object.assign(chooseUserCheckboxState, {
-        currentChosenUserNames: e.target.checked ? allNodeNames.value : [],
+        currentChosenUserNames: e.target.checked ? allCharactersNames.value : [],
         chooseUserIndeterminateState: false,
       });
 
@@ -70,8 +70,8 @@ export default defineComponent({
     };
 
     watch(() => chooseUserCheckboxState.currentChosenUserNames, val => {
-      chooseUserCheckboxState.chooseUserIndeterminateState = !!val.length && val.length < allNodeNames.value.length;
-      chooseUserCheckboxState.isChooseAllUsers = val.length === allNodeNames.value.length;
+      chooseUserCheckboxState.chooseUserIndeterminateState = !!val.length && val.length < allCharactersNames.value.length;
+      chooseUserCheckboxState.isChooseAllUsers = val.length === allCharactersNames.value.length;
 
       updateNodes();
     });
@@ -80,15 +80,15 @@ export default defineComponent({
 
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
         
-        var nodeNameList = [];
+        var charactersNameList = [];
         var computePathOptionList = [];
 
-        response.data.characters.forEach(function(node) {
-          nodeNameList.push(node["name"])
-          computePathOptionList.push({value: node["name"], label: node["name"]})
+        response.data.characters.forEach(function(character) {
+          charactersNameList.push(character["name"])
+          computePathOptionList.push({value: character["name"], label: character["name"]})
         });
 
-        allNodeNames.value =  nodeNameList;
+        allCharactersNames.value =  charactersNameList;
 
         computePathOptions.value = computePathOptionList;
 
@@ -128,7 +128,7 @@ export default defineComponent({
     }
 
     return {
-      allNodeNames,
+      allCharactersNames,
       onChooseAllUsers,
       computedPaths,
       isComputePathOnlyDirected,

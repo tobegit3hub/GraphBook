@@ -1,6 +1,18 @@
 
 <template>
 
+<a-select
+    v-model:value="value"
+    show-search
+    placeholder="Select a person"
+    style="width: 200px"
+    :options="options"
+    :filter-option="filterOption"
+    @focus="handleFocus"
+    @blur="handleBlur"
+    @change="handleChange"
+  ></a-select>
+
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #name_edit="{ row }">
       <vxe-input v-model="row.name"></vxe-input>
@@ -21,6 +33,12 @@
 import axios from 'axios'
 import { defineComponent, reactive, ref, onMounted} from 'vue'
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
+import type { SelectProps } from 'ant-design-vue';
+
+type SelectItem = {
+  value: string;
+  label: string;
+};
 
 export default defineComponent({
   name: "GroupsTable",
@@ -104,6 +122,25 @@ export default defineComponent({
       }
     }
 
+
+    const options = ref<SelectProps['options']>([
+      { value: 'jack', label: 'Jack' },
+      { value: 'lucy', label: 'Lucy' },
+      { value: 'tom', label: 'Tom' },
+    ]);
+    const handleChange = (value: string) => {
+      console.log(`selected ${value}`);
+    };
+    const handleBlur = () => {
+      console.log('blur');
+    };
+    const handleFocus = () => {
+      console.log('focus');
+    };
+    const filterOption = (input: string, option: any) => {
+      return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+    };
+
     onMounted(() => {
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`)
         .then(response => {
@@ -112,13 +149,33 @@ export default defineComponent({
         .catch(error => {
           console.log(error);
         });
+
+        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
+        .then(response => {
+          const selectItems: SelectItem[] = [];
+          response.data.characters.forEach(character => {
+            selectItems.push({"value": character.name, "label": character.name})
+          });
+          options.value = [...selectItems];
+        })
+        .catch(error => {
+          console.log(error);
+        });
+
     })
 
     return {
       vxeTable,
       vxeTableOptions,
       vxeTableHandler,
-      removeRow
+      removeRow,
+
+      value: ref<string | undefined>(undefined),
+      filterOption,
+      handleBlur,
+      handleFocus,
+      handleChange,
+      options,
     }
   }
 })

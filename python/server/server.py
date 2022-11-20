@@ -116,10 +116,17 @@ def handle_groups(topic):
         result = {"groups": db_service.get_groups(topic)}
         return jsonify(result)
     elif request.method == "POST":
-        insert_groups = request.json["insert_groups"]
-        update_groups = request.json["update_groups"]
-        delete_groups = request.json["delete_groups"]
-        db_service.update_groups(topic, insert_groups, update_groups, delete_groups)
+        if "group_name" in request.json and "character_name" in request.json:
+            group_name = request.json["group_name"]
+            character_name = request.json["character_name"]
+            db_service.create_group(topic, group_name, character_name)
+
+        elif "insert_groups" in request.json and "update_groups" in request.json and "delete_groups" in request.json:
+            insert_groups = request.json["insert_groups"]
+            update_groups = request.json["update_groups"]
+            delete_groups = request.json["delete_groups"]
+            db_service.update_groups(topic, insert_groups, update_groups, delete_groups)
+
         return jsonify({"code": 0})
 
 @app.route('/api/topics/<topic>/paths', methods=['GET'])
