@@ -129,6 +129,13 @@ def handle_groups(topic):
 
         return jsonify({"code": 0})
 
+@app.route('/api/topics/<topic>/groups_names', methods=['GET'])
+@cross_origin()
+def get_groups_names(topic):
+    if request.method == "GET":
+        result = {"groups": db_service.get_groups_names(topic)}
+        return jsonify(result)
+
 @app.route('/api/topics/<topic>/paths', methods=['GET'])
 @cross_origin()
 def get_node_node_paths(topic):

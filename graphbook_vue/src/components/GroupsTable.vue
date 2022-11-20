@@ -1,17 +1,51 @@
 
 <template>
 
-<a-select
-    v-model:value="value"
-    show-search
-    placeholder="Select a person"
-    style="width: 200px"
-    :options="options"
-    :filter-option="filterOption"
-    @focus="handleFocus"
-    @blur="handleBlur"
-    @change="handleChange"
-  ></a-select>
+<a-input-group compact>
+  <a-input v-model:value="createGroupName" style="width: calc(100% - 200px)" />
+  <a-button type="primary" @click="handleCreateGroup">Create Group</a-button>
+</a-input-group>
+
+
+<a-form
+    layout="inline"
+    :model="formState"
+    @finish="handleFinish"
+    @finishFailed="handleFinishFailed"
+  >
+
+  <a-form-item>
+      <a-select
+        v-model:value="formState.character_name"
+        show-search
+        placeholder="Select character"
+        style="width: 200px"
+        :options="selectCharacterOptions"
+        :filter-option="filterOption"
+      ></a-select>
+    </a-form-item>
+
+    <a-form-item>
+      <a-select
+        v-model:value="formState.group_name"
+        show-search
+        placeholder="Select group"
+        style="width: 200px"
+        :options="selectGroupOptions"
+        :filter-option="filterOption"
+      ></a-select>
+    </a-form-item>
+
+    <a-form-item>
+      <a-button
+        type="primary"
+        html-type="submit"
+        :disabled="formState.group_name === '' || formState.character_name === ''"
+      >
+        Add
+      </a-button>
+    </a-form-item>
+  </a-form>
 
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #name_edit="{ row }">
@@ -32,13 +66,21 @@
 <script lang="ts">
 import axios from 'axios'
 import { defineComponent, reactive, ref, onMounted} from 'vue'
+import type { UnwrapRef } from 'vue';
+import { message } from 'ant-design-vue';
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
 import type { SelectProps } from 'ant-design-vue';
+import type { FormProps } from 'ant-design-vue';
 
 type SelectItem = {
   value: string;
   label: string;
 };
+
+interface FormState {
+  group_name: string;
+  character_name: string;
+}
 
 export default defineComponent({
   name: "GroupsTable",
@@ -123,20 +165,48 @@ export default defineComponent({
     }
 
 
-    const options = ref<SelectProps['options']>([
-      { value: 'jack', label: 'Jack' },
-      { value: 'lucy', label: 'Lucy' },
-      { value: 'tom', label: 'Tom' },
-    ]);
-    const handleChange = (value: string) => {
-      console.log(`selected ${value}`);
+    const createGroupName = ref<string>("")
+
+    const handleCreateGroup = () => {
+        console.log("Try to create group: " + createGroupName.value);
+
+        axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
+          "group_name": createGroupName.value,
+          "character_name": ""
+        })
+        .then(response => {
+          message.success(`Success to create group: ${createGroupName.value}`);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+
+    const formState: UnwrapRef<FormState> = reactive({
+      group_name: '',
+      character_name: '',
+    });
+    const handleFinish: FormProps['onFinish'] = values => {
+      axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
+          "group_name": formState.group_name,
+          "character_name": formState.character_name
+        })
+        .then(response => {
+          message.success(`Success to add ${formState.character_name} to group ${formState.group_name}`);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     };
-    const handleBlur = () => {
-      console.log('blur');
+
+    const handleFinishFailed: FormProps['onFinishFailed'] = errors => {
+      console.log("Fail to submit form: " + errors);
     };
-    const handleFocus = () => {
-      console.log('focus');
-    };
+
+    const selectCharacterOptions = ref<SelectProps['options']>([]);
+
+    const selectGroupOptions = ref<SelectProps['options']>([]);
+
     const filterOption = (input: string, option: any) => {
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
@@ -156,12 +226,23 @@ export default defineComponent({
           response.data.characters.forEach(character => {
             selectItems.push({"value": character.name, "label": character.name})
           });
-          options.value = [...selectItems];
+          selectCharacterOptions.value = [...selectItems];
         })
         .catch(error => {
           console.log(error);
         });
 
+        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups_names`)
+        .then(response => {
+          const selectItems: SelectItem[] = [];
+          response.data.groups.forEach(group => {
+            selectItems.push({"value": group.name, "label": group.name})
+          });
+          selectGroupOptions.value = [...selectItems];
+        })
+        .catch(error => {
+          console.log(error);
+        });
     })
 
     return {
@@ -170,12 +251,16 @@ export default defineComponent({
       vxeTableHandler,
       removeRow,
 
-      value: ref<string | undefined>(undefined),
+      createGroupName,
+      handleCreateGroup,
+
+      formState,
+      handleFinish,
+      handleFinishFailed,
+
       filterOption,
-      handleBlur,
-      handleFocus,
-      handleChange,
-      options,
+      selectCharacterOptions,
+      selectGroupOptions
     }
   }
 })
