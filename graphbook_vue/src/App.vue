@@ -9,8 +9,11 @@ import TopicList from './components/TopicList.vue';
 
 <template>
 
-    <TopicList />
+    <router-view></router-view>
 
+    <!--
+    <TopicList />
+    -->
     <!--
     <GraphDetail topic="Cyberpunk Edgerunner"></GraphDetail>
     -->
