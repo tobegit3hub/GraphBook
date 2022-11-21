@@ -189,8 +189,8 @@ class DbService(object):
         conn = self.engine.connect()
 
         if len(insert_characters) > 0:
-            sql = "INSERT INTO characters (topic, name, note) VALUES ('{}', :name, :note)".format(topic)
-            params = [{"name": insert_character["name"], "note": insert_character["note"]} for insert_character in insert_characters]
+            sql = "INSERT INTO characters (topic, name, note, image_name) VALUES ('{}', :name, :note, :image_name)".format(topic)
+            params = [{"name": insert_character["name"], "note": insert_character["note"], "image_name": insert_character["image_name"]} for insert_character in insert_characters]
             conn.execute(text(sql), params)
 
         if len(update_characters) > 0:
