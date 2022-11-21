@@ -64,6 +64,14 @@ def handle_topics():
         db_service.create_topic(name)
         return jsonify({"code": 0})
 
+@app.route('/api/topics/<topic>', methods=['DELETE'])
+@cross_origin()
+def delete_topic(topic):
+    if request.method == "DELETE":
+        db_service.delete_topic(topic)
+        return jsonify({"code": 0})
+
+
 @app.route('/api/topics/<topic>/characters', methods=['GET', 'POST'])
 @cross_origin()
 def handle_characters(topic):

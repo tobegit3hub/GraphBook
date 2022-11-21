@@ -27,7 +27,7 @@ class DbService(object):
         conn = self.engine.connect()
 
         sql = """
-        CREATE TABLE IF NOT EXISTS `topic` (
+        CREATE TABLE IF NOT EXISTS `topics` (
             `id` int unsigned NOT NULL AUTO_INCREMENT,
             `name` varchar(64) NOT NULL,
             PRIMARY KEY (`id`)
@@ -79,7 +79,7 @@ class DbService(object):
     """
     def get_topics(self) -> list:
         conn = self.engine.connect()
-        sql = "SELECT name FROM topic"
+        sql = "SELECT name FROM topics"
         result = conn.execute(text(sql))
         return [t[0] for t in result.all()]
 
@@ -88,10 +88,19 @@ class DbService(object):
     """
     def create_topic(self, name: str) -> list:
         conn = self.engine.connect()
-        sql = "INSERT INTO topic (name) VALUES (:name)"
+        sql = "INSERT INTO topics (name) VALUES (:name)"
         params = [{"name": name}]
         conn.execute(text(sql), params)
         conn.commit()
+
+    """
+    Delete one topic with name.
+    """
+    def delete_topic(self, topic_name: str) -> list:
+        conn = self.engine.connect()
+        sql = "DELETE FROM topics WHERE name='{}'".format(topic_name);
+        conn.execute(text(sql))
+        conn.commit()        
 
     """
     Get all characters from single topic.
