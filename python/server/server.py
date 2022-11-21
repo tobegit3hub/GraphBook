@@ -71,10 +71,17 @@ def handle_characters(topic):
         result = {"characters": db_service.get_characters(topic, chosen_characters_names)}
         return jsonify(result)
     elif request.method == "POST":
-        insert_characters = request.json["insert_characters"]
-        update_characters = request.json["update_characters"]
-        delete_characters = request.json["delete_characters"]
-        db_service.update_characters(topic, insert_characters, update_characters, delete_characters)
+        
+        if "name" in request.json and "note" in request.json and "image_path" in request.json:
+            name = request.json["name"]
+            note = request.json["note"]
+            image_path = request.json["image_path"]
+            db_service.create_character(topic, name, note, image_path)
+        elif "insert_characters" in request.json and "update_characters" in request.json and "delete_characters" in request.json:
+            insert_characters = request.json["insert_characters"]
+            update_characters = request.json["update_characters"]
+            delete_characters = request.json["delete_characters"]
+            db_service.update_characters(topic, insert_characters, update_characters, delete_characters)
         return jsonify({"code": 0})
 
 @app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])
@@ -102,9 +109,8 @@ def handle_relations(topic):
     if request.method == "GET":
         result = {"relations": db_service.get_relations(topic)}
         return jsonify(result)
+
     elif request.method == "POST":
-
-
         if "source" in request.json and "target" in request.json and "relation" in request.json:
             source = request.json["source"]
             target = request.json["target"]

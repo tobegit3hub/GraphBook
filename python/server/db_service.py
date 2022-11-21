@@ -137,7 +137,7 @@ class DbService(object):
     """
     def create_character(self, topic: str, name: str, note: str, image_path: str) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO groupx (topic, source, target, relation, note) VALUES ('{}', '{}', '{}', '{}', '{}')".format(topic, source, target, relation, note)
+        sql = "INSERT INTO characters (topic, name, note, image_path) VALUES ('{}', '{}', '{}', '{}')".format(topic, name, note, image_path)
         conn.execute(text(sql))
         conn.commit()
 
