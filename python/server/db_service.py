@@ -42,7 +42,7 @@ class DbService(object):
             `name` varchar(64) NOT NULL,
             `weight` float DEFAULT NULL,
             `note` varchar(4096) DEFAULT NULL,
-            `image_path` varchar(4096) DEFAULT NULL,
+            `image_name` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`id`)
         );
         """
@@ -101,22 +101,22 @@ class DbService(object):
         if len(chosen_node_names) > 0:
             # If pass chosen nodes
             names_str = ",".join(["'{}'".format(name) for name in chosen_node_names])
-            sql = "SELECT name, weight, note, image_path FROM characters WHERE topic = '{}' and name IN ({})".format(topic, names_str)
+            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic = '{}' and name IN ({})".format(topic, names_str)
         else:
-            sql = "SELECT name, weight, note, image_path FROM characters WHERE topic = '{}'".format(topic)
+            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic = '{}'".format(topic)
         
         result = conn.execute(text(sql))
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_path": row[3]} for row in result.all()]
+        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
 
     """
     Get character detail.
     """
     def get_character(self, topic: str, name: str) -> list:
         conn = self.engine.connect()
-        sql = "SELECT name, weight, note, image_path FROM characters WHERE topic='{}' AND name='{}'".format(topic, name)
+        sql = "SELECT name, weight, note, image_name FROM characters WHERE topic='{}' AND name='{}'".format(topic, name)
         result = conn.execute(text(sql))
         row = result.all()[0]
-        return {"name": row[0], "weight": row[1], "note": row[2], "image_path": row[3]}
+        return {"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]}
 
     """
     Get characters names from some groups.
@@ -130,14 +130,14 @@ class DbService(object):
             sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}'".format(topic)
 
         result = conn.execute(text(sql))
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_path": row[3]} for row in result.all()]
+        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
 
     """
     Create one character. tobedev
     """
-    def create_character(self, topic: str, name: str, note: str, image_path: str) -> None:
+    def create_character(self, topic: str, name: str, note: str, image_name: str) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO characters (topic, name, note, image_path) VALUES ('{}', '{}', '{}', '{}')".format(topic, name, note, image_path)
+        sql = "INSERT INTO characters (topic, name, note, image_name) VALUES ('{}', '{}', '{}', '{}')".format(topic, name, note, image_name)
         conn.execute(text(sql))
         conn.commit()
 
@@ -281,18 +281,18 @@ class DbService(object):
     """
     def get_upstream_characters(self, topic: str, name: str) -> None:
         conn = self.engine.connect()
-        sql = "SELECT name, weight, note, image_path FROM characters WHERE name in (SELECT source FROM relations WHERE topic='{}' AND target='{}')".format(topic, name)
+        sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT source FROM relations WHERE topic='{}' AND target='{}')".format(topic, name)
         result = conn.execute(text(sql))
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_path": row[3]} for row in result.all()]
+        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
 
     """
     Get the downstream characters of single character.
     """
     def get_downstream_characters(self, topic: str, name: str) -> None:
         conn = self.engine.connect()
-        sql = "SELECT name, weight, note, image_path FROM characters WHERE name in (SELECT target FROM relations WHERE topic='{}' AND source='{}')".format(topic, name)
+        sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT target FROM relations WHERE topic='{}' AND source='{}')".format(topic, name)
         result = conn.execute(text(sql))
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_path": row[3]} for row in result.all()]
+        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
 
     """
     Update the characters weights from single topic.

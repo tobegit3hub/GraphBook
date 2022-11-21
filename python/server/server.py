@@ -43,6 +43,7 @@ for arg in vars(args):
     logger.info("{}: {}".format(arg, getattr(args, arg)))
 
 db_service = db_service.DbService()
+image_file_base_path = "/Users/tobe/code/GraphBook/python/server/dist/images"
 
 """
 # TODO: Integrated with vue single page app
@@ -72,11 +73,11 @@ def handle_characters(topic):
         return jsonify(result)
     elif request.method == "POST":
         
-        if "name" in request.json and "note" in request.json and "image_path" in request.json:
+        if "name" in request.json and "note" in request.json and "image_name" in request.json:
             name = request.json["name"]
             note = request.json["note"]
-            image_path = request.json["image_path"]
-            db_service.create_character(topic, name, note, image_path)
+            image_name = request.json["image_name"]
+            db_service.create_character(topic, name, note, image_name)
         elif "insert_characters" in request.json and "update_characters" in request.json and "delete_characters" in request.json:
             insert_characters = request.json["insert_characters"]
             update_characters = request.json["update_characters"]
@@ -101,6 +102,22 @@ def get_characters_names(topic):
     if request.method == "GET":
         chosen_groups = request.args.getlist('chosen_groups[]')
         result = {"characters_names": db_service.get_characters_names_in_groups(topic, chosen_groups)}
+        return jsonify(result)
+
+@app.route('/api/topics/<topic>/character_image', methods=['POST'])
+@cross_origin()
+def upload_character_image(topic):
+    if request.method == "POST":
+        file = request.files.get('file')
+        file_name = file.filename
+        file_path = image_file_base_path + "/" + topic + "/" + file_name
+
+        if os.path.exists(file_path):
+            result = { 'code': -1, 'msg': 'File already exists' }
+        else:
+            file.save(file_path)
+            result = { 'code': 0 }
+
         return jsonify(result)
 
 @app.route('/api/topics/<topic>/relations', methods=['GET', 'POST'])

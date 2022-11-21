@@ -10,7 +10,7 @@
 
 
   <a-form-item
-      label="name"
+      label="Name"
       name="name"
       :rules="[{ required: true, message: 'Please input name!' }]"
     >
@@ -18,17 +18,32 @@
     </a-form-item>
 
     <a-form-item
-      label="note"
+      label="Note"
       name="note"
     >
       <a-input v-model:value="formState.note" />
     </a-form-item>
 
     <a-form-item
-      label="image_path"
-      name="image_path"
+      label="Image name"
+      name="image_name"
     >
-      <a-input v-model:value="formState.image_path" />
+      <a-input v-model:value="formState.image_name" />
+    </a-form-item>
+
+    <a-form-item>
+      <a-upload
+      v-model:fileList="uploadImageFileList"
+      :action="`http://127.0.0.1:7788/api/topics/${topic}/character_image`"
+      list-type="picture"
+      :multiple="false"
+      >
+        <a-button>
+          <upload-outlined></upload-outlined>
+          Upload image
+        </a-button>
+      </a-upload>
+
     </a-form-item>
 
 
@@ -53,8 +68,8 @@
     <template #weight_edit="{ row }">
       <vxe-input v-model="row.weight"></vxe-input>
     </template>
-    <template #image_path_edit="{ row }">
-      <vxe-input v-model="row.image_path"></vxe-input>
+    <template #image_name_edit="{ row }">
+      <vxe-input v-model="row.image_name"></vxe-input>
     </template>
 
     <template #operate="{ row }" slot-scope="scope">
@@ -71,16 +86,20 @@ import { defineComponent, reactive, ref, onMounted} from 'vue'
 import type { UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
-import type { FormProps } from 'ant-design-vue';
+import type { FormProps, UploadProps } from 'ant-design-vue';
+import { UploadOutlined } from '@ant-design/icons-vue';
 
 interface FormState {
   name: string;
   note: string;
-  image_path: string;
+  image_name: string;
 }
 
 export default defineComponent({
   name: "EditCharacters",
+  components: {
+    UploadOutlined
+  },
   props: {
     topic: String,
   },
@@ -107,7 +126,7 @@ export default defineComponent({
         { field: 'name', title: 'Name', editRender: {}, slots: { edit: 'name_edit' } },
         { field: 'note', title: 'Note', editRender: {}, slots: { edit: 'note_edit' } },
         { field: 'weight', title: 'Weight', slots: { edit: 'weight_edit' } },
-        { field: 'image_path', title: 'Image path', slots: { edit: 'image_path_edit' } },
+        { field: 'image_name', title: 'Image path', slots: { edit: 'image_name_edit' } },
         { title: 'Delete', width: 200, slots: { default: 'operate' } }
       ],
       toolbarConfig: {
@@ -165,17 +184,28 @@ export default defineComponent({
     }
 
 
+    const uploadImageFileList = ref<UploadProps['fileList']>([]);
+
     const formState: UnwrapRef<FormState> = reactive({
       name: '',
       note: '',
-      image_path: ''
+      image_name: ''
     });
     
     const handleSubmitForm: FormProps['onFinish'] = values => {
+
+      let image_name = formState.image_name
+
+      if (uploadImageFileList.value?.length != null) {
+        if (uploadImageFileList.value.length > 0) {
+          image_name = uploadImageFileList.value[uploadImageFileList.value.length-1].name
+        }
+      }
+
       axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
           "name": formState.name,
           "note": formState.note,
-          "image_path": formState.image_path
+          "image_name": image_name
         })
         .then(response => {
           message.success(`Success to add character: ${formState.name}`);
@@ -205,9 +235,10 @@ export default defineComponent({
       vxeTableHandler,
       removeRow,
 
+      uploadImageFileList,
       formState,
       handleSubmitForm,
-      handleSubmitFormFailed
+      handleSubmitFormFailed,
     }
   }
 })
