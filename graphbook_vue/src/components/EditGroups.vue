@@ -6,12 +6,11 @@
   <a-button type="primary" @click="handleCreateGroup">Create Group</a-button>
 </a-input-group>
 
-
 <a-form
     layout="inline"
     :model="formState"
-    @finish="handleFinish"
-    @finishFailed="handleFinishFailed"
+    @finish="handleSubmitForm"
+    @finishFailed="handleSubmitFormFailed"
   >
 
   <a-form-item>
@@ -69,8 +68,7 @@ import { defineComponent, reactive, ref, onMounted} from 'vue'
 import type { UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
-import type { SelectProps } from 'ant-design-vue';
-import type { FormProps } from 'ant-design-vue';
+import type { SelectProps, FormProps } from 'ant-design-vue';
 
 type SelectItem = {
   value: string;
@@ -164,12 +162,9 @@ export default defineComponent({
       }
     }
 
-
     const createGroupName = ref<string>("")
 
     const handleCreateGroup = () => {
-        console.log("Try to create group: " + createGroupName.value);
-
         axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
           "group_name": createGroupName.value,
           "character_name": ""
@@ -186,7 +181,8 @@ export default defineComponent({
       group_name: '',
       character_name: '',
     });
-    const handleFinish: FormProps['onFinish'] = values => {
+
+    const handleSubmitForm: FormProps['onFinish'] = values => {
       axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
           "group_name": formState.group_name,
           "character_name": formState.character_name
@@ -199,7 +195,7 @@ export default defineComponent({
         });
     };
 
-    const handleFinishFailed: FormProps['onFinishFailed'] = errors => {
+    const handleSubmitFormFailed: FormProps['onFinishFailed'] = errors => {
       console.log("Fail to submit form: " + errors);
     };
 
@@ -255,8 +251,8 @@ export default defineComponent({
       handleCreateGroup,
 
       formState,
-      handleFinish,
-      handleFinishFailed,
+      handleSubmitForm,
+      handleSubmitFormFailed,
 
       filterOption,
       selectCharacterOptions,

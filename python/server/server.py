@@ -103,10 +103,20 @@ def handle_relations(topic):
         result = {"relations": db_service.get_relations(topic)}
         return jsonify(result)
     elif request.method == "POST":
-        insert_relations = request.json["insert_relations"]
-        update_relations = request.json["update_relations"]
-        delete_relations = request.json["delete_relations"]
-        db_service.update_relations(topic, insert_relations, update_relations, delete_relations)
+
+
+        if "source" in request.json and "target" in request.json and "relation" in request.json:
+            source = request.json["source"]
+            target = request.json["target"]
+            relation = request.json["relation"]
+            note = request.json["note"]
+            db_service.create_relation(topic, source, target, relation, note)
+
+        elif "insert_relations" in request.json and "update_relations" in request.json and "delete_relations" in request.json:
+            insert_relations = request.json["insert_relations"]
+            update_relations = request.json["update_relations"]
+            delete_relations = request.json["delete_relations"]
+            db_service.update_relations(topic, insert_relations, update_relations, delete_relations)
         return jsonify({"code": 0})
 
 @app.route('/api/topics/<topic>/groups', methods=['GET', 'POST'])

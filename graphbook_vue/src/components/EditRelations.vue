@@ -1,6 +1,61 @@
 
 <template>
 
+<a-form
+    layout="inline"
+    :model="formState"
+    @finish="handleSubmitForm"
+    @finishFailed="handleSubmitFormFailed"
+  >
+
+  <a-form-item>
+      <a-select
+        v-model:value="formState.source"
+        show-search
+        placeholder="Select character"
+        style="width: 200px"
+        :options="selectCharacterOptions"
+        :filter-option="filterOption"
+      ></a-select>
+    </a-form-item>
+
+    <a-form-item>
+      <a-select
+        v-model:value="formState.target"
+        show-search
+        placeholder="Select character"
+        style="width: 200px"
+        :options="selectCharacterOptions"
+        :filter-option="filterOption"
+      ></a-select>
+    </a-form-item>
+
+    <a-form-item
+      label="relation"
+      name="relation"
+      :rules="[{ required: true, message: 'Please input relation!' }]"
+    >
+      <a-input v-model:value="formState.relation" />
+    </a-form-item>
+
+    <a-form-item
+      label="note"
+      name="note"
+    >
+      <a-input v-model:value="formState.note" />
+    </a-form-item>
+
+    <a-form-item>
+      <a-button
+        type="primary"
+        html-type="submit"
+        :disabled="formState.source === '' || formState.target === '' || formState.relation === ''"
+      >
+        Add
+      </a-button>
+    </a-form-item>
+  </a-form>
+
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #source_edit="{ row }">
       <vxe-input v-model="row.source"></vxe-input>
@@ -26,7 +81,22 @@
 <script lang="ts">
 import axios from 'axios'
 import { defineComponent, reactive, ref, onMounted} from 'vue'
+import type { UnwrapRef } from 'vue';
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
+import type { SelectProps, FormProps } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
+
+type SelectItem = {
+  value: string;
+  label: string;
+};
+
+interface FormState {
+  source: string;
+  target: string;
+  relation: string;
+  note: string;
+}
 
 export default defineComponent({
   name: "EditRelations",
@@ -112,6 +182,38 @@ export default defineComponent({
       }
     }
 
+    const formState: UnwrapRef<FormState> = reactive({
+      source: '',
+      target: '',
+      relation: '',
+      note: ''
+    });
+    
+    const handleSubmitForm: FormProps['onFinish'] = values => {
+      axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`, {
+          "source": formState.source,
+          "target": formState.target,
+          "relation": formState.relation,
+          "note": formState.note
+        })
+        .then(response => {
+          message.success(`Success to add source: ${formState.source} to target ${formState.target}`);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    };
+
+    const handleSubmitFormFailed: FormProps['onFinishFailed'] = errors => {
+      console.log("Fail to submit form: " + errors);
+    };
+
+    const selectCharacterOptions = ref<SelectProps['options']>([]);
+
+    const filterOption = (input: string, option: any) => {
+      return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+    };
+
     onMounted(() => {
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`)
         .then(response => {
@@ -120,13 +222,32 @@ export default defineComponent({
         .catch(error => {
           console.log(error);
         });
+
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
+        .then(response => {
+          const selectItems: SelectItem[] = [];
+          response.data.characters.forEach(character => {
+            selectItems.push({"value": character.name, "label": character.name})
+          });
+          selectCharacterOptions.value = [...selectItems];
+        })
+        .catch(error => {
+          console.log(error);
+      });        
     })
 
     return {
       vxeTable,
       vxeTableOptions,
       vxeTableHandler,
-      removeRow
+      removeRow,
+
+      formState,
+      handleSubmitForm,
+      handleSubmitFormFailed,
+
+      filterOption,
+      selectCharacterOptions
     }
   }
 })
