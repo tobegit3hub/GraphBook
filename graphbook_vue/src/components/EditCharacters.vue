@@ -202,6 +202,7 @@ export default defineComponent({
         })
         .then(response => {
           message.success(`Success to add character: ${formState.name}`);
+          initTableData();
         })
         .catch(error => {
           console.log(error);
@@ -212,7 +213,7 @@ export default defineComponent({
       console.log("Fail to submit form: " + errors);
     };
 
-    onMounted(() => {
+    const initTableData = () => {
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
         .then(response => {
           vxeTableOptions.data = response.data.characters;
@@ -220,6 +221,10 @@ export default defineComponent({
         .catch(error => {
           console.log(error);
         });
+    }
+
+    onMounted(() => {
+      initTableData();
     })
 
     return {

@@ -190,6 +190,7 @@ export default defineComponent({
     });
     
     const handleSubmitForm: FormProps['onFinish'] = values => {
+
       axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`, {
           "source": formState.source,
           "target": formState.target,
@@ -198,6 +199,7 @@ export default defineComponent({
         })
         .then(response => {
           message.success(`Success to add source: ${formState.source} to target ${formState.target}`);
+          initTableData();
         })
         .catch(error => {
           console.log(error);
@@ -214,7 +216,7 @@ export default defineComponent({
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
 
-    onMounted(() => {
+    const initTableData = () => {
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`)
         .then(response => {
           vxeTableOptions.data = response.data.relations;
@@ -222,6 +224,10 @@ export default defineComponent({
         .catch(error => {
           console.log(error);
         });
+    }
+
+    onMounted(() => {
+      initTableData();
 
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
         .then(response => {

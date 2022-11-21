@@ -171,6 +171,7 @@ export default defineComponent({
         })
         .then(response => {
           message.success(`Success to create group: ${createGroupName.value}`);
+          initTableData();
         })
         .catch(error => {
           console.log(error);
@@ -189,6 +190,7 @@ export default defineComponent({
         })
         .then(response => {
           message.success(`Success to add ${formState.character_name} to group ${formState.group_name}`);
+          initTableData();
         })
         .catch(error => {
           console.log(error);
@@ -207,7 +209,7 @@ export default defineComponent({
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
 
-    onMounted(() => {
+    const initTableData = () => {
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`)
         .then(response => {
           vxeTableOptions.data = response.data.groups;
@@ -215,8 +217,12 @@ export default defineComponent({
         .catch(error => {
           console.log(error);
         });
+    }
 
-        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
+    onMounted(() => {
+      initTableData();
+
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.characters.forEach(character => {
