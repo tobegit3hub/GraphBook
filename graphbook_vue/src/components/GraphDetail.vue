@@ -406,6 +406,7 @@ export default defineComponent({
     })
 
     const init = () => {
+
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
         // The list of character names, used for choose characters to display
         var characterNameList = []
@@ -417,13 +418,13 @@ export default defineComponent({
 
         updateGraphCharacters();
       }, response => {
-        console.log("Fail to get characters");
+        console.log(`Fail to get characters for topic: ${props.topic}`);
       });
 
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`).then(response => {
         vuechartOption.value.series[0].links.push(...response.data.relations);
       }, response => {
-        console.log("Fail to get relations");
+        console.log(`Fail to get relations for topic: ${props.topic}`);
       });
 
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`).then(response => {
@@ -433,7 +434,7 @@ export default defineComponent({
         });
         allGroupNames.value = groupNameList;
       }, response => {
-        console.log("Fail to get relations");
+        console.log(`Fail to get relations for topic: ${props.topic}`);
       });
 
     }

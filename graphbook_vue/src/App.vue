@@ -11,11 +11,10 @@ import TopicList from './components/TopicList.vue';
 
     <TopicList />
 
-
     <!--
     <GraphDetail topic="Cyberpunk Edgerunner"></GraphDetail>
     -->
-    
+
     <!--
     <EditGraph topic="Cyberpunk Edgerunner"></EditGraph>
     -->

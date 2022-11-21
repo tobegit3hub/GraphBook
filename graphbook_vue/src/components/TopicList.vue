@@ -43,7 +43,9 @@
     </a-col>
 
     <a-col :span="12">
-      <GraphDetail :topic="chosenTopicName" :only-graph=true></GraphDetail>
+      <div v-if="chosenTopicName">
+        <GraphDetail :topic="chosenTopicName" :only-graph=true></GraphDetail>
+      </div>
     </a-col>
   </a-row>
 
