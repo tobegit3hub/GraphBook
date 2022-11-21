@@ -24,13 +24,6 @@
       <a-input v-model:value="formState.note" />
     </a-form-item>
 
-    <a-form-item
-      label="Image name"
-      name="image_name"
-    >
-      <a-input v-model:value="formState.image_name" />
-    </a-form-item>
-
     <a-form-item>
       <a-upload
       v-model:fileList="uploadImageFileList"
@@ -126,7 +119,7 @@ export default defineComponent({
         { field: 'name', title: 'Name', editRender: {}, slots: { edit: 'name_edit' } },
         { field: 'note', title: 'Note', editRender: {}, slots: { edit: 'note_edit' } },
         { field: 'weight', title: 'Weight', slots: { edit: 'weight_edit' } },
-        { field: 'image_name', title: 'Image path', slots: { edit: 'image_name_edit' } },
+        { field: 'image_name', title: 'Image name', editRender: {}, slots: { edit: 'image_name_edit' } },
         { title: 'Delete', width: 200, slots: { default: 'operate' } }
       ],
       toolbarConfig: {

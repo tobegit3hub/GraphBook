@@ -194,8 +194,8 @@ class DbService(object):
             conn.execute(text(sql), params)
 
         if len(update_characters) > 0:
-            sql = "UPDATE characters SET note=:note WHERE topic='{}' AND name=:name".format(topic)
-            params = [{"note": update_character["note"], "name": update_character["name"]} for update_character in update_characters]
+            sql = "UPDATE characters SET note=:note, image_name=:image_name WHERE topic='{}' AND name=:name".format(topic)
+            params = [{"note": update_character["note"], "image_name": update_character["image_name"], "name": update_character["name"]} for update_character in update_characters]
             conn.execute(text(sql), params)
 
         if len(delete_characters) > 0:
