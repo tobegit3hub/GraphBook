@@ -1,6 +1,10 @@
 
 <template>
 
+<h2>Update weights:</h2>
+  <a-button type="primary" @click="updateCharactersWeights">Update with PageRank</a-button>
+
+
 <a-form
     layout="inline"
     :model="formState"
@@ -223,6 +227,17 @@ export default defineComponent({
         });
     }
 
+    const updateCharactersWeights = () => {
+      axios.put(`http://127.0.0.1:7788/api/topics/${props.topic}/weights`)
+        .then(function (response) {
+          // TODO: ant css is lost
+          message.success('Success to update characters weights');
+        })
+        .catch(function (error) {
+          message.error('Fail to update characters weights, ' + error);
+        });
+    }
+
     onMounted(() => {
       initTableData();
     })
@@ -237,6 +252,8 @@ export default defineComponent({
       formState,
       handleSubmitForm,
       handleSubmitFormFailed,
+
+      updateCharactersWeights
     }
   }
 })

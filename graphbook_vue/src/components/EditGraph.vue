@@ -1,52 +1,47 @@
 
 <template>
 
-  <h2>Update weights:</h2>
-  <a-button type="primary" @click="updateCharactersWeights">Update with PageRank</a-button>
 
 
-  <h2>Edit characters:</h2>
-  <EditCharacters :topic="topic"></EditCharacters>
 
-  <h2>Edit relations:</h2>
-  <EditRelations :topic="topic"></EditRelations>
+  <a-layout>
+      <a-layout-sider width="200" style="background: #fff">
+        <a-menu
+          mode="inline"
+          :style="{ height: '100%', borderRight: 0 }"
+        >
+          <a-menu-item key="1"><router-link :to='`/topics/${topic}/edit/characters`'>Edit characters</router-link></a-menu-item>
+          <a-menu-item key="2"><router-link :to='`/topics/${topic}/edit/relations`'>Edit relations</router-link></a-menu-item>
+          <a-menu-item key="3"><router-link :to='`/topics/${topic}/edit/groups`'>Edit groups</router-link></a-menu-item>
+        </a-menu>
+      </a-layout-sider>
 
-  <h2>Edit groups:</h2>
-  <EditGroups :topic="topic"></EditGroups>
+      <a-layout style="padding: 0 24px 24px">
+        <a-layout-content
+          :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
+        >
+          
+          <router-view></router-view>
+
+        </a-layout-content>
+      </a-layout>
+    </a-layout>
+
+
+
 
 
 </template>
 
 <script lang="ts">
-import axios from 'axios'
-import { defineComponent, reactive, ref, onMounted} from 'vue'
-import { message } from 'ant-design-vue';
-
-import CharactersTable from './EditCharacters.vue';
-import EditRelations from './EditRelations.vue';
-import EditGroups from './EditGroups.vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: "EditGraph",
   props: {
     topic: String,
   },
-  setup (props) {
-
-    const updateCharactersWeights = () => {
-      axios.put(`http://127.0.0.1:7788/api/topics/${props.topic}/weights`)
-        .then(function (response) {
-          // TODO: ant css is lost
-          message.success('Success to update characters weights');
-        })
-        .catch(function (error) {
-          message.error('Fail to update characters weights, ' + error);
-        });
-    }
-
-    return {
-      updateCharactersWeights
-    }
+  setup() {
   }
 })
 </script>

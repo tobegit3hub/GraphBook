@@ -42,7 +42,6 @@
     </a-layout-footer>
   </a-layout>
 
-
 </template>
 
 <script lang="ts">
