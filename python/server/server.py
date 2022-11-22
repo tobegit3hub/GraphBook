@@ -64,6 +64,13 @@ def handle_topics():
         db_service.create_topic(name)
         return jsonify({"code": 0})
 
+@app.route('/api/topics_statistics', methods=['GET'])
+@cross_origin()
+def get_topics_statistics():
+    if request.method == "GET":
+        result = db_service.get_topics_statistics()
+        return jsonify(result)
+
 @app.route('/api/topics/<topic>', methods=['DELETE'])
 @cross_origin()
 def delete_topic(topic):

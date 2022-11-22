@@ -1,7 +1,6 @@
 
 <template>
 
-
       <!-- Form to create topic -->
       <a-form layout="inline" :model="formState" @finish="handleCreateTopicFinish" @finishFailed="handleFinishFailed">
         <a-form-item>
@@ -28,24 +27,10 @@
         </a-form-item>
       </a-form>
 
-
       <a-list item-layout="horizontal" :data-source="topics">
         <template #renderItem="{ item }">
           <a-list-item>
-            <a-list-item-meta
-              description="10 characters / 50 relations / 2 groups"
-            >
-              <template #title>
-                <router-link :to='`/topics/${item}/graph`'>{{ item }}</router-link>
-
-              </template>
-
-              <template #avatar>
-                <a @click="previewGraph(item)">
-                  <a-avatar src="/gb_logo.png" />
-                </a>
-              </template>
-            </a-list-item-meta>
+            <router-link :to='`/topics/${item}/graph`'>{{ item }}</router-link>
           </a-list-item>
         </template>
       </a-list>

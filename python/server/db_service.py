@@ -84,6 +84,70 @@ class DbService(object):
         return [t[0] for t in result.all()]
 
     """
+    Get statistics of all topics.
+
+    Return data should be like this:
+        {
+            count: 2,
+            statistic: [
+                {
+                    "name": "topic_a",
+                    "characters": 10,
+                    "relations": 20,
+                    "groups": 5
+                },
+                {
+                    "name": "topic_b",
+                    "characters": 20,
+                    "relations": 30,
+                    "groups": 0
+                }
+            ]
+        }
+    """
+    def get_topics_statistics(self) -> map:
+        conn = self.engine.connect()
+        sql = "SELECT name FROM topics"
+        result = conn.execute(text(sql)).all()
+        topic_count = len(result)
+        statistics = {}
+        for item in result:
+            topic_name = item[0]
+            statistics[topic_name] = {
+                "topic": topic_name,
+                "characters": 0,
+                "relations": 0,
+                "groups": 0
+            }
+
+        sql = "SELECT topic, count(*) FROM characters GROUP BY topic"
+        result = conn.execute(text(sql)).all()
+        for item in result:
+            topic_name = item[0]
+            count = item[1]
+            statistics[topic_name]["characters"] = count
+
+        sql = "SELECT topic, count(*) FROM relations GROUP BY topic"
+        result = conn.execute(text(sql)).all()
+        for item in result:
+            topic_name = item[0]
+            count = item[1]
+            statistics[topic_name]["relations"] = count
+
+        sql = "SELECT topic, count(*) FROM groupx GROUP BY topic"
+        result = conn.execute(text(sql)).all()
+        for item in result:
+            topic_name = item[0]
+            count = item[1]
+            statistics[topic_name]["groups"] = count            
+
+        return_result = {
+            "count": topic_count,
+            "statistics": list(statistics.values())
+        }
+        return return_result
+
+    """
     Create one topic with name.
     """
     def create_topic(self, name: str) -> list:
@@ -312,15 +376,7 @@ class DbService(object):
 
 
 def main():
-    #db_config = model.DbConfig("localhost", "root", "wawa316", "cyberpunk_edgerunner")
-    #graph = model.Graph()
-    #graph.load_from_db(db_config, "cyberpunk_edgerunner")
-
     db_service = DbService()
-    db_service.create_tables()
-
 
 if __name__ == "__main__":
     main()
-
-

@@ -8,14 +8,14 @@
 
       <h1>Topics</h1>
 
-      <a-list item-layout="horizontal" :data-source="topics">
+      <a-list item-layout="horizontal" :data-source="topicsListData">
         <template #renderItem="{ item }">
           <a-list-item>
             <a-list-item-meta
-              description="10 characters / 50 relations / 2 groups"
+              :description="item.statistic_string"
             >
               <template #title>
-                <router-link :to='`/topics/${item}/graph`'>{{ item }}</router-link>
+                <router-link :to='`/topics/${item.name}/graph`'>{{ item.name }}</router-link>
 
               </template>
 
@@ -43,9 +43,13 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted } from 'vue'
 import axios from 'axios'
-import type { UnwrapRef } from 'vue';
 
 import GraphDetail from './GraphDetail.vue';
+
+interface TopicsListItem {
+  name: string;
+  statistic_string: string
+}
 
 export default defineComponent({
   name: "TopicList",
@@ -54,8 +58,7 @@ export default defineComponent({
     GraphDetail
   },
   setup() {
-
-    const topics = ref([]);
+    const topicsListData = reactive<TopicsListItem[]>([]);
     const chosenTopicName = ref("");
 
     const previewGraph = (name) => {
@@ -69,26 +72,32 @@ export default defineComponent({
     }
 
     const initTopicListData = () => {
-      axios.get(`http://127.0.0.1:7788/api/topics`)
+
+        axios.get(`http://127.0.0.1:7788/api/topics_statistics`)
         .then(response => {
-          topics.value = response.data.topics;
+          const topic_count = response.data.count;
+
+          response.data.statistics.forEach((statistic) => {
+            console.log(statistic)
+            const statistic_string = `${statistic.characters} characters / ${statistic.relations} relations / ${statistic.groups} groups`
+            topicsListData.push({name: statistic.topic, statistic_string: statistic_string})
+          });
 
           // Select the random topic to display by default
-          const randomIndex = getRandomInt(0, response.data.topics.length - 1);
-          chosenTopicName.value = response.data.topics[randomIndex];
+          const randomIndex = getRandomInt(0, topic_count - 1);
+          chosenTopicName.value = response.data.statistics[randomIndex].topic
         })
         .catch(error => {
           console.log(error);
         });
     }
 
-
     onMounted(() => {
       initTopicListData();
     })
 
     return {
-      topics,
+      topicsListData,
       chosenTopicName,
       previewGraph
     }
