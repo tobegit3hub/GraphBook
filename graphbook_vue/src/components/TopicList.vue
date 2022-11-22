@@ -44,7 +44,7 @@
 
     <a-col :span="12">
       <div v-if="chosenTopicName">
-        <GraphDetail :topic="chosenTopicName" :only-graph=true></GraphDetail>
+        <GraphDetail :topic-name="chosenTopicName" :only-graph=true></GraphDetail>
       </div>
     </a-col>
   </a-row>
@@ -55,6 +55,7 @@
 import axios from 'axios'
 import { defineComponent, ref, reactive, onMounted } from 'vue'
 import type { UnwrapRef } from 'vue';
+import { useRouter, useRoute } from 'vue-router'
 import type { FormProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 
@@ -136,6 +137,7 @@ export default defineComponent({
           console.log(error);
         });
     }
+
 
     onMounted(() => {
       initTopicListData();

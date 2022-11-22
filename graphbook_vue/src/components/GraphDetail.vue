@@ -63,11 +63,12 @@
 import { defineComponent, ref, reactive, watch, toRefs, onMounted, onUpdated } from 'vue'
 import axios from 'axios'
 import VChart from "vue-echarts";
+import { useRouter, useRoute } from 'vue-router'
 
 export default defineComponent({
   name: "GraphDetail",
   props: {
-    topic: String,
+    topicName: String,
     onlyGraph: {
       default: false,
       type: Boolean
@@ -77,7 +78,9 @@ export default defineComponent({
     VChart
   },
   setup(props) {
-
+    const route = useRoute();
+    let topic = route.params.topic;
+    
     const simplifyCharacterNote = (note) => {
       if (note) {
         // TODO: Support word wrap and substring more characters
@@ -94,7 +97,7 @@ export default defineComponent({
     const vuechartOption = ref({
       backgroundColor: '#f6f5f3',
       title: {
-        text: props.topic,
+        text: topic,
         textStyle: {
           color: '#368cbf',
           fontWeight: 700,
@@ -236,7 +239,7 @@ export default defineComponent({
         }
 
         // Get image and crop for character
-        const imagePath = `http://localhost:7788/images/${props.topic}/${characterInfo.name}.png`;
+        const imagePath = `http://localhost:7788/images/${topic}/${characterInfo.name}.png`;
         asyncCropImage(imagePath, function (result) {
           // TODO: Handle if can not load image
           vuechartOption.value.series[0].data[index]["symbol"] = result;
@@ -248,14 +251,14 @@ export default defineComponent({
     const updateGraphCharacters = () => {
       if (chooseCharacterCheckboxState.isChooseAllCharacters) {
         // Get all characters
-        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
+        axios.get(`http://127.0.0.1:7788/api/topics/${topic}/characters`).then(response => {
           updateGraphCharactersData(response.data.characters);
         }, response => {
           console.log("Fail to get characters");
         });
       } else if (chooseCharacterCheckboxState.currentChosenCharacterNames.length > 0) {
         // Get characters data from chosen characters
-        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
+        axios.get(`http://127.0.0.1:7788/api/topics/${topic}/characters`, {
           params: {
             chosen_characters_names: chooseCharacterCheckboxState.currentChosenCharacterNames,
           }
@@ -276,7 +279,7 @@ export default defineComponent({
 
       if (chooseGroupCheckboxState.currentChosenGroupNames.length > 0) {
         // Get characters data from chosen group
-        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters_names`, {
+        axios.get(`http://127.0.0.1:7788/api/topics/${topic}/characters_names`, {
           params: {
             chosen_groups: chooseGroupCheckboxState.currentChosenGroupNames,
           }
@@ -392,13 +395,14 @@ export default defineComponent({
       startPlayGraph();
     }
 
-    watch(() => props.topic, (first, second) => {
+    watch(() => props.topicName, (first, second) => {
       // Watch the props and update the graph
       // This used for TopicList componenet which may change topic 
       init();
 
       // Manually update the title of the graph
-      vuechartOption.value.title.text = props.topic;
+      topic = props.topicName;
+      vuechartOption.value.title.text = topic;
     });
 
     onMounted(() => {
@@ -406,8 +410,14 @@ export default defineComponent({
     })
 
     const init = () => {
+      // Update topic for url path or props
+      if (props.topicName) {
+        topic = props.topicName;
+      } else {
+        topic = route.params.topic;
+      }
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
+      axios.get(`http://127.0.0.1:7788/api/topics/${topic}/characters`).then(response => {
         // The list of character names, used for choose characters to display
         var characterNameList = []
         response.data.characters.forEach(function (characterInfo) {
@@ -418,28 +428,30 @@ export default defineComponent({
 
         updateGraphCharacters();
       }, response => {
-        console.log(`Fail to get characters for topic: ${props.topic}`);
+        console.log(`Fail to get characters for topic: ${topic}`);
       });
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`).then(response => {
+      axios.get(`http://127.0.0.1:7788/api/topics/${topic}/relations`).then(response => {
         vuechartOption.value.series[0].links.push(...response.data.relations);
       }, response => {
-        console.log(`Fail to get relations for topic: ${props.topic}`);
+        console.log(`Fail to get relations for topic: ${topic}`);
       });
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`).then(response => {
+      axios.get(`http://127.0.0.1:7788/api/topics/${topic}/groups`).then(response => {
         var groupNameList = []
         response.data.groups.forEach(function (groupInfo) {
           groupNameList.push(groupInfo["name"])
         });
         allGroupNames.value = groupNameList;
       }, response => {
-        console.log(`Fail to get relations for topic: ${props.topic}`);
+        console.log(`Fail to get relations for topic: ${topic}`);
       });
 
     }
 
     return {
+      topic,
+
       vuechartOption,
       handleDoubleClickGraph,
       isCharacterModalVisible,

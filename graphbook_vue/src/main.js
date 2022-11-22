@@ -6,7 +6,6 @@ import 'vxe-table/lib/style.css'
 import "echarts"
 
 import App from './App.vue'
-
 import GraphDetail from './components/GraphDetail.vue';
 import EditGraph from './components/EditGraph.vue';
 import ComputeNodesPath from './components/ComputeNodesPath.vue'
@@ -20,7 +19,7 @@ function useTable (app) {
 
 const routes = [
   { path: '/', component: TopicList },
-  { path: '/detail', component: GraphDetail },
+  { path: '/topics/:topic', component: GraphDetail },
 ]
  
  const router = createRouter({
