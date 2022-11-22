@@ -167,8 +167,13 @@ def handle_groups(topic):
         if "group_name" in request.json and "character_name" in request.json:
             group_name = request.json["group_name"]
             character_name = request.json["character_name"]
-            db_service.create_group(topic, group_name, character_name)
 
+
+            db_service.create_group(topic, group_name, character_name)
+        elif "groups_names" in request.json and "character_name" in request.json:
+            groups_names = request.json["groups_names"]
+            character_name = request.json["character_name"]
+            db_service.join_groups(topic, character_name, groups_names)
         elif "insert_groups" in request.json and "update_groups" in request.json and "delete_groups" in request.json:
             insert_groups = request.json["insert_groups"]
             update_groups = request.json["update_groups"]

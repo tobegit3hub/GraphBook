@@ -324,6 +324,16 @@ class DbService(object):
         conn.commit()
 
     """
+    Join the groups for single character.
+    """
+    def join_groups(self, topic: str, character_name: str, groups_names: array) -> None:
+        conn = self.engine.connect()
+        sql = "INSERT INTO groupx (topic, name, character_name) VALUES ('{}', :group_name, '{}')".format(topic, character_name)
+        params = [{"group_name": group_name} for group_name in groups_names]
+        conn.execute(text(sql), params)
+        conn.commit()
+
+    """
     Update groupx table.
     """
     def update_groups(self, topic: str, insert_groups: list, update_groups: list, delete_groups: list) -> None:

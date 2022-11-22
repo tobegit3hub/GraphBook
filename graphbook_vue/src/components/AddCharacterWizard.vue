@@ -68,58 +68,55 @@
 
     <!-- Form of join groups-->
     <div v-show="currentStep === 1">
-      
-    <a-form ref="formRef" :model="dynamicValidateForm" v-bind="formItemLayoutWithOutLabel">
+
+    <a-form :model="joinGroupsForm">
       <a-form-item
-      v-for="(domain, index) in dynamicValidateForm.domains"
-      :key="domain.key"
-      v-bind="index === 0 ? formItemLayout : {}"
-      :label="index === 0 ? 'Domains' : ''"
-      :name="['domains', index, 'value']"
-      :rules="{
-        required: true,
-        message: 'domain can not be null',
-        trigger: 'change',
-      }"
+      v-for="(joinGroupItem, index) in joinGroupsForm.joinGroupItems"
+      :key="joinGroupItem.key"
+      label="Group:"
+      :name="['joinGroupItems', index, 'group_name']"
       >
-      <a-input
-        v-model:value="domain.value"
-        placeholder="please input domain"
-        style="width: 60%; margin-right: 8px"
-      />
+
+      <a-select
+        v-model:value="joinGroupItem.group_name"
+        show-search
+        placeholder="Select group"
+        style="width: 200px"
+        :options="selectGroupOptions"
+        :filter-option="filterOption"
+      ></a-select>
+
       <MinusCircleOutlined
-        v-if="dynamicValidateForm.domains.length > 1"
+        v-if="joinGroupsForm.joinGroupItems.length > 1"
         class="dynamic-delete-button"
-        :disabled="dynamicValidateForm.domains.length === 1"
-        @click="removeDomain(domain)"
+        :disabled="joinGroupsForm.joinGroupItems.length === 1"
+        @click="removeJoinGroupItem(joinGroupItem)"
       />
     </a-form-item>
-    <a-form-item v-bind="formItemLayoutWithOutLabel">
-      <a-button type="dashed" style="width: 60%" @click="addDomain">
+    <a-form-item>
+      <a-button type="dashed" style="width: 60%" @click="addJoinGroupItem">
         <PlusOutlined />
-        Add group
+        Join group
       </a-button>
     </a-form-item>
-    <a-form-item v-bind="formItemLayoutWithOutLabel">
-      <a-button type="primary" html-type="submit" @click="submitForm">Submit</a-button>
+    <a-form-item>
+      <a-button type="primary" html-type="submit" @click="submitJoinGroupsForm">Submit</a-button>
     </a-form-item>
   </a-form>
-
 
   </div>
 
 
-
-
-  <a-button v-if="currentStep < steps.length - 1" type="primary" @click="next">Next</a-button>
+  <a-button v-if="currentStep > 0" style="margin-left: 8px" @click="prevStep">Previous</a-button>
+  <a-button v-if="currentStep < totalStepCount - 1" type="primary" @click="nextStep">Next</a-button>
   <a-button
-    v-if="currentStep == steps.length - 1"
+    v-if="currentStep == totalStepCount - 1"
     type="primary"
-    @click="$message.success('Processing complete!')"
+    @click=""
   >
     Done
   </a-button>
-  <a-button v-if="currentStep > 0" style="margin-left: 8px" @click="prev">Previous</a-button>
+
 
 </div>
 
@@ -134,7 +131,6 @@ import { message } from 'ant-design-vue';
 import type { FormProps, UploadProps } from 'ant-design-vue';
 import { UploadOutlined } from '@ant-design/icons-vue';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
 
 type SelectItem = {
   value: string;
@@ -147,10 +143,9 @@ interface CreateCharacterFormState {
   image_name: string;
 }
 
-interface Domain {
+interface JoinGroupItem {
   key: number;
-  value: string;
-
+  group_name: string;
 }
 
 export default defineComponent({
@@ -166,13 +161,13 @@ export default defineComponent({
   setup (props) {
 
     const currentStep = ref<number>(1);
-    const next = () => {
+    const totalStepCount = 3;
+    const nextStep = () => {
       currentStep.value++;
     };
-    const prev = () => {
+    const prevStep = () => {
       currentStep.value--;
     };
-
 
     const uploadImageFileList = ref<UploadProps['fileList']>([]);
     const createCharacterFormState: UnwrapRef<CreateCharacterFormState> = reactive({
@@ -205,82 +200,90 @@ export default defineComponent({
 
 
 
-      const formRef = ref();
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 4 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 20 },
-      },
-    };
-    const formItemLayoutWithOutLabel = {
-      wrapperCol: {
-        xs: { span: 24, offset: 0 },
-        sm: { span: 20, offset: 4 },
-      },
-    };
-    const dynamicValidateForm: UnwrapRef<{ domains: Domain[] }> = reactive({
-      domains: [],
-    });
-    const submitForm = () => {
-      formRef.value
-        .validate()
-        .then(() => {
-          console.log('values', dynamicValidateForm.domains);
-        })
-        .catch((error: ValidateErrorEntity<any>) => {
-          console.log('error', error);
-        });
-    };
 
-    const removeDomain = (item: Domain) => {
-      let index = dynamicValidateForm.domains.indexOf(item);
-      if (index !== -1) {
-        dynamicValidateForm.domains.splice(index, 1);
-      }
-    };
-    const addDomain = () => {
-      dynamicValidateForm.domains.push({
-        value: '',
+    const joinGroupsForm: UnwrapRef<{ joinGroupItems: JoinGroupItem[] }> = reactive({
+      joinGroupItems: [],
+    });
+
+    const addJoinGroupItem = () => {
+      joinGroupsForm.joinGroupItems.push({
         key: Date.now(),
+        group_name: '',
       });
     };
+
+    const removeJoinGroupItem = (item: JoinGroupItem) => {
+      let index = joinGroupsForm.joinGroupItems.indexOf(item);
+      if (index !== -1) {
+        joinGroupsForm.joinGroupItems.splice(index, 1);
+      }
+    };
+
+    const submitJoinGroupsForm = () => {
+      console.log('values', joinGroupsForm.joinGroupItems);
+
+      let groupsNames: string[] = [];
+      joinGroupsForm.joinGroupItems.forEach((joinGroupItem) => {
+        groupsNames.push(joinGroupItem.group_name);
+      });
+
+
+      if (createCharacterFormState.name) {
+        axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
+          "groups_names": groupsNames,
+          "character_name": createCharacterFormState.name
+        })
+        .then(response => {
+          message.success(`Success to join the groups: ${groupsNames}`);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      } else {
+        message.warn("The character name is empty, please set in previous step")
+      }
+
+    };
     
-    
+    const selectGroupOptions = ref<SelectProps['options']>([]);
+
+    const filterOption = (input: string, option: any) => {
+      return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+    };
+
+
+    onMounted(() => {
+        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups_names`)
+        .then(response => {
+          const selectItems: SelectItem[] = [];
+          response.data.groups.forEach(group => {
+            selectItems.push({"value": group.name, "label": group.name})
+          });
+          selectGroupOptions.value = [...selectItems];
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    })
+
 
     return {
       currentStep,
-      steps: [
-        {
-          title: 'First',
-          content: 'First-content',
-        },
-        {
-          title: 'Second',
-          content: 'Second-content',
-        },
-        {
-          title: 'Last',
-          content: 'Last-content',
-        },
-      ],
-      next,
-      prev,
+      totalStepCount,
+      nextStep,
+      prevStep,
 
       uploadImageFileList,
       createCharacterFormState,
       submitCreateCharacterForm,
 
-      formRef,
-      formItemLayout,
-      formItemLayoutWithOutLabel,
-      dynamicValidateForm,
-      submitForm,
-      removeDomain,
-      addDomain,
+      joinGroupsForm,
+      addJoinGroupItem,
+      removeJoinGroupItem,
+      submitJoinGroupsForm,
+      filterOption,
+      selectGroupOptions
+
     }
   }
 })
