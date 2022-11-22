@@ -8,7 +8,7 @@
       <a-list bordered :data-source="topics">
         <template #renderItem="{ item }">
           <a-list-item>
-            <p>{{ item }}</p>
+            <router-link :to='`/topics/${item}`'>{{ item }}</router-link>
             <a-button type="primary" @click="previewGraph(item)">Preview</a-button>
           </a-list-item>
         </template>
