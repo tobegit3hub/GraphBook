@@ -8,7 +8,7 @@
       <a-list bordered :data-source="topics">
         <template #renderItem="{ item }">
           <a-list-item>
-            <router-link :to='`/topics/${item}`'>{{ item }}</router-link>
+            <router-link :to='`/topics/${item}/graph`'>{{ item }}</router-link>
             <a-button type="primary" @click="previewGraph(item)">Preview</a-button>
           </a-list-item>
         </template>
@@ -52,8 +52,8 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios'
 import { defineComponent, ref, reactive, onMounted } from 'vue'
+import axios from 'axios'
 import type { UnwrapRef } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
 import type { FormProps } from 'ant-design-vue';
