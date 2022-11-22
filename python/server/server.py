@@ -149,7 +149,11 @@ def handle_relations(topic):
             relation = request.json["relation"]
             note = request.json["note"]
             db_service.create_relation(topic, source, target, relation, note)
-
+        elif "character_name" in request.json and "upstream_relations" in request.json and "downstream_relations" in request.json:
+            character_name = request.json["character_name"]
+            upstream_relations = request.json["upstream_relations"]
+            downstream_relations = request.json["downstream_relations"]
+            db_service.add_relations_for_character(topic, character_name, upstream_relations, downstream_relations)
         elif "insert_relations" in request.json and "update_relations" in request.json and "delete_relations" in request.json:
             insert_relations = request.json["insert_relations"]
             update_relations = request.json["update_relations"]
@@ -167,8 +171,6 @@ def handle_groups(topic):
         if "group_name" in request.json and "character_name" in request.json:
             group_name = request.json["group_name"]
             character_name = request.json["character_name"]
-
-
             db_service.create_group(topic, group_name, character_name)
         elif "groups_names" in request.json and "character_name" in request.json:
             groups_names = request.json["groups_names"]

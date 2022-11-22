@@ -288,6 +288,31 @@ class DbService(object):
         conn.commit()
 
     """
+    Add upstream and downstream relations for single character.
+
+    upstream_relations and downstream_relations should be like this:
+    [
+        {
+            "character_name": "foo",
+            "relation": "bar",
+            "note": ""
+        },
+        {
+            "character_name": "foo",
+            "relation": "bar",
+            "note": ""
+        }
+    ]
+    """
+    def add_relations_for_character(self, topic: str, character_name: str, upstream_relations: array, downstream_relations: array) -> None:
+        conn = self.engine.connect()
+        sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES ('{}', :source, :target, :relation, :note)".format(topic)
+        upstream_params = [{"source": upstream_relation["character_name"], "target": character_name, "relation": upstream_relation["relation"], "note": upstream_relation["note"]} for upstream_relation in upstream_relations]
+        downstream_params = [{"source": character_name, "target": downstream_relation["character_name"], "relation": downstream_relation["relation"], "note": downstream_relation["note"]} for downstream_relation in downstream_relations]
+        conn.execute(text(sql), upstream_params + downstream_params)
+        conn.commit()
+
+    """
     Update relations table.
     """
     def update_relations(self, topic: str, insert_relations: list, update_relations: list, delete_relations: list) -> None:
