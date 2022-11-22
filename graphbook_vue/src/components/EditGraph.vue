@@ -1,35 +1,20 @@
 
 <template>
 
+<a-layout class="layout">
 
+  <a-breadcrumb style="margin: 16px 0">
+    <a-breadcrumb-item><router-link :to='`/topics/${topic}/edit/addcharacter`'>Add Character</router-link></a-breadcrumb-item>
+    <a-breadcrumb-item><router-link :to='`/topics/${topic}/edit/characters`'>Edit Characters</router-link></a-breadcrumb-item>
+    <a-breadcrumb-item><router-link :to='`/topics/${topic}/edit/relations`'>Edit Relations</router-link></a-breadcrumb-item>
+    <a-breadcrumb-item><router-link :to='`/topics/${topic}/edit/groups`'>Edit Groups</router-link></a-breadcrumb-item>
+  </a-breadcrumb>
+  
+  <div :style="{ background: '#fff', padding: '24px', minHeight: '280px' }">
+    <router-view></router-view>
+  </div>
 
-
-  <a-layout>
-      <a-layout-sider width="200" style="background: #fff">
-        <a-menu
-          mode="inline"
-          :style="{ height: '100%', borderRight: 0 }"
-        >
-          <a-menu-item key="1"><router-link :to='`/topics/${topic}/edit/characters`'>Edit characters</router-link></a-menu-item>
-          <a-menu-item key="2"><router-link :to='`/topics/${topic}/edit/relations`'>Edit relations</router-link></a-menu-item>
-          <a-menu-item key="3"><router-link :to='`/topics/${topic}/edit/groups`'>Edit groups</router-link></a-menu-item>
-        </a-menu>
-      </a-layout-sider>
-
-      <a-layout style="padding: 0 24px 24px">
-        <a-layout-content
-          :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
-        >
-          
-          <router-view></router-view>
-
-        </a-layout-content>
-      </a-layout>
-    </a-layout>
-
-
-
-
+</a-layout>
 
 </template>
 

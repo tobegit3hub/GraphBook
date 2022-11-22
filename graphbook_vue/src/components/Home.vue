@@ -16,9 +16,9 @@
         <a-menu-item key="3"><router-link :to='`/topics/${currentTopicName}/edit`'>Edit</router-link></a-menu-item>
         <a-menu-item key="4"><router-link :to='`/topics/${currentTopicName}/cards`'>Cards</router-link></a-menu-item>
         <a-menu-item key="5"><router-link :to='`/topics/${currentTopicName}/paths`'>Paths</router-link></a-menu-item>
-
+        <a-menu-item key="6"><router-link to='/topics/edit'>Edit Topics</router-link></a-menu-item>
         <!-- TODO: float:right does not work-->
-        <a-menu-item key="6" :disabled="true" style="float:rigt">
+        <a-menu-item key="7" :disabled="true" style="float:rigt">
             <a-select
                 v-model:value="currentTopicName"
                 show-search
@@ -34,11 +34,11 @@
     </a-layout-header>
 
     <a-layout-content style="padding: 0 50px">
-        <router-view></router-view>
+      <router-view></router-view>
     </a-layout-content>
 
     <a-layout-footer style="text-align: center">
-      GraphBook ©2023 Created at <a href="https://github.com/tobegit3hub/GraphBook">GraphBook</a>
+      GraphBook ©2023 created by <a href="https://github.com/tobegit3hub/GraphBook">GraphBook</a>
     </a-layout-footer>
   </a-layout>
 
@@ -66,7 +66,8 @@ export default defineComponent({
     };
 
     const handleChangeTopic = (value: string) => {
-        console.log(`selected ${currentTopicName.value}`);
+      // TODO: Update the child node
+      //console.log(`selected ${currentTopicName.value}`);
     };
 
     const initTopicOptions = () => {
