@@ -19,7 +19,7 @@ function useTable (app) {
 
 const routes = [
   { path: '/', component: TopicList },
-  { path: '/topics/:topic', component: GraphDetail },
+  { path: '/topics/:topic', component: GraphDetail, props: true },
 ]
  
  const router = createRouter({
