@@ -20,9 +20,9 @@
   <div v-show="currentSelectedCharacter===''">
     <h1>Characters</h1>
     <a-row :gutter="16">
-      <div v-for="character in characters">
+      <div v-for="character in characters" @click="chooseCharacterFromImage(character.name)">
         <a-col :span="4">
-          <a-card hoverable style="width: 80px"> <!-- 240px by default-->
+          <a-card hoverable style="width: 80px" > <!-- 240px by default-->
           <template #cover>
             <img :src="'http://localhost:7788/images/' + topic + '/' + character.name + '.png'" />
           </template>
@@ -78,6 +78,11 @@ export default defineComponent({
       router.push({ path: `/topics/${props.topic}/characters/${currentSelectedCharacter.value}` })
     }
 
+    const chooseCharacterFromImage = (character_name) => {
+      currentSelectedCharacter.value = character_name;
+      changeSelectedCharacter();
+    }
+
     onMounted(() => {
       axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
         .then(response => {
@@ -101,7 +106,9 @@ export default defineComponent({
       currentSelectedCharacter,
       filterOption,
       selectCharacterOptions,
-      changeSelectedCharacter
+      changeSelectedCharacter,
+
+      chooseCharacterFromImage
     }
   }
 })
