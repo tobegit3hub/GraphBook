@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import axios from 'axios'
-import { defineComponent, reactive, ref, onMounted} from 'vue'
+import { defineComponent, reactive, ref, onMounted, watch } from 'vue'
 import type { SelectProps } from 'ant-design-vue';
 import { useRouter, useRoute } from 'vue-router'
 
@@ -49,7 +49,11 @@ export default defineComponent({
 
     const characters = ref([]);
 
-    onMounted(() => {
+    watch(() => props.topic, (first, second) => {
+      init();
+    });
+
+    const init = () => {
       axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
           characters.value = response.data.characters;
@@ -62,6 +66,10 @@ export default defineComponent({
         .catch(error => {
           console.log(error);
         });
+    }
+
+    onMounted(() => {
+      init();
     })
 
     return {

@@ -75,7 +75,9 @@ export default defineComponent({
       () => route.params.topic,
       async newTopicName => {
         // Update the selected topic name when router has been changed
-        currentTopicName.value = newTopicName;
+        if (newTopicName) {
+          currentTopicName.value = newTopicName;
+        }
       }
     )
 

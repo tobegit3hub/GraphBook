@@ -188,7 +188,7 @@
 
 <script lang="ts">
 import axios from 'axios'
-import { defineComponent, reactive, ref, onMounted } from 'vue'
+import { defineComponent, reactive, ref, onMounted, watch } from 'vue'
 import type { UnwrapRef } from 'vue';
 import type { SelectProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -378,8 +378,11 @@ export default defineComponent({
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
 
+    watch(() => props.topic, (first, second) => {
+      init();
+    });
 
-    onMounted(() => {
+    const init = () => {
       axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
           const selectItems: SelectItem[] = [];
@@ -395,16 +398,19 @@ export default defineComponent({
       axios.get(`/api/topics/${props.topic}/groups_names`)
         .then(response => {
           const selectItems: SelectItem[] = [];
-          response.data.groups.forEach(group => {
-            selectItems.push({ "value": group.name, "label": group.name })
+          response.data.groups_names.forEach(group_name => {
+            selectItems.push({ "value": group_name, "label": group_name })
           });
           selectGroupOptions.value = [...selectItems];
         })
         .catch(error => {
           console.log(error);
         });
-    })
+    }
 
+    onMounted(() => {
+      init();
+    })
 
     return {
       currentStep,

@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, watch, toRefs, onMounted} from 'vue'
+import { defineComponent, ref, reactive, watch, onMounted } from 'vue'
 
 import axios from 'axios'
 
@@ -78,8 +78,11 @@ export default defineComponent({
       updateNodes();
     });
 
-    onMounted(() => {
+    watch(() => props.topic, (first, second) => {
+      init();
+    });
 
+    const init = () => {
       axios.get(`/api/topics/${props.topic}/characters`).then(response => {
         
         var charactersNameList = [];
@@ -93,14 +96,14 @@ export default defineComponent({
         allCharactersNames.value =  charactersNameList;
 
         computePathOptions.value = computePathOptionList;
-
-
       }, response => {
           console.log("Fail to get nodes");
       }); 
+    }
 
+    onMounted(() => {
+      init();
     })
-
 
     const computePathOnlyDirectedOptions = ref([{value: "true", label: "true"}, {value: "false", label: "false"}])
     let computedPaths = ref([]);
