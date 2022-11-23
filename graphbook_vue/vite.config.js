@@ -17,10 +17,15 @@ export default defineConfig({
       resolvers: [AntDesignVueResolver()],
     }),
   ],
+
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       vue: 'vue/dist/vue.esm-bundler.js',
     }
-  }
+  },
+
+  base: process.env.NODE_ENV === 'production' ? './' : '/',
+
+  
 })
