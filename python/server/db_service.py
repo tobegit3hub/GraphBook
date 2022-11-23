@@ -239,7 +239,7 @@ class DbService(object):
         conn = self.engine.connect()
         sql = "SELECT distinct(name) FROM groupx WHERE topic = '{}'".format(topic)
         result = conn.execute(text(sql))
-        return [{"name": row[0]} for row in result.all()]        
+        return [row[0] for row in result.all()]        
 
     """
     Get characters names from some groups.

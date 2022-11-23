@@ -188,7 +188,7 @@ def handle_groups(topic):
 @cross_origin()
 def get_groups_names(topic):
     if request.method == "GET":
-        result = {"groups": db_service.get_groups_names(topic)}
+        result = {"groups_names": db_service.get_groups_names(topic)}
         return jsonify(result)
 
 @app.route('/api/topics/<topic>/paths', methods=['GET'])

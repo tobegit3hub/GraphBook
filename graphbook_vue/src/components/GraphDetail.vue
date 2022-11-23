@@ -279,7 +279,6 @@ export default defineComponent({
 
     // Update the characters by accessing chooseGroupCheckboxState
     const updateGroup = () => {
-
       if (chooseGroupCheckboxState.currentChosenGroupNames.length > 0) {
         // Get characters data from chosen group
         axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters_names`, {
@@ -433,12 +432,8 @@ export default defineComponent({
         console.log(`Fail to get relations for topic: ${props.topic}`);
       });
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`).then(response => {
-        var groupNameList = []
-        response.data.groups.forEach(function (groupInfo) {
-          groupNameList.push(groupInfo["name"])
-        });
-        allGroupNames.value = groupNameList;
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups_names`).then(response => {
+        allGroupNames.value = response.data.groups_names;
       }, response => {
         console.log(`Fail to get relations for topic: ${props.topic}`);
       });
