@@ -53,6 +53,6 @@ const routes = [
  })
 
 const app = createApp(App)
-app.use(useTable)
 app.use(router)
+app.use(useTable)
 app.mount('#app')

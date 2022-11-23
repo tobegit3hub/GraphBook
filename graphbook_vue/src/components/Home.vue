@@ -46,11 +46,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted } from 'vue'
+import { defineComponent, ref, reactive, onMounted, watch } from 'vue'
 import axios from 'axios'
 import { SelectTypes } from 'ant-design-vue/es/select';
+import { useRouter, useRoute } from 'vue-router'
 
-type SelectItem = {
+type SelectItem = { 
   value: string;
   label: string;
 };
@@ -59,17 +60,36 @@ export default defineComponent({
   name: "Home",
 
   setup() {
-    const currentTopicName = ref("");
+    const router = useRouter()
+    const route = useRoute()
+
+    const currentTopicName = ref<string>("");
     const selectTopicOptions = ref<SelectTypes['options']>([]);
 
     const filterOption = (input: string, option: any) => {
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
 
+
+    watch(
+      () => route.params.topic,
+      async newTopicName => {
+        // Update the selected topic name when router has been changed
+        currentTopicName.value = newTopicName;
+      }
+    )
+
     const handleChangeTopic = (value: string) => {
-      // TODO: Update the child node
-      //console.log(`selected ${currentTopicName.value}`);
-    };
+      // Watch router and jump to new path with new topic name
+      const currentPath = route.fullPath;
+      if (currentPath.startsWith("/topics/") && currentPath != "/topics/edit") {
+        // Split the path and replace the topic name in the path
+        const pathSplitedList = currentPath.split("/");
+        pathSplitedList[2] = currentTopicName.value;
+        const pathWithNewTopic = pathSplitedList.join("/");
+        router.replace({ path: pathWithNewTopic });
+      }
+    }
 
     const initTopicOptions = () => {
       axios.get(`/api/topics`)
