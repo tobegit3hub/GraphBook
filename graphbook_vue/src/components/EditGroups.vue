@@ -245,7 +245,7 @@ export default defineComponent({
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.groups_names.forEach(group_name => {
-            selectItems.push({"value": group_name, "label": name})
+            selectItems.push({"value": group_name, "label": group_name})
           });
           selectGroupOptions.value = [...selectItems];
         })

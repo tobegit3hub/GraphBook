@@ -78,7 +78,8 @@ class DbService(object):
             `weight` float DEFAULT NULL,
             `note` varchar(4096) DEFAULT NULL,
             `image_name` varchar(4096) DEFAULT NULL,
-            PRIMARY KEY (`topic`, `name`)
+            PRIMARY KEY (`topic`, `name`),
+            CONSTRAINT `fk_characters_topic` FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         );
         """
         conn.execute(text(sql))
@@ -90,7 +91,8 @@ class DbService(object):
             `target` varchar(64) NOT NULL,
             `relation` varchar(64) NOT NULL,
             `note` varchar(4096) DEFAULT NULL,
-            PRIMARY KEY (`topic`, `source`, `target`)
+            PRIMARY KEY (`topic`, `source`, `target`),
+            CONSTRAINT `fk_relations_topic` FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         );
         """
         conn.execute(text(sql))
@@ -100,7 +102,8 @@ class DbService(object):
             `topic` varchar(64) NOT NULL,
             `group_name` varchar(64) NOT NULL,
             `character_name` varchar(64) NOT NULL,
-            PRIMARY KEY (`topic`, `group_name`, `character_name`)
+            PRIMARY KEY (`topic`, `group_name`, `character_name`),
+            CONSTRAINT `fk_groupx_topic` FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         )
         """
         conn.execute(text(sql))
