@@ -18,7 +18,7 @@
             <a-card hoverable style="width: 80px">
               <!-- 240px by default-->
               <template #cover>
-                <img :src="'http://localhost:7788/images/' + topic + '/' + character.name + '.png'" />
+                <img :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
               </template>
               <a-card-meta :title="character.name">
                 <template #description>{{ character.note }}</template>
@@ -42,7 +42,7 @@
 import axios from 'axios'
 import { defineComponent, reactive, ref, onMounted, watch } from 'vue'
 import type { SelectProps } from 'ant-design-vue';
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 type SelectItem = {
   value: string;
@@ -56,6 +56,8 @@ export default defineComponent({
     topic: String,
   },
   setup(props) {
+    const API_BASE_URI = axios.defaults.baseURL;
+
     const router = useRouter()
 
     const characters = ref([]);
@@ -103,6 +105,8 @@ export default defineComponent({
     })
 
     return {
+      API_BASE_URI,
+
       characters,
 
       currentSelectedCharacter,

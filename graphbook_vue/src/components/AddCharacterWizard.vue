@@ -26,7 +26,7 @@
           </a-form-item>
 
           <a-form-item>
-            <a-upload v-model:fileList="uploadImageFileList" :action="`/api/topics/${topic}/character_image`"
+            <a-upload v-model:fileList="uploadImageFileList" :action="`${API_BASE_URI}/api/topics/${topic}/character_image`"
               list-type="picture" :multiple="false">
               <a-button>
                 <upload-outlined></upload-outlined>
@@ -207,6 +207,7 @@ export default defineComponent({
     topic: String,
   },
   setup(props) {
+    const API_BASE_URI = axios.defaults.baseURL;
 
     const currentStep = ref<number>(0);
     const totalStepCount = 3;
@@ -390,6 +391,8 @@ export default defineComponent({
     })
 
     return {
+      API_BASE_URI,
+
       currentStep,
       totalStepCount,
       nextStep,

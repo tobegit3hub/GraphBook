@@ -10,7 +10,7 @@
           <a-card hoverable style="width: 80px">
             <!-- 240px by default-->
             <template #cover>
-              <img :src="'http://localhost:7788/images/' + topic + '/' + character.name + '.png'" />
+              <img :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
             </template>
             <a-card-meta :title="character.name">
               <template #description>{{ character.note }}</template>
@@ -46,7 +46,7 @@ export default defineComponent({
     topic: String,
   },
   setup(props) {
-    const router = useRouter()
+    const API_BASE_URI = axios.defaults.baseURL;
 
     const characters = ref([]);
 
@@ -74,6 +74,8 @@ export default defineComponent({
     })
 
     return {
+      API_BASE_URI,
+
       characters
     }
   }

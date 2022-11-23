@@ -8,7 +8,7 @@
     <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
       <p>Name: {{ currentCharacterModalName }}</p>
       <p>Weight: {{ currentCharacterModalWeight }}</p>
-      <a-image :src="'http://localhost:7788/images/' + topic + '/' + currentCharacterModalName + '.png'" />
+      <a-image :src="`${API_BASE_URI}/images/${topic}/${currentCharacterModalImageName}`" />
       <p>Note:</p>
       <p>{{ currentModalNote }}</p>
     </a-modal>
@@ -81,6 +81,7 @@ export default defineComponent({
     VChart
   },
   setup(props) {
+    const API_BASE_URI = axios.defaults.baseURL;
 
     const simplifyCharacterNote = (note) => {
       if (note) {
@@ -113,7 +114,7 @@ export default defineComponent({
           // TODO: Display image, handle image not found
           if (param.data.name) {
             template += '</br>'
-            template += `<img src='http://localhost:7788/images/${props.topic}/${param.data.name}.png' width="150">`;
+            template += `<img src='${API_BASE_URI}/images/${props.topic}/${param.data.image_name}' width="150">`;
             template += '</br>'
             if (param.data.note) {
               template += '<div style="width: 100px">' + simplifyCharacterNote(param.data.note) + '</div>';
@@ -179,7 +180,7 @@ export default defineComponent({
     const isCharacterModalVisible = ref(false);
     const currentCharacterModalName = ref("");
     const currentCharacterModalWeight = ref(0.0);
-    //const currentModalImagePath = ref("");
+    const currentCharacterModalImageName = ref("");
     const currentModalNote = ref("");
 
     const handleCharacterModalOk = (e) => {
@@ -190,6 +191,7 @@ export default defineComponent({
       isCharacterModalVisible.value = true;
       currentCharacterModalName.value = params.data.name;
       currentCharacterModalWeight.value = params.data.weight;
+      currentCharacterModalImageName.value = params.data.image_name;
       //currentModalImagePath.value = params.data.symbol;
       currentModalNote.value = params.data.note;
     }
@@ -240,7 +242,7 @@ export default defineComponent({
         }
 
         // Get image and crop for character
-        const imagePath = `http://localhost:7788/images/${props.topic}/${characterInfo.name}.png`;
+        const imagePath = `${API_BASE_URI}/images/${props.topic}/${characterInfo.image_name}`;
         asyncCropImage(imagePath, function (result) {
           // TODO: Handle if can not load image
           vuechartOption.value.series[0].data[index]["symbol"] = result;
@@ -439,13 +441,15 @@ export default defineComponent({
     }
 
     return {
+      API_BASE_URI,
+
       vuechartOption,
       handleDoubleClickGraph,
       isCharacterModalVisible,
       handleCharacterModalOk,
       currentCharacterModalName,
       currentCharacterModalWeight,
-      //currentModalImagePath,
+      currentCharacterModalImageName,
       currentModalNote,
 
       ...toRefs(chooseCharacterCheckboxState),
