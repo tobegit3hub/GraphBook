@@ -3,7 +3,6 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
 import axios from 'axios'
-//import './assets/main.css'
 import "echarts"
 
 import App from './App.vue'
@@ -20,7 +19,7 @@ import EditCharacters from './components/EditCharacters.vue';
 import EditRelations from './components/EditRelations.vue';
 import EditGroups from './components/EditGroups.vue';
 
-
+// Read config from .env.development and .env.production to set global server endpoint
 axios.defaults.baseURL = import.meta.env.VITE_API_ENDPOINT;
 
 function useTable (app) {
