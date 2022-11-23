@@ -2,35 +2,19 @@
 <template>
 
   <h1>Add character</h1>
-  <a-form
-    layout="inline"
-    :model="formState"
-    @finish="handleSubmitForm"
-    @finishFailed="handleSubmitFormFailed"
-  >
+  <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
 
-  <a-form-item
-      label="Name"
-      name="name"
-      :rules="[{ required: true, message: 'Please input name!' }]"
-    >
+    <a-form-item label="Name" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
       <a-input v-model:value="formState.name" />
     </a-form-item>
 
-    <a-form-item
-      label="Note"
-      name="note"
-    >
+    <a-form-item label="Note" name="note">
       <a-input v-model:value="formState.note" />
     </a-form-item>
 
     <a-form-item>
-      <a-upload
-      v-model:fileList="uploadImageFileList"
-      :action="`/api/topics/${topic}/character_image`"
-      list-type="picture"
-      :multiple="false"
-      >
+      <a-upload v-model:fileList="uploadImageFileList" :action="`/api/topics/${topic}/character_image`"
+        list-type="picture" :multiple="false">
         <a-button>
           <upload-outlined></upload-outlined>
           Upload image
@@ -41,11 +25,7 @@
 
 
     <a-form-item>
-      <a-button
-        type="primary"
-        html-type="submit"
-        :disabled="formState.name === ''"
-      >
+      <a-button type="primary" html-type="submit" :disabled="formState.name === ''">
         Add
       </a-button>
     </a-form-item>
@@ -84,7 +64,7 @@
 
 <script lang="ts">
 import axios from 'axios'
-import { defineComponent, reactive, ref, onMounted} from 'vue'
+import { defineComponent, reactive, ref, onMounted } from 'vue'
 import type { UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
@@ -105,7 +85,7 @@ export default defineComponent({
   props: {
     topic: String,
   },
-  setup (props) {
+  setup(props) {
     const vxeTable = ref<VxeGridInstance>()
     const vxeTableOptions = reactive<VxeGridProps>({
       border: true,
@@ -146,7 +126,7 @@ export default defineComponent({
     })
 
     const vxeTableHandler: VxeGridListeners = {
-      toolbarButtonClick ({ code }) {
+      toolbarButtonClick({ code }) {
         const $grid = vxeTable.value
         switch (code) {
           case 'insertButton': {
@@ -163,12 +143,12 @@ export default defineComponent({
               update_characters: updateRecords,
               delete_characters: removeRecords
             })
-            .then(function (response) {
-              console.log(response);
-            })
-            .catch(function (error) {
-              console.log(error);
-            });
+              .then(function (response) {
+                console.log(response);
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
             break
           }
         }
@@ -193,22 +173,22 @@ export default defineComponent({
       note: '',
       image_name: ''
     });
-    
+
     const handleSubmitForm: FormProps['onFinish'] = values => {
 
       let image_name = formState.image_name
 
       if (uploadImageFileList.value?.length != null) {
         if (uploadImageFileList.value.length > 0) {
-          image_name = uploadImageFileList.value[uploadImageFileList.value.length-1].name
+          image_name = uploadImageFileList.value[uploadImageFileList.value.length - 1].name
         }
       }
 
       axios.post(`/api/topics/${props.topic}/characters`, {
-          "name": formState.name,
-          "note": formState.note,
-          "image_name": image_name
-        })
+        "name": formState.name,
+        "note": formState.note,
+        "image_name": image_name
+      })
         .then(response => {
           message.success(`Success to add character: ${formState.name}`);
           initTableData();

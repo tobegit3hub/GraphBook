@@ -22,19 +22,21 @@ import EditGroups from './components/EditGroups.vue';
 // Read config from .env.development and .env.production to set global server endpoint
 axios.defaults.baseURL = import.meta.env.VITE_API_ENDPOINT;
 
-function useTable (app) {
+function useTable(app) {
   app.use(VXETable)
 }
 
 const routes = [
   { path: '/', component: TopicList },
   { path: '/topics/:topic/graph', component: GraphDetail, props: true },
-  { path: '/topics/:topic/characters', component: SelectCharacters, props: true,
+  {
+    path: '/topics/:topic/characters', component: SelectCharacters, props: true,
     children: [
-      { path: ':character_name', component: CharacterDetail, props: true}
+      { path: ':character_name', component: CharacterDetail, props: true }
     ]
   },
-  { path: '/topics/:topic/edit', component: EditGraph, props: true,
+  {
+    path: '/topics/:topic/edit', component: EditGraph, props: true,
     children: [
       { path: 'addcharacter', component: AddCharacterWizard, props: true },
       { path: 'characters', component: EditCharacters, props: true },
@@ -46,11 +48,11 @@ const routes = [
   { path: '/topics/:topic/paths', component: ComputePaths, props: true },
   { path: '/topics/edit', component: EditTopics, props: true }
 ]
- 
- const router = createRouter({
-  history:createWebHashHistory('/'),
+
+const router = createRouter({
+  history: createWebHashHistory('/'),
   routes
- })
+})
 
 const app = createApp(App)
 app.use(router)

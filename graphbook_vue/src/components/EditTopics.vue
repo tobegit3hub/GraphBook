@@ -2,44 +2,45 @@
 <template>
 
   <div style="padding: 20px">
-      <h1> Manage Topics</h1>
+    <h1> Manage Topics</h1>
 
-      <!-- Form to create topic -->
-      <a-form layout="inline" :model="formState" @finish="handleCreateTopicFinish" @finishFailed="handleFinishFailed">
-        <a-form-item>
-          <a-input v-model:value="formState.name" placeholder="Topic name">
-          </a-input>
-        </a-form-item>
-        <a-form-item>
-          <a-button type="primary" html-type="submit">
-            Create Topic
-          </a-button>
-        </a-form-item>
-      </a-form>
+    <!-- Form to create topic -->
+    <a-form layout="inline" :model="formState" @finish="handleCreateTopicFinish" @finishFailed="handleFinishFailed">
+      <a-form-item>
+        <a-input v-model:value="formState.name" placeholder="Topic name">
+        </a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" html-type="submit">
+          Create Topic
+        </a-button>
+      </a-form-item>
+    </a-form>
 
-      <br />
-      <!-- Form to delete topic -->
-      <a-form layout="inline" :model="deleteTopicFormState" @finish="handleDeleteTopicFinish" @finishFailed="handleFinishFailed">
-        <a-form-item>
-          <a-input v-model:value="deleteTopicFormState.name" placeholder="Topic name">
-          </a-input>
-        </a-form-item>
-        <a-form-item>
-          <a-button type="primary" html-type="submit">
-            Delete Topic
-          </a-button>
-        </a-form-item>
-      </a-form>
+    <br />
+    <!-- Form to delete topic -->
+    <a-form layout="inline" :model="deleteTopicFormState" @finish="handleDeleteTopicFinish"
+      @finishFailed="handleFinishFailed">
+      <a-form-item>
+        <a-input v-model:value="deleteTopicFormState.name" placeholder="Topic name">
+        </a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" html-type="submit">
+          Delete Topic
+        </a-button>
+      </a-form-item>
+    </a-form>
 
-      <br /><br />
-      <h1> Topics List</h1>
-      <a-list item-layout="horizontal" :data-source="topics">
-        <template #renderItem="{ item }">
-          <a-list-item>
-            <router-link :to='`/topics/${item}/graph`'>{{ item }}</router-link>
-          </a-list-item>
-        </template>
-      </a-list>
+    <br /><br />
+    <h1> Topics List</h1>
+    <a-list item-layout="horizontal" :data-source="topics">
+      <template #renderItem="{ item }">
+        <a-list-item>
+          <router-link :to='`/topics/${item}/graph`'>{{ item }}</router-link>
+        </a-list-item>
+      </template>
+    </a-list>
 
   </div>
 </template>
@@ -80,8 +81,8 @@ export default defineComponent({
     const handleCreateTopicFinish: FormProps['onFinish'] = values => {
 
       axios.post(`/api/topics`, {
-          "name": formState.name
-        })
+        "name": formState.name
+      })
         .then(response => {
           message.success('Success to create topic: ' + formState.name);
           initTopicListData()
@@ -101,7 +102,7 @@ export default defineComponent({
         .catch(error => {
           console.log(error);
         });
-      };
+    };
 
     const handleFinishFailed: FormProps['onFinishFailed'] = errors => {
       console.log(errors);

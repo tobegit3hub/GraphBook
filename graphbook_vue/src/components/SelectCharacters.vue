@@ -1,46 +1,40 @@
 
 <template>
 
-<div style="background-color: #ececec; padding: 20px">
+  <div style="background-color: #ececec; padding: 20px">
 
-  <h1>Select character</h1>
-  <a-select
-      v-model:value="currentSelectedCharacter"
-      show-search
-      placeholder="Select character"
-      style="width: 200px"
-      :options="selectCharacterOptions"
-      :filter-option="filterOption"
-      @change="changeSelectedCharacter"
-    ></a-select>
+    <h1>Select character</h1>
+    <a-select v-model:value="currentSelectedCharacter" show-search placeholder="Select character" style="width: 200px"
+      :options="selectCharacterOptions" :filter-option="filterOption" @change="changeSelectedCharacter"></a-select>
 
-  <br/><br/>
+    <br /><br />
 
-  <!-- Only show when not selecting character -->
-  <div v-show="!currentSelectedCharacter">
-    <h1>Characters</h1>
-    <a-row :gutter="16">
-      <div v-for="character in characters" @click="chooseCharacterFromImage(character.name)">
-        <a-col :span="4">
-          <a-card hoverable style="width: 80px" > <!-- 240px by default-->
-          <template #cover>
-            <img :src="'http://localhost:7788/images/' + topic + '/' + character.name + '.png'" />
-          </template>
-          <a-card-meta :title="character.name">
-            <template #description>{{ character.note }}</template>
-          </a-card-meta>
-        </a-card>
-        </a-col>
-      </div>
-    </a-row>
+    <!-- Only show when not selecting character -->
+    <div v-show="!currentSelectedCharacter">
+      <h1>Characters</h1>
+      <a-row :gutter="16">
+        <div v-for="character in characters" @click="chooseCharacterFromImage(character.name)">
+          <a-col :span="4">
+            <a-card hoverable style="width: 80px">
+              <!-- 240px by default-->
+              <template #cover>
+                <img :src="'http://localhost:7788/images/' + topic + '/' + character.name + '.png'" />
+              </template>
+              <a-card-meta :title="character.name">
+                <template #description>{{ character.note }}</template>
+              </a-card-meta>
+            </a-card>
+          </a-col>
+        </div>
+      </a-row>
+    </div>
+
+    <!-- Character detail -->
+    <div>
+      <router-view></router-view>
+    </div>
+
   </div>
-
-  <!-- Character detail -->
-  <div>
-    <router-view></router-view>
-  </div>
-
-</div>
 
 </template>
 
@@ -61,7 +55,7 @@ export default defineComponent({
   props: {
     topic: String,
   },
-  setup (props) {
+  setup(props) {
     const router = useRouter()
 
     const characters = ref([]);
@@ -94,7 +88,7 @@ export default defineComponent({
 
           const selectItems: SelectItem[] = [];
           response.data.characters.forEach(character => {
-            selectItems.push({"value": character.name, "label": character.name})
+            selectItems.push({ "value": character.name, "label": character.name })
           });
           selectCharacterOptions.value = [...selectItems];
 
@@ -103,7 +97,7 @@ export default defineComponent({
           console.log(error);
         });
     }
-    
+
     onMounted(() => {
       init()
     })

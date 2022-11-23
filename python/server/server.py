@@ -38,16 +38,20 @@ print("Load init config file: {} and get all config: {}".format(
 """
 Init database service.
 """
-db_config = db_service.DbConfig(ini_config["db"]["dbms"], ini_config["db"]["endpoint"], ini_config["db"]["user"], ini_config["db"]["password"], ini_config["db"]["db_name"])
+db_config = db_service.DbConfig(ini_config["db"]["dbms"], ini_config["db"]["endpoint"],
+                                ini_config["db"]["user"], ini_config["db"]["password"], ini_config["db"]["db_name"])
 db_service = db_service.DbService(db_config)
 
 """
 Render the vue generated single page app.
 """
+
+
 @app.route('/')
 @cross_origin()
 def index():
     return render_template("index.html")
+
 
 @app.route('/api/topics', methods=['GET', 'POST'])
 @cross_origin()
@@ -60,12 +64,14 @@ def handle_topics():
         db_service.create_topic(name)
         return jsonify({"code": 0})
 
+
 @app.route('/api/topics_statistics', methods=['GET'])
 @cross_origin()
 def get_topics_statistics():
     if request.method == "GET":
         result = db_service.get_topics_statistics()
         return jsonify(result)
+
 
 @app.route('/api/topics/<topic>', methods=['DELETE'])
 @cross_origin()
@@ -74,15 +80,18 @@ def delete_topic(topic):
         db_service.delete_topic(topic)
         return jsonify({"code": 0})
 
+
 @app.route('/api/topics/<topic>/characters', methods=['GET', 'POST'])
 @cross_origin()
 def handle_characters(topic):
     if request.method == "GET":
-        chosen_characters_names = request.args.getlist('chosen_characters_names[]')
-        result = {"characters": db_service.get_characters(topic, chosen_characters_names)}
+        chosen_characters_names = request.args.getlist(
+            'chosen_characters_names[]')
+        result = {"characters": db_service.get_characters(
+            topic, chosen_characters_names)}
         return jsonify(result)
     elif request.method == "POST":
-        
+
         if "name" in request.json and "note" in request.json and "image_name" in request.json:
             name = request.json["name"]
             note = request.json["note"]
@@ -92,8 +101,10 @@ def handle_characters(topic):
             insert_characters = request.json["insert_characters"]
             update_characters = request.json["update_characters"]
             delete_characters = request.json["delete_characters"]
-            db_service.update_characters(topic, insert_characters, update_characters, delete_characters)
+            db_service.update_characters(
+                topic, insert_characters, update_characters, delete_characters)
         return jsonify({"code": 0})
+
 
 @app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])
 @cross_origin()
@@ -106,13 +117,16 @@ def get_character(topic, character):
         }
         return jsonify(result)
 
+
 @app.route('/api/topics/<topic>/characters_names', methods=['GET'])
 @cross_origin()
 def get_characters_names(topic):
     if request.method == "GET":
         chosen_groups = request.args.getlist('chosen_groups[]')
-        result = {"characters_names": db_service.get_characters_names_in_groups(topic, chosen_groups)}
+        result = {"characters_names": db_service.get_characters_names_in_groups(
+            topic, chosen_groups)}
         return jsonify(result)
+
 
 @app.route('/api/topics/<topic>/character_image', methods=['POST'])
 @cross_origin()
@@ -134,7 +148,8 @@ def upload_character_image(topic):
             logger.warning("Image file already exists, try to overwrite it")
         file.save(file_path)
 
-        return jsonify( { 'code': 0 })
+        return jsonify({'code': 0})
+
 
 @app.route('/api/topics/<topic>/relations', methods=['GET', 'POST'])
 @cross_origin()
@@ -154,13 +169,16 @@ def handle_relations(topic):
             character_name = request.json["character_name"]
             upstream_relations = request.json["upstream_relations"]
             downstream_relations = request.json["downstream_relations"]
-            db_service.add_relations_for_character(topic, character_name, upstream_relations, downstream_relations)
+            db_service.add_relations_for_character(
+                topic, character_name, upstream_relations, downstream_relations)
         elif "insert_relations" in request.json and "update_relations" in request.json and "delete_relations" in request.json:
             insert_relations = request.json["insert_relations"]
             update_relations = request.json["update_relations"]
             delete_relations = request.json["delete_relations"]
-            db_service.update_relations(topic, insert_relations, update_relations, delete_relations)
+            db_service.update_relations(
+                topic, insert_relations, update_relations, delete_relations)
         return jsonify({"code": 0})
+
 
 @app.route('/api/topics/<topic>/groups', methods=['GET', 'POST'])
 @cross_origin()
@@ -181,9 +199,11 @@ def handle_groups(topic):
             insert_groups = request.json["insert_groups"]
             update_groups = request.json["update_groups"]
             delete_groups = request.json["delete_groups"]
-            db_service.update_groups(topic, insert_groups, update_groups, delete_groups)
+            db_service.update_groups(
+                topic, insert_groups, update_groups, delete_groups)
 
         return jsonify({"code": 0})
+
 
 @app.route('/api/topics/<topic>/groups_names', methods=['GET'])
 @cross_origin()
@@ -192,22 +212,26 @@ def get_groups_names(topic):
         result = {"groups_names": db_service.get_groups_names(topic)}
         return jsonify(result)
 
+
 @app.route('/api/topics/<topic>/paths', methods=['GET'])
 @cross_origin()
 def get_node_node_paths(topic):
     if request.method == "GET":
-        source = request.args.get('source', type = str)
-        target = request.args.get('target', type = str)
-        cutoff = request.args.get('cutoff', default = -1, type = int)
-        only_directed = request.args.get('only_directed', default = False, type=lambda v: v.lower() == 'true')
+        source = request.args.get('source', type=str)
+        target = request.args.get('target', type=str)
+        cutoff = request.args.get('cutoff', default=-1, type=int)
+        only_directed = request.args.get(
+            'only_directed', default=False, type=lambda v: v.lower() == 'true')
 
         if source and target:
-            paths = db_service.compute_paths(topic, source, target, cutoff, only_directed)
+            paths = db_service.compute_paths(
+                topic, source, target, cutoff, only_directed)
             result = {"paths": paths}
         else:
             # TODO: Throw error if failed
             result = {"code": -1}
         return jsonify(result)
+
 
 @app.route('/api/topics/<topic>/weights', methods=['PUT'])
 @cross_origin()
@@ -223,6 +247,7 @@ def main():
           port=int(ini_config["server"]["port"]),
           threaded=True,
           debug=(ini_config["server"]["debug"].lower() == "true"))
+
 
 if __name__ == "__main__":
   main()

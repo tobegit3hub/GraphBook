@@ -26,9 +26,8 @@
           </a-form-item>
 
           <a-form-item>
-            <a-upload v-model:fileList="uploadImageFileList"
-              :action="`/api/topics/${topic}/character_image`" list-type="picture"
-              :multiple="false">
+            <a-upload v-model:fileList="uploadImageFileList" :action="`/api/topics/${topic}/character_image`"
+              list-type="picture" :multiple="false">
               <a-button>
                 <upload-outlined></upload-outlined>
                 Upload image
@@ -50,39 +49,28 @@
     <!-- Form of add relations -->
     <div v-show="currentStep === 1">
 
-      <a-form :model="addUpstreamRelationsForm" >
+      <a-form :model="addUpstreamRelationsForm">
         <div v-for="(addRelationItem, index) in addUpstreamRelationsForm.addRelationItems" :key="addRelationItem.key">
 
           <a-form layout="inline">
             <a-form-item>
               <span>Upstream character: </span>
-              <a-select
-                v-model:value="addRelationItem.character_name"
-                show-search
-                placeholder="Select character"
-                style="width: 200px"
-                :options="selectCharacterOptions"
-                :filter-option="filterOption"
-              ></a-select>
+              <a-select v-model:value="addRelationItem.character_name" show-search placeholder="Select character"
+                style="width: 200px" :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
             </a-form-item>
 
-            <a-form-item
-              label="relation"
-              name="relation"
-            >
-            <!-- TODO: not work of :rules="[{ required: true, message: 'Please input relation!' }]" -->
+            <a-form-item label="relation" name="relation">
+              <!-- TODO: not work of :rules="[{ required: true, message: 'Please input relation!' }]" -->
               <a-input v-model:value="addRelationItem.relation" />
             </a-form-item>
 
-            <a-form-item
-              label="note"
-              name="note"
-            >
+            <a-form-item label="note" name="note">
               <a-input v-model:value="addRelationItem.note" />
             </a-form-item>
-                    
-            <MinusCircleOutlined v-if="addUpstreamRelationsForm.addRelationItems.length > 1" class="dynamic-delete-button"
-              :disabled="addUpstreamRelationsForm.addRelationItems.length === 1" @click="removeUpstreamRelationItem(addRelationItem)" />
+
+            <MinusCircleOutlined v-if="addUpstreamRelationsForm.addRelationItems.length > 1"
+              class="dynamic-delete-button" :disabled="addUpstreamRelationsForm.addRelationItems.length === 1"
+              @click="removeUpstreamRelationItem(addRelationItem)" />
           </a-form>
         </div>
 
@@ -97,39 +85,28 @@
 
       <br /><br />
 
-      <a-form :model="addDownstreamRelationsForm" >
+      <a-form :model="addDownstreamRelationsForm">
         <div v-for="(addRelationItem, index) in addDownstreamRelationsForm.addRelationItems" :key="addRelationItem.key">
 
           <a-form layout="inline">
             <a-form-item>
               <span>Downstream character: </span>
-              <a-select
-                v-model:value="addRelationItem.character_name"
-                show-search
-                placeholder="Select character"
-                style="width: 200px"
-                :options="selectCharacterOptions"
-                :filter-option="filterOption"
-              ></a-select>
+              <a-select v-model:value="addRelationItem.character_name" show-search placeholder="Select character"
+                style="width: 200px" :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
             </a-form-item>
 
-            <a-form-item
-              label="relation"
-              name="relation"            
-            >
-            <!-- TODO: not work of :rules="[{ required: true, message: 'Please input relation!' }]" -->            
+            <a-form-item label="relation" name="relation">
+              <!-- TODO: not work of :rules="[{ required: true, message: 'Please input relation!' }]" -->
               <a-input v-model:value="addRelationItem.relation" />
             </a-form-item>
 
-            <a-form-item
-              label="note"
-              name="note"
-            >
+            <a-form-item label="note" name="note">
               <a-input v-model:value="addRelationItem.note" />
             </a-form-item>
-                    
-            <MinusCircleOutlined v-if="addDownstreamRelationsForm.addRelationItems.length > 1" class="dynamic-delete-button"
-              :disabled="addDownstreamRelationsForm.addRelationItems.length === 1" @click="removeDownstreamRelationItem(addRelationItem)" />
+
+            <MinusCircleOutlined v-if="addDownstreamRelationsForm.addRelationItems.length > 1"
+              class="dynamic-delete-button" :disabled="addDownstreamRelationsForm.addRelationItems.length === 1"
+              @click="removeDownstreamRelationItem(addRelationItem)" />
           </a-form>
         </div>
 
@@ -142,11 +119,11 @@
         </a-form-item>
       </a-form>
 
-       <a-form>
+      <a-form>
         <a-form-item>
-            <a-button type="primary" html-type="submit" @click="submitAddRelationsForm">Submit</a-button>
-          </a-form-item>
-       </a-form>
+          <a-button type="primary" html-type="submit" @click="submitAddRelationsForm">Submit</a-button>
+        </a-form-item>
+      </a-form>
     </div>
 
 
@@ -318,12 +295,12 @@ export default defineComponent({
           "upstream_relations": addUpstreamRelationsForm.addRelationItems,
           "downstream_relations": addDownstreamRelationsForm.addRelationItems
         })
-        .then(response => {
-          message.success(`Success to add relations for ${createCharacterFormState.name}`);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+          .then(response => {
+            message.success(`Success to add relations for ${createCharacterFormState.name}`);
+          })
+          .catch(error => {
+            console.log(error);
+          });
       } else {
         message.warn("The character name is empty, please set in previous step")
       }
@@ -387,14 +364,14 @@ export default defineComponent({
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.characters.forEach(character => {
-            selectItems.push({"value": character.name, "label": character.name})
+            selectItems.push({ "value": character.name, "label": character.name })
           });
           selectCharacterOptions.value = [...selectItems];
         })
         .catch(error => {
           console.log(error);
-      });  
-      
+        });
+
       axios.get(`/api/topics/${props.topic}/groups_names`)
         .then(response => {
           const selectItems: SelectItem[] = [];

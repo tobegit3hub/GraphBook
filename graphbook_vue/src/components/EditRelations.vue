@@ -2,56 +2,29 @@
 <template>
 
   <h1>Add realtion</h1>
-  <a-form
-      layout="inline"
-      :model="formState"
-      @finish="handleSubmitForm"
-      @finishFailed="handleSubmitFormFailed"
-    >
+  <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
 
-  <a-form-item>
-      <a-select
-        v-model:value="formState.source"
-        show-search
-        placeholder="Select character"
-        style="width: 200px"
-        :options="selectCharacterOptions"
-        :filter-option="filterOption"
-      ></a-select>
+    <a-form-item>
+      <a-select v-model:value="formState.source" show-search placeholder="Select character" style="width: 200px"
+        :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
     <a-form-item>
-      <a-select
-        v-model:value="formState.target"
-        show-search
-        placeholder="Select character"
-        style="width: 200px"
-        :options="selectCharacterOptions"
-        :filter-option="filterOption"
-      ></a-select>
+      <a-select v-model:value="formState.target" show-search placeholder="Select character" style="width: 200px"
+        :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
-    <a-form-item
-      label="relation"
-      name="relation"
-      :rules="[{ required: true, message: 'Please input relation!' }]"
-    >
+    <a-form-item label="relation" name="relation" :rules="[{ required: true, message: 'Please input relation!' }]">
       <a-input v-model:value="formState.relation" />
     </a-form-item>
 
-    <a-form-item
-      label="note"
-      name="note"
-    >
+    <a-form-item label="note" name="note">
       <a-input v-model:value="formState.note" />
     </a-form-item>
 
     <a-form-item>
-      <a-button
-        type="primary"
-        html-type="submit"
-        :disabled="formState.source === '' || formState.target === '' || formState.relation === ''"
-      >
+      <a-button type="primary" html-type="submit"
+        :disabled="formState.source === '' || formState.target === '' || formState.relation === ''">
         Add
       </a-button>
     </a-form-item>
@@ -84,7 +57,7 @@
 
 <script lang="ts">
 import axios from 'axios'
-import { defineComponent, reactive, ref, onMounted} from 'vue'
+import { defineComponent, reactive, ref, onMounted } from 'vue'
 import type { UnwrapRef } from 'vue';
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
 import type { SelectProps, FormProps } from 'ant-design-vue';
@@ -107,7 +80,7 @@ export default defineComponent({
   props: {
     topic: String,
   },
-  setup (props) {
+  setup(props) {
     const vxeTable = ref<VxeGridInstance>()
     const vxeTableOptions = reactive<VxeGridProps>({
       border: true,
@@ -147,7 +120,7 @@ export default defineComponent({
     })
 
     const vxeTableHandler: VxeGridListeners = {
-      toolbarButtonClick ({ code }) {
+      toolbarButtonClick({ code }) {
         const $grid = vxeTable.value
         switch (code) {
           case 'insertButton': {
@@ -164,12 +137,12 @@ export default defineComponent({
               update_relations: updateRecords,
               delete_relations: removeRecords
             })
-            .then(function (response) {
-              console.log(response);
-            })
-            .catch(function (error) {
-              console.log(error);
-            });
+              .then(function (response) {
+                console.log(response);
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
             break
           }
         }
@@ -192,15 +165,15 @@ export default defineComponent({
       relation: '',
       note: ''
     });
-    
+
     const handleSubmitForm: FormProps['onFinish'] = values => {
 
       axios.post(`/api/topics/${props.topic}/relations`, {
-          "source": formState.source,
-          "target": formState.target,
-          "relation": formState.relation,
-          "note": formState.note
-        })
+        "source": formState.source,
+        "target": formState.target,
+        "relation": formState.relation,
+        "note": formState.note
+      })
         .then(response => {
           message.success(`Success to add source: ${formState.source} to target ${formState.target}`);
           initTableData();
@@ -237,13 +210,13 @@ export default defineComponent({
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.characters.forEach(character => {
-            selectItems.push({"value": character.name, "label": character.name})
+            selectItems.push({ "value": character.name, "label": character.name })
           });
           selectCharacterOptions.value = [...selectItems];
         })
         .catch(error => {
           console.log(error);
-      });        
+        });
     })
 
     return {

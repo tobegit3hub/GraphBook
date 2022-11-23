@@ -1,46 +1,28 @@
 
 <template>
   <div style="padding: 20px">
-  <h1>Compute Paths</h1>
-  
-  <a-select
-    v-model:value="computePathSource"
-    show-search
-    placeholder="Select user"
-    style="width: 200px"
-    :options="computePathOptions"
-    :filter-option="computePathFilterOption"
-  ></a-select>
+    <h1>Compute Paths</h1>
 
-  <a-select
-    v-model:value="computePathTarget"
-    show-search
-    placeholder="Select user"
-    style="width: 200px"
-    :options="computePathOptions"
-    :filter-option="computePathFilterOption"
-  ></a-select>
+    <a-select v-model:value="computePathSource" show-search placeholder="Select user" style="width: 200px"
+      :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
 
-  <a-select
-    v-model:value="isComputePathOnlyDirected"
-    placeholder="Only directed"
-    style="width: 200px"
-    :options=computePathOnlyDirectedOptions
-  ></a-select>
+    <a-select v-model:value="computePathTarget" show-search placeholder="Select user" style="width: 200px"
+      :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
 
-  <a-button type="primary"
-    @click="handleClickComputePaths"
-    >Compute paths
-  </a-button>
+    <a-select v-model:value="isComputePathOnlyDirected" placeholder="Only directed" style="width: 200px"
+      :options=computePathOnlyDirectedOptions></a-select>
 
-  <a-list item-layout="horizontal" :data-source="computedPaths">
-    <template #renderItem="{ item }">
-      <a-list-item>{{ item }}</a-list-item>
-    </template>
-  </a-list>
+    <a-button type="primary" @click="handleClickComputePaths">Compute paths
+    </a-button>
+
+    <a-list item-layout="horizontal" :data-source="computedPaths">
+      <template #renderItem="{ item }">
+        <a-list-item>{{ item }}</a-list-item>
+      </template>
+    </a-list>
 
   </div>
-  
+
 </template>
 
 <script>
@@ -53,7 +35,7 @@ export default defineComponent({
   props: {
     topic: String,
   },
-  setup (props) {
+  setup(props) {
 
     let allCharactersNames = ref([]);
     const chooseUserCheckboxState = reactive({
@@ -84,28 +66,28 @@ export default defineComponent({
 
     const init = () => {
       axios.get(`/api/topics/${props.topic}/characters`).then(response => {
-        
+
         var charactersNameList = [];
         var computePathOptionList = [];
 
-        response.data.characters.forEach(function(character) {
+        response.data.characters.forEach(function (character) {
           charactersNameList.push(character["name"])
-          computePathOptionList.push({value: character["name"], label: character["name"]})
+          computePathOptionList.push({ value: character["name"], label: character["name"] })
         });
 
-        allCharactersNames.value =  charactersNameList;
+        allCharactersNames.value = charactersNameList;
 
         computePathOptions.value = computePathOptionList;
       }, response => {
-          console.log("Fail to get nodes");
-      }); 
+        console.log("Fail to get nodes");
+      });
     }
 
     onMounted(() => {
       init();
     })
 
-    const computePathOnlyDirectedOptions = ref([{value: "true", label: "true"}, {value: "false", label: "false"}])
+    const computePathOnlyDirectedOptions = ref([{ value: "true", label: "true" }, { value: "false", label: "false" }])
     let computedPaths = ref([]);
     let isComputePathOnlyDirected = ref()
     const computePathOptions = ref([]);
@@ -126,9 +108,9 @@ export default defineComponent({
           // TODO: Support cutoff
         }
       }).then(response => {
-          computedPaths.value = response.data.paths;
+        computedPaths.value = response.data.paths;
       }, response => {
-          console.log("Fail to get edges");
+        console.log("Fail to get edges");
       });
     }
 

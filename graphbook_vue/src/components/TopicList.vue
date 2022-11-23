@@ -11,9 +11,7 @@
       <a-list item-layout="horizontal" :data-source="topicsListData">
         <template #renderItem="{ item }">
           <a-list-item>
-            <a-list-item-meta
-              :description="item.statistic_string"
-            >
+            <a-list-item-meta :description="item.statistic_string">
               <template #title>
                 <router-link :to='`/topics/${item.name}/graph`'>{{ item.name }}</router-link>
               </template>
@@ -72,13 +70,13 @@ export default defineComponent({
 
     const initTopicListData = () => {
 
-        axios.get(`/api/topics_statistics`)
+      axios.get(`/api/topics_statistics`)
         .then(response => {
           const topic_count = response.data.count;
 
           response.data.statistics.forEach((statistic) => {
             const statistic_string = `${statistic.characters} characters / ${statistic.relations} relations / ${statistic.groups} groups`
-            topicsListData.push({name: statistic.topic, statistic_string: statistic_string})
+            topicsListData.push({ name: statistic.topic, statistic_string: statistic_string })
           });
 
           // Select the random topic to display by default

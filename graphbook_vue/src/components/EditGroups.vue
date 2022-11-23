@@ -10,41 +10,21 @@
   <br />
 
   <h1>Add to group</h1>
-  <a-form
-    layout="inline"
-    :model="formState"
-    @finish="handleSubmitForm"
-    @finishFailed="handleSubmitFormFailed"
-  >
+  <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
 
-  <a-form-item>
-      <a-select
-        v-model:value="formState.character_name"
-        show-search
-        placeholder="Select character"
-        style="width: 200px"
-        :options="selectCharacterOptions"
-        :filter-option="filterOption"
-      ></a-select>
+    <a-form-item>
+      <a-select v-model:value="formState.character_name" show-search placeholder="Select character" style="width: 200px"
+        :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
     <a-form-item>
-      <a-select
-        v-model:value="formState.group_name"
-        show-search
-        placeholder="Select group"
-        style="width: 200px"
-        :options="selectGroupOptions"
-        :filter-option="filterOption"
-      ></a-select>
+      <a-select v-model:value="formState.group_name" show-search placeholder="Select group" style="width: 200px"
+        :options="selectGroupOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
     <a-form-item>
-      <a-button
-        type="primary"
-        html-type="submit"
-        :disabled="formState.group_name === '' || formState.character_name === ''"
-      >
+      <a-button type="primary" html-type="submit"
+        :disabled="formState.group_name === '' || formState.character_name === ''">
         Add
       </a-button>
     </a-form-item>
@@ -71,7 +51,7 @@
 
 <script lang="ts">
 import axios from 'axios'
-import { defineComponent, reactive, ref, onMounted} from 'vue'
+import { defineComponent, reactive, ref, onMounted } from 'vue'
 import type { UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
@@ -92,7 +72,7 @@ export default defineComponent({
   props: {
     topic: String,
   },
-  setup (props) {
+  setup(props) {
     const vxeTable = ref<VxeGridInstance>()
     const vxeTableOptions = reactive<VxeGridProps>({
       border: true,
@@ -130,7 +110,7 @@ export default defineComponent({
     })
 
     const vxeTableHandler: VxeGridListeners = {
-      toolbarButtonClick ({ code }) {
+      toolbarButtonClick({ code }) {
         const $grid = vxeTable.value
         switch (code) {
           case 'insertButton': {
@@ -147,12 +127,12 @@ export default defineComponent({
               update_groups: updateRecords,
               delete_groups: removeRecords
             })
-            .then(function (response) {
-              console.log(response);
-            })
-            .catch(function (error) {
-              console.log(error);
-            });
+              .then(function (response) {
+                console.log(response);
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
             break
           }
         }
@@ -172,10 +152,10 @@ export default defineComponent({
     const createGroupName = ref<string>("")
 
     const handleCreateGroup = () => {
-        axios.post(`/api/topics/${props.topic}/groups`, {
-          "group_name": createGroupName.value,
-          "character_name": ""
-        })
+      axios.post(`/api/topics/${props.topic}/groups`, {
+        "group_name": createGroupName.value,
+        "character_name": ""
+      })
         .then(response => {
           message.success(`Success to create group: ${createGroupName.value}`);
           initTableData();
@@ -192,9 +172,9 @@ export default defineComponent({
 
     const handleSubmitForm: FormProps['onFinish'] = values => {
       axios.post(`/api/topics/${props.topic}/groups`, {
-          "group_name": formState.group_name,
-          "character_name": formState.character_name
-        })
+        "group_name": formState.group_name,
+        "character_name": formState.character_name
+      })
         .then(response => {
           message.success(`Success to add ${formState.character_name} to group ${formState.group_name}`);
           initTableData();
@@ -233,7 +213,7 @@ export default defineComponent({
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.characters.forEach(character => {
-            selectItems.push({"value": character.name, "label": character.name})
+            selectItems.push({ "value": character.name, "label": character.name })
           });
           selectCharacterOptions.value = [...selectItems];
         })
@@ -241,11 +221,11 @@ export default defineComponent({
           console.log(error);
         });
 
-        axios.get(`/api/topics/${props.topic}/groups_names`)
+      axios.get(`/api/topics/${props.topic}/groups_names`)
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.groups_names.forEach(group_name => {
-            selectItems.push({"value": group_name, "label": group_name})
+            selectItems.push({ "value": group_name, "label": group_name })
           });
           selectGroupOptions.value = [...selectItems];
         })

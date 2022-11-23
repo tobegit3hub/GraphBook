@@ -2,15 +2,13 @@
 <template>
 
   <br />
-  <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph"/>
+  <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph" />
 
   <div v-show="!onlyGraph">
     <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
       <p>Name: {{ currentCharacterModalName }}</p>
       <p>Weight: {{ currentCharacterModalWeight }}</p>
-      <a-image
-        :src="'http://localhost:7788/images/' + topic + '/' + currentCharacterModalName + '.png'"
-      />
+      <a-image :src="'http://localhost:7788/images/' + topic + '/' + currentCharacterModalName + '.png'" />
       <p>Note:</p>
       <p>{{ currentModalNote }}</p>
     </a-modal>
