@@ -3,47 +3,43 @@
 import os
 import sys
 import logging
-import argparse
+import configparser
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS, cross_origin
-
 import db_service
-
 
 logger = logging.getLogger("graph_book")
 
+"""
+Init flask web app.
+"""
 app = Flask(__name__,
             template_folder="./dist/",
             static_folder="./dist",
             static_url_path="")
 cors = CORS(app, resources=r'/*')
-
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-# Define parameters
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--host",
-    default=os.environ.get("HOST", "0.0.0.0"),
-    help="The host of the server(eg. 0.0.0.0)")
-parser.add_argument(
-    "--port",
-    default=int(os.environ.get("PORT", "7788")),
-    help="The port of the server(eg. 7788)",
-    type=int)
-parser.add_argument(
-    "--debug",
-    default=bool(os.environ.get("DEBUG", "false")),
-    help="Enable debug for flask or not(eg. true)",
-    type=bool)
+"""
+Read config from ini config file.
+"""
+ini_config = configparser.ConfigParser()
+ini_config_path = "./graph_book.ini"
+# Get config file from the first argument
+if len(sys.argv) > 1:
+    ini_config_path = sys.argv[1]
+ini_config.read(ini_config_path)
+# Get all config and print
+all_config = dict(ini_config.items('server'))
+all_config.update(dict(ini_config.items('db')))
+print("Load init config file: {} and get all config: {}".format(
+    ini_config_path, all_config))
 
-# Print used arguments
-args = parser.parse_args(sys.argv[1:])
-for arg in vars(args):
-    logger.info("{}: {}".format(arg, getattr(args, arg)))
+"""
 
+"""
 db_service = db_service.DbService(db_service.DbConfig.create_default_config())
-image_file_base_path = "/Users/tobe/code/GraphBook/python/server/dist/images"
+
 
 """
 # TODO: Integrated with vue single page app
@@ -123,17 +119,23 @@ def get_characters_names(topic):
 @cross_origin()
 def upload_character_image(topic):
     if request.method == "POST":
+        IMAGES_DIR = "./dist/images/"
+        TOPIC_IMAGES_DIR = "{}{}/".format(IMAGES_DIR, topic)
+
+        # Create directory recursively if not exists
+        if not os.path.exists(TOPIC_IMAGES_DIR):
+            os.makedirs(TOPIC_IMAGES_DIR)
+
+        # Save the image file
         file = request.files.get('file')
         file_name = file.filename
-        file_path = image_file_base_path + "/" + topic + "/" + file_name
+        file_path = "{}{}".format(TOPIC_IMAGES_DIR, file_name)
 
         if os.path.exists(file_path):
-            result = { 'code': -1, 'msg': 'File already exists' }
-        else:
-            file.save(file_path)
-            result = { 'code': 0 }
+            logger.warning("Image file already exists, try to overwrite it")
+        file.save(file_path)
 
-        return jsonify(result)
+        return jsonify( { 'code': 0 })
 
 @app.route('/api/topics/<topic>/relations', methods=['GET', 'POST'])
 @cross_origin()
@@ -222,10 +224,10 @@ def main():
   # webbrowser.open("http://{}:{}".format(args.host, args.port))
 
   # TODO: debug config does not work
-  app.run(host=args.host,
-          port=args.port,
+  app.run(host=ini_config["server"]["host"],
+          port=int(ini_config["server"]["port"]),
           threaded=True,
-          debug=args.debug)
+          debug=(ini_config["server"]["debug"].lower() == "true"))
 
 if __name__ == "__main__":
   main()
