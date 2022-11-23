@@ -98,9 +98,9 @@ class DbService(object):
         sql = """
         CREATE TABLE IF NOT EXISTS `groupx` (
             `topic` varchar(64) NOT NULL,
-            `name` varchar(64) NOT NULL,
+            `group_name` varchar(64) NOT NULL,
             `character_name` varchar(64) NOT NULL,
-            PRIMARY KEY (`topic`, `name`, `character_name`)
+            PRIMARY KEY (`topic`, `group_name`, `character_name`)
         )
         """
         conn.execute(text(sql))
@@ -265,16 +265,16 @@ class DbService(object):
     """
     def get_groups(self, topic: str) -> list:
         conn = self.engine.connect()
-        sql = "SELECT name, character_name FROM groupx WHERE topic = '{}'".format(topic)
+        sql = "SELECT group_name, character_name FROM groupx WHERE topic = '{}'".format(topic)
         result = conn.execute(text(sql))
-        return [{"name": row[0], "character_name": row[1]} for row in result.all()]
+        return [{"group_name": row[0], "character_name": row[1]} for row in result.all()]
 
     """
     Get group_names from single topic.
     """
     def get_groups_names(self, topic: str) -> list:
         conn = self.engine.connect()
-        sql = "SELECT distinct(name) FROM groupx WHERE topic = '{}'".format(topic)
+        sql = "SELECT distinct(group_name) FROM groupx WHERE topic = '{}'".format(topic)
         result = conn.execute(text(sql))
         return [row[0] for row in result.all()]        
 
@@ -385,7 +385,7 @@ class DbService(object):
     """
     def create_group(self, topic: str, group_name: str, character_name: str) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO groupx (topic, name, character_name) VALUES ('{}', '{}', '{}')".format(topic, group_name, character_name)
+        sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES ('{}', '{}', '{}')".format(topic, group_name, character_name)
         conn.execute(text(sql))
         conn.commit()
         conn.close()
@@ -395,7 +395,7 @@ class DbService(object):
     """
     def join_groups(self, topic: str, character_name: str, groups_names: array) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO groupx (topic, name, character_name) VALUES ('{}', :group_name, '{}')".format(topic, character_name)
+        sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES ('{}', :group_name, '{}')".format(topic, character_name)
         params = [{"group_name": group_name} for group_name in groups_names]
         conn.execute(text(sql), params)
         conn.commit()
@@ -408,13 +408,13 @@ class DbService(object):
         conn = self.engine.connect()
 
         if len(insert_groups) > 0:
-            sql = "INSERT INTO groupx (topic, name, character_name) VALUES ('{}', :name, :character_name)".format(topic)
-            params = [{"name": insert_group["name"], "character_name": insert_group["character_name"]} for insert_group in insert_groups]
+            sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES ('{}', :group_name, :character_name)".format(topic)
+            params = [{"group_name": insert_group["group_name"], "character_name": insert_group["character_name"]} for insert_group in insert_groups]
             conn.execute(text(sql), params)
 
         if len(delete_groups) > 0:
-            sql = "DELETE FROM groupx WHERE topic='{}' AND name=:name AND character_name=:character_name".format(topic);
-            params = [{"name": delete_group["name"], "character_name": delete_group["character_name"]} for delete_group in delete_groups]
+            sql = "DELETE FROM groupx WHERE topic='{}' AND group_name=:group_name AND character_name=:character_name".format(topic);
+            params = [{"group_name": delete_group["group_name"], "character_name": delete_group["character_name"]} for delete_group in delete_groups]
             conn.execute(text(sql), params)
 
         conn.commit()

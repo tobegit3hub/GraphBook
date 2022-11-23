@@ -219,10 +219,6 @@ def update_characters_weights(topic):
 
 
 def main():
-  # Start web browser if possible
-  # webbrowser.open("http://{}:{}".format(args.host, args.port))
-
-  # TODO: debug config does not work
   app.run(host=ini_config["server"]["host"],
           port=int(ini_config["server"]["port"]),
           threaded=True,

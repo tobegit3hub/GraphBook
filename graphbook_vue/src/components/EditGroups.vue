@@ -54,8 +54,8 @@
 
   <h1>Groups table</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
-    <template #name_edit="{ row }">
-      <vxe-input v-model="row.name"></vxe-input>
+    <template #group_name_edit="{ row }">
+      <vxe-input v-model="row.group_name"></vxe-input>
     </template>
     <template #character_name_edit="{ row }">
       <vxe-input v-model="row.character_name"></vxe-input>
@@ -111,7 +111,7 @@ export default defineComponent({
         showStatus: true
       },
       columns: [
-        { field: 'name', title: 'Group Name', editRender: {}, slots: { edit: 'name_edit' } },
+        { field: 'group_name', title: 'Group Name', editRender: {}, slots: { edit: 'group_name_edit' } },
         { field: 'character_name', title: 'Character Name', editRender: {}, slots: { edit: 'character_name_edit' } },
         { title: 'Delete', width: 200, slots: { default: 'operate' } }
       ],
@@ -244,8 +244,8 @@ export default defineComponent({
         axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups_names`)
         .then(response => {
           const selectItems: SelectItem[] = [];
-          response.data.groups.forEach(group => {
-            selectItems.push({"value": group.name, "label": group.name})
+          response.data.groups_names.forEach(group_name => {
+            selectItems.push({"value": group_name, "label": name})
           });
           selectGroupOptions.value = [...selectItems];
         })
