@@ -1,6 +1,9 @@
 
 <template>
 
+  <div style="padding: 20px">
+      <h1> Manage Topics</h1>
+
       <!-- Form to create topic -->
       <a-form layout="inline" :model="formState" @finish="handleCreateTopicFinish" @finishFailed="handleFinishFailed">
         <a-form-item>
@@ -14,6 +17,7 @@
         </a-form-item>
       </a-form>
 
+      <br />
       <!-- Form to delete topic -->
       <a-form layout="inline" :model="deleteTopicFormState" @finish="handleDeleteTopicFinish" @finishFailed="handleFinishFailed">
         <a-form-item>
@@ -27,6 +31,8 @@
         </a-form-item>
       </a-form>
 
+      <br /><br />
+      <h1> Topics List</h1>
       <a-list item-layout="horizontal" :data-source="topics">
         <template #renderItem="{ item }">
           <a-list-item>
@@ -35,6 +41,7 @@
         </template>
       </a-list>
 
+  </div>
 </template>
 
 <script lang="ts">

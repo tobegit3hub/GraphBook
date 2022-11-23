@@ -9,7 +9,7 @@ import App from './App.vue'
 import TopicList from './components/TopicList.vue';
 import GraphDetail from './components/GraphDetail.vue';
 import ComputePaths from './components/ComputePaths.vue'
-import CharactersCards from './components/CharactersCards.vue';
+import CharactersList from './components/CharactersList.vue';
 import EditTopics from './components/EditTopics.vue';
 import EditGraph from './components/EditGraph.vue';
 import AddCharacterWizard from './components/AddCharacterWizard.vue';
@@ -24,16 +24,17 @@ function useTable (app) {
 const routes = [
   { path: '/', component: TopicList },
   { path: '/topics/:topic/graph', component: GraphDetail, props: true },
-  { path: '/topics/:topic/cards', component: CharactersCards, props: true },
-  { path: '/topics/:topic/paths', component: ComputePaths, props: true },
-  { path: '/topics/edit', component: EditTopics, props: true },
+  { path: '/topics/:topic/characters', component: CharactersList, props: true },
   { path: '/topics/:topic/edit', component: EditGraph, props: true,
     children: [
       { path: 'addcharacter', component: AddCharacterWizard, props: true },
       { path: 'characters', component: EditCharacters, props: true },
       { path: 'relations', component: EditRelations, props: true },
       { path: 'groups', component: EditGroups, props: true }
-  ]},
+    ]
+  },
+  { path: '/topics/:topic/paths', component: ComputePaths, props: true },
+  { path: '/topics/edit', component: EditTopics, props: true }
 ]
  
  const router = createRouter({

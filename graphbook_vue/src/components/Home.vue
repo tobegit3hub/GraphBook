@@ -13,10 +13,10 @@
       >
         <a-menu-item key="1"><router-link to='/'>Home</router-link></a-menu-item>
         <a-menu-item key="2"><router-link :to='`/topics/${currentTopicName}/graph`'>Graph</router-link></a-menu-item>
-        <a-menu-item key="3"><router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>Edit</router-link></a-menu-item>
-        <a-menu-item key="4"><router-link :to='`/topics/${currentTopicName}/cards`'>Cards</router-link></a-menu-item>
+        <a-menu-item key="3"><router-link :to='`/topics/${currentTopicName}/characters`'>Characters</router-link></a-menu-item>
+        <a-menu-item key="4"><router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>Edit</router-link></a-menu-item>
         <a-menu-item key="5"><router-link :to='`/topics/${currentTopicName}/paths`'>Paths</router-link></a-menu-item>
-        <a-menu-item key="6"><router-link to='/topics/edit'>Edit Topics</router-link></a-menu-item>
+        <a-menu-item key="6"><router-link to='/topics/edit'>Topics</router-link></a-menu-item>
         <!-- TODO: float:right does not work-->
         <a-menu-item key="7" :disabled="true" style="float:rigt">
             <a-select
