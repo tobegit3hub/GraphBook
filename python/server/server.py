@@ -42,7 +42,7 @@ args = parser.parse_args(sys.argv[1:])
 for arg in vars(args):
     logger.info("{}: {}".format(arg, getattr(args, arg)))
 
-db_service = db_service.DbService()
+db_service = db_service.DbService(db_service.DbConfig.create_default_config())
 image_file_base_path = "/Users/tobe/code/GraphBook/python/server/dist/images"
 
 """

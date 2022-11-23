@@ -1,78 +1,113 @@
 from array import array
-import pymysql.cursors
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy import text
-
-import model
 import networkx_util
 
 logging.basicConfig(level=logging.INFO)
 
+"""
+The configuration of database, support SQLite and Mysql.
+"""
+class DbConfig(object):
+    def __init__(self, dbms: str, endpoint: str, username: str="", password: str="", db_name: str="graph_book") -> None:
+        self.dbms = dbms.lower()
+        self.endpoint = endpoint
+        self.username = username
+        self.password = password
+        self.db_name = db_name
 
+        self.check_dbms()
+
+    @staticmethod
+    def create_default_config():
+        return DbConfig("sqlite", "graph_book.db")
+
+    """
+    Check if the DBMS is supported or not.
+    """
+    def check_dbms(self)-> None:
+        SUPPORTED_DBMS_LIST = ["sqlite", "mysql"]
+        if self.dbms not in SUPPORTED_DBMS_LIST:
+            raise Exception("DBMS {} is not supported, supported list is {}".format(self.dbms, SUPPORTED_DBMS_LIST)) 
+
+"""
+The helper class to interative with database.
+"""
 class DbService(object):
-
-    def __init__(self) -> None:
-        #db_config = model.DbConfig("localhost", "root", "wawa316", "graph_book")
-
-        #engine = create_engine("sqlite+pysqlite:///:memory:", echo=True, future=True)
-        self.engine = create_engine("mysql+pymysql://root:wawa316@127.0.0.1:3306/graph_book?charset=utf8mb4",
-            echo=True, future=True, pool_size=100, max_overflow=0)
+    def __init__(self, db_config: DbConfig) -> None:
+        self.db_config = db_config
+        self.engine = None
+        self.init_engine()
+        self.init_tables()
         
+    def init_engine(self):
+        config = self.db_config
+        if config.dbms == "sqlite":
+            engine_url = "sqlite+pysqlite:///{}".format(config.endpoint)
+            self.engine = create_engine(engine_url, echo=True, future=True)
+        elif config.dbms == "mysql":
+            engine_url = "mysql+pymysql://{}:{}@{}/{}".format(config.username, config.password, config.endpoint, config.db_name)
+            self.engine = create_engine(engine_url, echo=True, future=True, pool_size=100, max_overflow=0)
+
 
     """
-    Create internal tables.
+    Create the internal tables.
     """
-    def create_tables(self) -> None:
+    def init_tables(self) -> None:
         conn = self.engine.connect()
+
+        # No need to create database for sqlite
+        if self.db_config.dbms != "sqlite":
+            sql = """
+            CREATE DATABASE IF NOT EXISTS `{}`;
+            """.format(self.db_config.db_name)
+            conn.execute(text(sql))
 
         sql = """
         CREATE TABLE IF NOT EXISTS `topics` (
-            `id` int unsigned NOT NULL AUTO_INCREMENT,
             `name` varchar(64) NOT NULL,
-            PRIMARY KEY (`id`)
+            PRIMARY KEY (`name`)
         );
         """
         conn.execute(text(sql))
 
         sql = """
         CREATE TABLE IF NOT EXISTS `characters` (
-            `id` int unsigned NOT NULL AUTO_INCREMENT,
             `topic` varchar(64) NOT NULL,
             `name` varchar(64) NOT NULL,
             `weight` float DEFAULT NULL,
             `note` varchar(4096) DEFAULT NULL,
             `image_name` varchar(4096) DEFAULT NULL,
-            PRIMARY KEY (`id`)
+            PRIMARY KEY (`topic`, `name`)
         );
         """
         conn.execute(text(sql))
 
         sql = """
         CREATE TABLE IF NOT EXISTS `relations` (
-            `id` int unsigned NOT NULL AUTO_INCREMENT,
             `topic` varchar(64) NOT NULL,
             `source` varchar(64) NOT NULL,
             `target` varchar(64) NOT NULL,
             `relation` varchar(64) NOT NULL,
             `note` varchar(4096) DEFAULT NULL,
-            PRIMARY KEY (`id`)
+            PRIMARY KEY (`topic`, `source`, `target`)
         );
         """
         conn.execute(text(sql))
 
         sql = """
         CREATE TABLE IF NOT EXISTS `groupx` (
-            `id` int unsigned NOT NULL AUTO_INCREMENT,
             `topic` varchar(64) NOT NULL,
             `name` varchar(64) NOT NULL,
             `character_name` varchar(64) NOT NULL,
-            PRIMARY KEY (`id`)
+            PRIMARY KEY (`topic`, `name`, `character_name`)
         )
         """
         conn.execute(text(sql))
 
         conn.commit()
+        conn.close()
 
     """
     Get all topics.
@@ -156,6 +191,7 @@ class DbService(object):
         params = [{"name": name}]
         conn.execute(text(sql), params)
         conn.commit()
+        conn.close()
 
     """
     Delete one topic with name.
@@ -164,7 +200,8 @@ class DbService(object):
         conn = self.engine.connect()
         sql = "DELETE FROM topics WHERE name='{}'".format(topic_name);
         conn.execute(text(sql))
-        conn.commit()        
+        conn.commit()
+        conn.close()     
 
     """
     Get all characters from single topic.
@@ -213,6 +250,7 @@ class DbService(object):
         sql = "INSERT INTO characters (topic, name, note, image_name) VALUES ('{}', '{}', '{}', '{}')".format(topic, name, note, image_name)
         conn.execute(text(sql))
         conn.commit()
+        conn.close()
 
     """
     Get relations from single topic.
@@ -277,6 +315,7 @@ class DbService(object):
             conn.execute(text(sql), params)
 
         conn.commit()
+        conn.close()
 
     """
     Create one relation.
@@ -286,6 +325,7 @@ class DbService(object):
         sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES ('{}', '{}', '{}', '{}', '{}')".format(topic, source, target, relation, note)
         conn.execute(text(sql))
         conn.commit()
+        conn.close()
 
     """
     Add upstream and downstream relations for single character.
@@ -311,6 +351,7 @@ class DbService(object):
         downstream_params = [{"source": character_name, "target": downstream_relation["character_name"], "relation": downstream_relation["relation"], "note": downstream_relation["note"]} for downstream_relation in downstream_relations]
         conn.execute(text(sql), upstream_params + downstream_params)
         conn.commit()
+        conn.close()
 
     """
     Update relations table.
@@ -338,6 +379,7 @@ class DbService(object):
             conn.execute(text(sql), params)
 
         conn.commit()
+        conn.close()
 
     """
     Create one group.
@@ -347,6 +389,7 @@ class DbService(object):
         sql = "INSERT INTO groupx (topic, name, character_name) VALUES ('{}', '{}', '{}')".format(topic, group_name, character_name)
         conn.execute(text(sql))
         conn.commit()
+        conn.close()
 
     """
     Join the groups for single character.
@@ -357,6 +400,7 @@ class DbService(object):
         params = [{"group_name": group_name} for group_name in groups_names]
         conn.execute(text(sql), params)
         conn.commit()
+        conn.close()
 
     """
     Update groupx table.
@@ -375,6 +419,7 @@ class DbService(object):
             conn.execute(text(sql), params)
 
         conn.commit()
+        conn.close()
 
     """
     Compute character and character paths.
@@ -411,7 +456,10 @@ class DbService(object):
 
 
 def main():
-    db_service = DbService()
+    db_service = DbService(DbConfig.create_default_config())
+    #db_service = DbService(DbConfig("mysql", "127.0.0.1:3306", "root", "root", "graph_book"))
+
+
 
 if __name__ == "__main__":
     main()
