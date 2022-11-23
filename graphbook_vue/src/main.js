@@ -9,7 +9,8 @@ import App from './App.vue'
 import TopicList from './components/TopicList.vue';
 import GraphDetail from './components/GraphDetail.vue';
 import ComputePaths from './components/ComputePaths.vue'
-import CharactersList from './components/CharactersList.vue';
+import SelectCharacters from './components/SelectCharacters.vue';
+import CharacterDetail from './components/CharacterDetail.vue'
 import EditTopics from './components/EditTopics.vue';
 import EditGraph from './components/EditGraph.vue';
 import AddCharacterWizard from './components/AddCharacterWizard.vue';
@@ -24,7 +25,11 @@ function useTable (app) {
 const routes = [
   { path: '/', component: TopicList },
   { path: '/topics/:topic/graph', component: GraphDetail, props: true },
-  { path: '/topics/:topic/characters', component: CharactersList, props: true },
+  { path: '/topics/:topic/characters', component: SelectCharacters, props: true,
+    children: [
+      { path: ':character_name', component: CharacterDetail, props: true}
+    ]
+  },
   { path: '/topics/:topic/edit', component: EditGraph, props: true,
     children: [
       { path: 'addcharacter', component: AddCharacterWizard, props: true },

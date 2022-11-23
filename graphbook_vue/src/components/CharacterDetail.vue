@@ -1,8 +1,9 @@
 
 <template>
 
-  <h2>Character detail:</h2>
   <div v-if="character">
+    <h1>Character {{ character.name}}</h1>
+
     <p>Name: {{ character.name}}</p>
     <p>Weight: {{character.weight}}</p>
     <p>Note: {{character.note}}</p>
@@ -23,7 +24,7 @@ export default defineComponent({
   name: "CharacterDetail",
   props: {
     topic: String,
-    name: String,
+    character_name: String,
   },
   components: {
     VChart
@@ -83,7 +84,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters/${props.name}`)
+      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters/${props.character_name}`)
         .then(response => {
           character.value = response.data.character;
 
