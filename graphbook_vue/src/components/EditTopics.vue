@@ -79,7 +79,7 @@ export default defineComponent({
 
     const handleCreateTopicFinish: FormProps['onFinish'] = values => {
 
-      axios.post(`http://127.0.0.1:7788/api/topics`, {
+      axios.post(`/api/topics`, {
           "name": formState.name
         })
         .then(response => {
@@ -93,7 +93,7 @@ export default defineComponent({
 
     const handleDeleteTopicFinish: FormProps['onFinish'] = values => {
 
-      axios.delete(`http://127.0.0.1:7788/api/topics/${deleteTopicFormState.name}`)
+      axios.delete(`/api/topics/${deleteTopicFormState.name}`)
         .then(response => {
           message.success('Success to delete topic: ' + deleteTopicFormState.name);
           initTopicListData();
@@ -118,7 +118,7 @@ export default defineComponent({
     }
 
     const initTopicListData = () => {
-      axios.get(`http://127.0.0.1:7788/api/topics`)
+      axios.get(`/api/topics`)
         .then(response => {
           topics.value = response.data.topics;
 

@@ -254,14 +254,14 @@ export default defineComponent({
     const updateGraphCharacters = () => {
       if (chooseCharacterCheckboxState.isChooseAllCharacters) {
         // Get all characters
-        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
+        axios.get(`/api/topics/${props.topic}/characters`).then(response => {
           updateGraphCharactersData(response.data.characters);
         }, response => {
           console.log("Fail to get characters");
         });
       } else if (chooseCharacterCheckboxState.currentChosenCharacterNames.length > 0) {
         // Get characters data from chosen characters
-        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
+        axios.get(`/api/topics/${props.topic}/characters`, {
           params: {
             chosen_characters_names: chooseCharacterCheckboxState.currentChosenCharacterNames,
           }
@@ -281,7 +281,7 @@ export default defineComponent({
     const updateGroup = () => {
       if (chooseGroupCheckboxState.currentChosenGroupNames.length > 0) {
         // Get characters data from chosen group
-        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters_names`, {
+        axios.get(`/api/topics/${props.topic}/characters_names`, {
           params: {
             chosen_groups: chooseGroupCheckboxState.currentChosenGroupNames,
           }
@@ -412,7 +412,7 @@ export default defineComponent({
 
     const init = () => {
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
+      axios.get(`/api/topics/${props.topic}/characters`).then(response => {
         // The list of character names, used for choose characters to display
         var characterNameList = []
         response.data.characters.forEach(function (characterInfo) {
@@ -426,13 +426,13 @@ export default defineComponent({
         console.log(`Fail to get characters for topic: ${props.topic}`);
       });
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`).then(response => {
+      axios.get(`/api/topics/${props.topic}/relations`).then(response => {
         vuechartOption.value.series[0].links.push(...response.data.relations);
       }, response => {
         console.log(`Fail to get relations for topic: ${props.topic}`);
       });
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups_names`).then(response => {
+      axios.get(`/api/topics/${props.topic}/groups_names`).then(response => {
         allGroupNames.value = response.data.groups_names;
       }, response => {
         console.log(`Fail to get relations for topic: ${props.topic}`);

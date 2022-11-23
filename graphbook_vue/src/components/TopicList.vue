@@ -72,12 +72,11 @@ export default defineComponent({
 
     const initTopicListData = () => {
 
-        axios.get(`http://127.0.0.1:7788/api/topics_statistics`)
+        axios.get(`/api/topics_statistics`)
         .then(response => {
           const topic_count = response.data.count;
 
           response.data.statistics.forEach((statistic) => {
-            console.log(statistic)
             const statistic_string = `${statistic.characters} characters / ${statistic.relations} relations / ${statistic.groups} groups`
             topicsListData.push({name: statistic.topic, statistic_string: statistic_string})
           });

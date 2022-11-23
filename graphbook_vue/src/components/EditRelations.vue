@@ -159,7 +159,7 @@ export default defineComponent({
             const { insertRecords, removeRecords, updateRecords } = $grid.getRecordset()
             VXETable.modal.message({ content: `Add ${insertRecords.length} rows, update ${updateRecords.length} rows, delete ${removeRecords.length} rows`, status: 'success' })
 
-            axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`, {
+            axios.post(`/api/topics/${props.topic}/relations`, {
               insert_relations: insertRecords,
               update_relations: updateRecords,
               delete_relations: removeRecords
@@ -195,7 +195,7 @@ export default defineComponent({
     
     const handleSubmitForm: FormProps['onFinish'] = values => {
 
-      axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`, {
+      axios.post(`/api/topics/${props.topic}/relations`, {
           "source": formState.source,
           "target": formState.target,
           "relation": formState.relation,
@@ -221,7 +221,7 @@ export default defineComponent({
     };
 
     const initTableData = () => {
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`)
+      axios.get(`/api/topics/${props.topic}/relations`)
         .then(response => {
           vxeTableOptions.data = response.data.relations;
         })
@@ -233,7 +233,7 @@ export default defineComponent({
     onMounted(() => {
       initTableData();
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
+      axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.characters.forEach(character => {

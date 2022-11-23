@@ -84,7 +84,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters/${props.character_name}`)
+      axios.get(`/api/topics/${props.topic}/characters/${props.character_name}`)
         .then(response => {
           character.value = response.data.character;
 

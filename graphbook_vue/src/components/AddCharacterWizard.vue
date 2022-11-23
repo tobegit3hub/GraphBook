@@ -27,7 +27,7 @@
 
           <a-form-item>
             <a-upload v-model:fileList="uploadImageFileList"
-              :action="`http://127.0.0.1:7788/api/topics/${topic}/character_image`" list-type="picture"
+              :action="`/api/topics/${topic}/character_image`" list-type="picture"
               :multiple="false">
               <a-button>
                 <upload-outlined></upload-outlined>
@@ -257,7 +257,7 @@ export default defineComponent({
         }
       }
 
-      axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
+      axios.post(`/api/topics/${props.topic}/characters`, {
         "name": createCharacterFormState.name,
         "note": createCharacterFormState.note,
         "image_name": image_name
@@ -313,7 +313,7 @@ export default defineComponent({
 
     const submitAddRelationsForm = () => {
       if (createCharacterFormState.name) {
-        axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/relations`, {
+        axios.post(`/api/topics/${props.topic}/relations`, {
           "character_name": createCharacterFormState.name,
           "upstream_relations": addUpstreamRelationsForm.addRelationItems,
           "downstream_relations": addDownstreamRelationsForm.addRelationItems
@@ -357,7 +357,7 @@ export default defineComponent({
       });
 
       if (createCharacterFormState.name) {
-        axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
+        axios.post(`/api/topics/${props.topic}/groups`, {
           "groups_names": groupsNames,
           "character_name": createCharacterFormState.name
         })
@@ -380,7 +380,7 @@ export default defineComponent({
 
 
     onMounted(() => {
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
+      axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.characters.forEach(character => {
@@ -392,7 +392,7 @@ export default defineComponent({
           console.log(error);
       });  
       
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups_names`)
+      axios.get(`/api/topics/${props.topic}/groups_names`)
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.groups.forEach(group => {

@@ -142,7 +142,7 @@ export default defineComponent({
             const { insertRecords, removeRecords, updateRecords } = $grid.getRecordset()
             VXETable.modal.message({ content: `Add ${insertRecords.length} rows, update ${updateRecords.length} rows, delete ${removeRecords.length} rows`, status: 'success' })
 
-            axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
+            axios.post(`/api/topics/${props.topic}/groups`, {
               insert_groups: insertRecords,
               update_groups: updateRecords,
               delete_groups: removeRecords
@@ -172,7 +172,7 @@ export default defineComponent({
     const createGroupName = ref<string>("")
 
     const handleCreateGroup = () => {
-        axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
+        axios.post(`/api/topics/${props.topic}/groups`, {
           "group_name": createGroupName.value,
           "character_name": ""
         })
@@ -191,7 +191,7 @@ export default defineComponent({
     });
 
     const handleSubmitForm: FormProps['onFinish'] = values => {
-      axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`, {
+      axios.post(`/api/topics/${props.topic}/groups`, {
           "group_name": formState.group_name,
           "character_name": formState.character_name
         })
@@ -217,7 +217,7 @@ export default defineComponent({
     };
 
     const initTableData = () => {
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups`)
+      axios.get(`/api/topics/${props.topic}/groups`)
         .then(response => {
           vxeTableOptions.data = response.data.groups;
         })
@@ -229,7 +229,7 @@ export default defineComponent({
     onMounted(() => {
       initTableData();
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
+      axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.characters.forEach(character => {
@@ -241,7 +241,7 @@ export default defineComponent({
           console.log(error);
         });
 
-        axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/groups_names`)
+        axios.get(`/api/topics/${props.topic}/groups_names`)
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.groups_names.forEach(group_name => {

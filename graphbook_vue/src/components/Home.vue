@@ -72,7 +72,7 @@ export default defineComponent({
     };
 
     const initTopicOptions = () => {
-      axios.get(`http://127.0.0.1:7788/api/topics`)
+      axios.get(`/api/topics`)
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.topics.forEach(theTopic => {

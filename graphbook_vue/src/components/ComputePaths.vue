@@ -80,7 +80,7 @@ export default defineComponent({
 
     onMounted(() => {
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`).then(response => {
+      axios.get(`/api/topics/${props.topic}/characters`).then(response => {
         
         var charactersNameList = [];
         var computePathOptionList = [];
@@ -115,7 +115,7 @@ export default defineComponent({
 
     const handleClickComputePaths = () => {
 
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/paths`, {
+      axios.get(`/api/topics/${props.topic}/paths`, {
         params: {
           source: computePathSource.value,
           target: computePathTarget.value,

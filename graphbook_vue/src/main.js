@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from "vue-router";
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
+import axios from 'axios'
 //import './assets/main.css'
 import "echarts"
 
@@ -18,6 +19,9 @@ import AddCharacterWizard from './components/AddCharacterWizard.vue';
 import EditCharacters from './components/EditCharacters.vue';
 import EditRelations from './components/EditRelations.vue';
 import EditGroups from './components/EditGroups.vue';
+
+
+axios.defaults.baseURL = import.meta.env.VITE_API_ENDPOINT;
 
 function useTable (app) {
   app.use(VXETable)

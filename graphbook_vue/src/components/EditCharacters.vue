@@ -27,7 +27,7 @@
     <a-form-item>
       <a-upload
       v-model:fileList="uploadImageFileList"
-      :action="`http://127.0.0.1:7788/api/topics/${topic}/character_image`"
+      :action="`/api/topics/${topic}/character_image`"
       list-type="picture"
       :multiple="false"
       >
@@ -158,7 +158,7 @@ export default defineComponent({
             const { insertRecords, removeRecords, updateRecords } = $grid.getRecordset()
             VXETable.modal.message({ content: `Add ${insertRecords.length} rows, update ${updateRecords.length} rows, delete ${removeRecords.length} rows`, status: 'success' })
 
-            axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
+            axios.post(`/api/topics/${props.topic}/characters`, {
               insert_characters: insertRecords,
               update_characters: updateRecords,
               delete_characters: removeRecords
@@ -204,7 +204,7 @@ export default defineComponent({
         }
       }
 
-      axios.post(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`, {
+      axios.post(`/api/topics/${props.topic}/characters`, {
           "name": formState.name,
           "note": formState.note,
           "image_name": image_name
@@ -223,7 +223,7 @@ export default defineComponent({
     };
 
     const initTableData = () => {
-      axios.get(`http://127.0.0.1:7788/api/topics/${props.topic}/characters`)
+      axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
           vxeTableOptions.data = response.data.characters;
         })
@@ -233,7 +233,7 @@ export default defineComponent({
     }
 
     const updateCharactersWeights = () => {
-      axios.put(`http://127.0.0.1:7788/api/topics/${props.topic}/weights`)
+      axios.put(`/api/topics/${props.topic}/weights`)
         .then(function (response) {
           // TODO: ant css is lost
           message.success('Success to update characters weights');
