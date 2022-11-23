@@ -50,7 +50,6 @@ class DbService(object):
             engine_url = "mysql+pymysql://{}:{}@{}/{}".format(config.username, config.password, config.endpoint, config.db_name)
             self.engine = create_engine(engine_url, echo=True, future=True, pool_size=100, max_overflow=0)
 
-
     """
     Create the internal tables.
     """
@@ -453,13 +452,3 @@ class DbService(object):
     def update_characters_weights(self, topic: str) -> None:
         util = networkx_util.NetworkxUtil(self.engine, topic)
         util.update_characters_weight()
-
-
-def main():
-    db_service = DbService(DbConfig.create_default_config())
-    #db_service = DbService(DbConfig("mysql", "127.0.0.1:3306", "root", "root", "graph_book"))
-
-
-
-if __name__ == "__main__":
-    main()

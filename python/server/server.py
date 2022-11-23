@@ -36,10 +36,10 @@ print("Load init config file: {} and get all config: {}".format(
     ini_config_path, all_config))
 
 """
-
+Init database service.
 """
-db_service = db_service.DbService(db_service.DbConfig.create_default_config())
-
+db_config = db_service.DbConfig(ini_config["db"]["dbms"], ini_config["db"]["endpoint"], ini_config["db"]["user"], ini_config["db"]["password"], ini_config["db"]["db_name"])
+db_service = db_service.DbService(db_config)
 
 """
 # TODO: Integrated with vue single page app
@@ -73,7 +73,6 @@ def delete_topic(topic):
     if request.method == "DELETE":
         db_service.delete_topic(topic)
         return jsonify({"code": 0})
-
 
 @app.route('/api/topics/<topic>/characters', methods=['GET', 'POST'])
 @cross_origin()
