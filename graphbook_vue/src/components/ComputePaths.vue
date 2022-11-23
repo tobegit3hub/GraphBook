@@ -106,8 +106,8 @@ export default defineComponent({
     let computedPaths = ref([]);
     let isComputePathOnlyDirected = ref()
     const computePathOptions = ref([]);
-    const computePathSource = ref("david");
-    const computePathTarget = ref("lucy")
+    const computePathSource = ref();
+    const computePathTarget = ref()
 
     const computePathFilterOption = (input, option) => {
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;

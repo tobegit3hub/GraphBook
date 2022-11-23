@@ -27,5 +27,8 @@ export default defineConfig({
 
   base: process.env.NODE_ENV === 'production' ? './' : '/',
 
-  
+  build: {
+    outDir: '../python/server/dist/'
+  }
+
 })

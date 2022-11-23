@@ -42,12 +42,12 @@ db_config = db_service.DbConfig(ini_config["db"]["dbms"], ini_config["db"]["endp
 db_service = db_service.DbService(db_config)
 
 """
-# TODO: Integrated with vue single page app
+Render the vue generated single page app.
+"""
 @app.route('/')
 @cross_origin()
 def index():
     return render_template("index.html")
-"""
 
 @app.route('/api/topics', methods=['GET', 'POST'])
 @cross_origin()

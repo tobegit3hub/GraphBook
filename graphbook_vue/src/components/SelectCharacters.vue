@@ -17,7 +17,7 @@
   <br/><br/>
 
   <!-- Only show when not selecting character -->
-  <div v-show="currentSelectedCharacter===''">
+  <div v-show="!currentSelectedCharacter">
     <h1>Characters</h1>
     <a-row :gutter="16">
       <div v-for="character in characters" @click="chooseCharacterFromImage(character.name)">
@@ -66,7 +66,7 @@ export default defineComponent({
 
     const characters = ref([]);
 
-    const currentSelectedCharacter = ref<string>("");
+    const currentSelectedCharacter = ref<string>();
     const selectCharacterOptions = ref<SelectProps['options']>([]);
 
     const filterOption = (input: string, option: any) => {
