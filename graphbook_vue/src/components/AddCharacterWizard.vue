@@ -48,7 +48,7 @@
     </div>
 
     <!-- Form of add relations -->
-    <div v-show="currentStep === 0">
+    <div v-show="currentStep === 1">
 
       <a-form :model="addUpstreamRelationsForm" >
         <div v-for="(addRelationItem, index) in addUpstreamRelationsForm.addRelationItems" :key="addRelationItem.key">
@@ -231,7 +231,7 @@ export default defineComponent({
   },
   setup(props) {
 
-    const currentStep = ref<number>(1);
+    const currentStep = ref<number>(0);
     const totalStepCount = 3;
     const nextStep = () => {
       currentStep.value++;

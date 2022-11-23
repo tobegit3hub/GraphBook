@@ -1,12 +1,13 @@
 
 <template>
 
-<a-form
-    layout="inline"
-    :model="formState"
-    @finish="handleSubmitForm"
-    @finishFailed="handleSubmitFormFailed"
-  >
+  <h1>Add realtion</h1>
+  <a-form
+      layout="inline"
+      :model="formState"
+      @finish="handleSubmitForm"
+      @finishFailed="handleSubmitFormFailed"
+    >
 
   <a-form-item>
       <a-select
@@ -56,6 +57,9 @@
     </a-form-item>
   </a-form>
 
+  <br /><br />
+
+  <h1>Relations table</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #source_edit="{ row }">
       <vxe-input v-model="row.source"></vxe-input>

@@ -1,17 +1,13 @@
 
 <template>
 
-<h2>Update weights:</h2>
-  <a-button type="primary" @click="updateCharactersWeights">Update with PageRank</a-button>
-
-
-<a-form
+  <h1>Add character</h1>
+  <a-form
     layout="inline"
     :model="formState"
     @finish="handleSubmitForm"
     @finishFailed="handleSubmitFormFailed"
   >
-
 
   <a-form-item
       label="Name"
@@ -55,6 +51,15 @@
     </a-form-item>
   </a-form>
 
+
+  <br />
+
+  <h1>Update weights:</h1>
+  <a-button type="primary" @click="updateCharactersWeights">Update with PageRank</a-button>
+
+  <br /><br />
+
+  <h1>Characters table</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #name_edit="{ row }">
       <vxe-input v-model="row.name"></vxe-input>

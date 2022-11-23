@@ -1,7 +1,7 @@
 
 <template>
-
-  <h3>Compute Paths</h3>
+  <div style="padding: 20px">
+  <h1>Compute Paths</h1>
   
   <a-select
     v-model:value="computePathSource"
@@ -39,6 +39,8 @@
     </template>
   </a-list>
 
+  </div>
+  
 </template>
 
 <script>

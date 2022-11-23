@@ -2,8 +2,10 @@
 <template>
 
 <div style="background-color: #ececec; padding: 20px">
-    <a-row :gutter="16">
 
+  <h1>Character cards</h1>
+
+    <a-row :gutter="16">
 
       <div v-for="character in characters">
      

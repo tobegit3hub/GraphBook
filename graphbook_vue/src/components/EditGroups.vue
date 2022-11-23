@@ -1,12 +1,16 @@
 
 <template>
 
-<a-input-group compact>
-  <a-input v-model:value="createGroupName" style="width: calc(100% - 200px)" />
-  <a-button type="primary" @click="handleCreateGroup">Create Group</a-button>
-</a-input-group>
+  <h1>Create group</h1>
+  <a-input-group compact>
+    <a-input v-model:value="createGroupName" style="width: calc(100% - 200px)" placeholder="group name" />
+    <a-button type="primary" @click="handleCreateGroup">Create</a-button>
+  </a-input-group>
 
-<a-form
+  <br />
+
+  <h1>Add to group</h1>
+  <a-form
     layout="inline"
     :model="formState"
     @finish="handleSubmitForm"
@@ -46,6 +50,9 @@
     </a-form-item>
   </a-form>
 
+  <br /><br />
+
+  <h1>Groups table</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #name_edit="{ row }">
       <vxe-input v-model="row.name"></vxe-input>

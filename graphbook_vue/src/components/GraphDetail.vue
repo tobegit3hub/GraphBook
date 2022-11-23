@@ -1,6 +1,7 @@
 
 <template>
 
+  <br />
   <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph"/>
 
   <div v-show="!onlyGraph">
@@ -14,7 +15,9 @@
       <p>{{ currentModalNote }}</p>
     </a-modal>
 
-    <h3>Characters:</h3>
+    <br />
+
+    <h2>Characters</h2>
     <div>
       <a-checkbox v-model:checked="isChooseAllCharacters" :indeterminate="isChooseCharacterIndeterminateState"
         @change="handleChooseAllCharacters">
@@ -23,7 +26,8 @@
     </div>
     <a-checkbox-group v-model:value="currentChosenCharacterNames" :options="allCharacterNames" />
 
-    <h3>Groups:</h3>
+    <br /><br />
+    <h2>Groups</h2>
     <div>
       <a-checkbox v-model:checked="isChooseAllGroups" :indeterminate="isChooseGroupIndeterminateState"
         @change="handleChooseAllGroups">
@@ -32,7 +36,8 @@
     </div>
     <a-checkbox-group v-model:value="currentChosenGroupNames" :options="allGroupNames" />
 
-    <h3>Resize characters with weight:</h3>
+    <br /><br />
+    <h2>Resize images with weight:</h2>
     <div>
       <a-row>
         <a-col :span="8">
@@ -44,7 +49,8 @@
       </a-row>
     </div>
 
-    <h3>Play graph animation:</h3>
+    <br />
+    <h2>Play graph animation</h2>
     <div>
       <a-row>
         <a-col :span="8">
