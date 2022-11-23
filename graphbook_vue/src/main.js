@@ -9,6 +9,7 @@ import App from './App.vue'
 import TopicList from './components/TopicList.vue';
 import GraphDetail from './components/GraphDetail.vue';
 import ComputePaths from './components/ComputePaths.vue'
+import CharactersCards from './components/CharactersCards.vue'
 import SelectCharacters from './components/SelectCharacters.vue';
 import CharacterDetail from './components/CharacterDetail.vue'
 import EditTopics from './components/EditTopics.vue';
@@ -38,6 +39,7 @@ const routes = [
       { path: 'groups', component: EditGroups, props: true }
     ]
   },
+  { path: '/topics/:topic/cards', component: CharactersCards, props: true },
   { path: '/topics/:topic/paths', component: ComputePaths, props: true },
   { path: '/topics/edit', component: EditTopics, props: true }
 ]

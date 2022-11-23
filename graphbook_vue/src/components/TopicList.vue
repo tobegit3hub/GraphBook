@@ -16,11 +16,10 @@
             >
               <template #title>
                 <router-link :to='`/topics/${item.name}/graph`'>{{ item.name }}</router-link>
-
               </template>
 
               <template #avatar>
-                <a @click="previewGraph(item)">
+                <a @click="previewGraph(item.name)">
                   <a-avatar src="/gb_logo.png" />
                 </a>
               </template>
