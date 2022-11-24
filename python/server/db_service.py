@@ -1,8 +1,12 @@
 from array import array
+import csv
+import os
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy import text
+import shutil
 import networkx_util
+import pandas as pd
 
 logging.basicConfig(level=logging.INFO)
 
@@ -175,12 +179,14 @@ class DbService(object):
             count = item[1]
             statistics[topic_name]["relations"] = count
 
-        sql = "SELECT topic, count(*) FROM groupx GROUP BY topic"
+        sql = "SELECT topic, count(DISTINCT group_name) FROM groupx GROUP BY topic"
         result = conn.execute(text(sql)).all()
         for item in result:
             topic_name = item[0]
             count = item[1]
             statistics[topic_name]["groups"] = count
+
+        conn.close()
 
         return_result = {
             "count": topic_count,
@@ -198,6 +204,16 @@ class DbService(object):
         conn.execute(text(sql), params)
         conn.commit()
         conn.close()
+
+    """
+    Create one topic with name if not exists.
+    """
+    def create_topic_if_not_exist(self, name: str) -> list:
+        conn = self.engine.connect()
+        sql = "INSERT INTO topics (name) SELECT '{}' WHERE not exists (SELECT name FROM topics WHERE name='{}')".format(name, name)
+        conn.execute(text(sql))
+        conn.commit()
+        conn.close()        
 
     """
     Delete one topic with name.
@@ -225,6 +241,7 @@ class DbService(object):
                 topic)
 
         result = conn.execute(text(sql))
+        conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
 
     """
@@ -235,6 +252,7 @@ class DbService(object):
         sql = "SELECT name, weight, note, image_name FROM characters WHERE topic='{}' AND name='{}'".format(
             topic, name)
         result = conn.execute(text(sql))
+        conn.close()
         row = result.all()[0]
         return {"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]}
 
@@ -246,13 +264,14 @@ class DbService(object):
         if len(chosen_groups) > 0:
             group_str = ",".join(["'{}'".format(name)
                                  for name in chosen_groups])
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}' and name IN ({})".format(
+            sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}' and group_name IN ({})".format(
                 topic, group_str)
         else:
             sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}'".format(
                 topic)
 
         result = conn.execute(text(sql))
+        conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
 
     """
@@ -274,6 +293,7 @@ class DbService(object):
         sql = "SELECT source, target, relation, note FROM relations WHERE topic = '{}'".format(
             topic)
         result = conn.execute(text(sql))
+        conn.close()
         return [{"source": row[0], "target": row[1], "relation": row[2], "note": row[3]} for row in result.all()]
 
     """
@@ -284,6 +304,7 @@ class DbService(object):
         sql = "SELECT group_name, character_name FROM groupx WHERE topic = '{}'".format(
             topic)
         result = conn.execute(text(sql))
+        conn.close()
         return [{"group_name": row[0], "character_name": row[1]} for row in result.all()]
 
     """
@@ -294,6 +315,7 @@ class DbService(object):
         sql = "SELECT distinct(group_name) FROM groupx WHERE topic = '{}'".format(
             topic)
         result = conn.execute(text(sql))
+        conn.close()
         return [row[0] for row in result.all()]
 
     """
@@ -304,13 +326,14 @@ class DbService(object):
         if len(chosen_groups) > 0:
             group_str = ",".join(["'{}'".format(name)
                                  for name in chosen_groups])
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}' and name IN ({})".format(
+            sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}' and group_name IN ({})".format(
                 topic, group_str)
         else:
             sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}'".format(
                 topic)
 
         result = conn.execute(text(sql))
+        conn.close()
         return [row[0] for row in result.all()]
 
     """
@@ -477,6 +500,7 @@ class DbService(object):
         sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT source FROM relations WHERE topic='{}' AND target='{}')".format(
             topic, name)
         result = conn.execute(text(sql))
+        conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
 
     """
@@ -487,6 +511,7 @@ class DbService(object):
         sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT target FROM relations WHERE topic='{}' AND source='{}')".format(
             topic, name)
         result = conn.execute(text(sql))
+        conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
 
     """
@@ -495,3 +520,84 @@ class DbService(object):
     def update_characters_weights(self, topic: str) -> None:
         util = networkx_util.NetworkxUtil(self.engine, topic)
         util.update_characters_weight()
+
+    """
+    Export one topic data to specified directory.
+    """
+    def export_topic(self, topic, export_dir="/tmp/"):
+        print("Try to export topic: {}, to directory: {}".format(topic, export_dir))
+        export_topic_dir = "{}/{}".format(export_dir, topic)
+        conn = self.engine.connect()
+
+        # Create directory recursively if not exists
+        if not os.path.exists(export_topic_dir):
+            os.makedirs(export_topic_dir)
+
+        # Export characters
+        export_file_path = export_topic_dir + "/characters.csv"
+        sql = "SELECT * FROM characters WHERE topic='{}'".format(topic)
+        DbService.excute_sql_export_csv(conn, sql, export_file_path)
+
+        # Export relations
+        export_file_path = export_topic_dir + "/relations.csv"
+        sql = "SELECT * FROM relations WHERE topic='{}'".format(topic)
+        DbService.excute_sql_export_csv(conn, sql, export_file_path)
+
+        # Export groups
+        export_file_path = export_topic_dir + "/groups.csv"
+        sql = "SELECT * FROM groupx WHERE topic='{}'".format(topic)
+        DbService.excute_sql_export_csv(conn, sql, export_file_path)
+
+        # Export image files
+        source_image_path = "./dist/images/" + topic
+        target_image_path = export_topic_dir + "/images/"
+        if os.path.exists(export_topic_dir):
+            logging.warn("Image path of {} exists, remove first".format(target_image_path))
+            shutil.rmtree(target_image_path)
+        shutil.copytree(source_image_path, target_image_path)
+
+        conn.close()
+
+    """
+    Execute SQL and export result to CSV file.
+    """
+    @staticmethod
+    def excute_sql_export_csv(connection, sql: str , csv_file_path: str) -> None:
+        # Execute SQL
+        result = connection.execute(text(sql))
+
+        # Create CSV file
+        outfile = open(csv_file_path, 'w')
+        csv_writer = csv.writer(outfile)
+
+        # Write header
+        csv_writer.writerow(x[0] for x in result.cursor.description)
+        # Write data
+        csv_writer.writerows(result.cursor.fetchall())
+
+    """
+    Load one topic data from specified directory.
+    """
+    def import_topic(self, topic, import_dir="/tmp/"):
+        print("Try to import topic: {}, from directory: {}".format(topic, import_dir))
+        import_topic_dir = "{}/{}".format(import_dir, topic)
+
+
+        # Check if directory exists or not
+        if not os.path.exists(import_topic_dir):
+            logging.error("Import path of {} does not exit, exit now")
+            return
+
+        # Create topic if not exists
+        self.create_topic_if_not_exist(topic)
+
+        characters_csv_path = import_topic_dir + "/characters.csv"
+        with open(characters_csv_path, 'r') as file:
+            data_df = pd.read_csv(file)
+            data_df.to_sql('tbl_name', con=self.engine, index=True, index_label='id', if_exists='replace')
+        
+
+
+if __name__ == "__main__":
+    service = DbService(DbConfig.create_default_config())
+    service.import_topic("赛博朋克：边缘行者");

@@ -91,9 +91,12 @@ export default defineComponent({
       if (currentPath.startsWith("/topics/") && currentPath != "/topics/edit") {
         // Split the path and replace the topic name in the path
         const pathSplitedList = currentPath.split("/");
-        pathSplitedList[2] = currentTopicName.value;
-        const pathWithNewTopic = pathSplitedList.join("/");
-        router.replace({ path: pathWithNewTopic });
+        // Only update when the path has been changed
+        if (pathSplitedList[2] != currentTopicName.value) {
+          pathSplitedList[2] = currentTopicName.value;
+          const pathWithNewTopic = pathSplitedList.join("/");
+          router.replace({ path: pathWithNewTopic });
+        }
       }
     }
 

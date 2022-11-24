@@ -7,7 +7,7 @@
     <a-row :gutter="16">
       <div v-for="character in characters">
         <a-col :span="4">
-          <a-card hoverable style="width: 80px">
+          <a-card hoverable style="width: 240px">
             <!-- 240px by default-->
             <template #cover>
               <img :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
