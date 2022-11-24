@@ -339,6 +339,78 @@ class DbService(object):
         return [row[0] for row in result]
 
     """
+    Get get characters of same group from single topic.
+
+    Return data should be like this.
+    [
+        {
+            "group_name": "foo",
+            "characters": [
+                {
+                    "name": "bar",
+                    "note": "bar",
+                    "image_path": "bar"
+                }
+            ]
+        }
+    ]
+    """
+    def get_groups_and_characters(self, topic: str) -> list:
+        conn = self.engine.connect()
+        sql = "SELECT distinct(group_name) FROM groupx WHERE topic = '{}'".format(
+            topic)
+
+        sql = """
+        SELECT name, note, image_name, group_name 
+        FROM characters 
+        RIGHT JOIN 
+            (select topic, character_name, group_name FROM groupx WHERE character_name IS NOT NULL) AS t2 
+            ON characters.name = t2.character_name AND characters.topic = t2.topic;
+        """.format()
+
+        result = conn.execute(text(sql)).all()
+
+        """
+        Example data:
+
+        {
+            "group1": [
+                {
+                    "name": "character1",
+                    "note": "note1",
+                    "image_name": "image_name1"
+                }
+            ]
+        }
+        """
+        group_characters_map = {}
+        for row in result:
+            character_name = row[0]
+            note = row[1]
+            image_name = row[2]
+            group_name = row[3]
+
+            if group_name not in group_characters_map:
+                group_characters_map[group_name] = []
+
+            group_characters_map[group_name].append({
+                "name": character_name,
+                "note": note,
+                "image_name": image_name
+            })
+
+        return_list = []
+        for group_name, character_data_map in group_characters_map.items():
+            
+            return_list.append({
+                "group_name": group_name,
+                "characters": character_data_map
+            })
+
+        conn.close()
+        return return_list
+
+    """
     Get characters names from some groups.
     """
     def get_characters_names_in_groups(self, topic: str, chosen_groups: list) -> list:

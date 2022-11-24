@@ -22,7 +22,7 @@
           </a-form-item>
 
           <a-form-item label="Note" name="note">
-            <a-input v-model:value="createCharacterFormState.note" />
+            <a-textarea auto-size v-model:value="createCharacterFormState.note" />
           </a-form-item>
 
           <a-form-item>

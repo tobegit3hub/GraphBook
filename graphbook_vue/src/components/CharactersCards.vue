@@ -20,10 +20,6 @@
       </div>
     </a-row>
 
-    <!-- Character detail -->
-    <div>
-      <router-view></router-view>
-    </div>
 
   </div>
 
@@ -34,11 +30,23 @@ import axios from 'axios'
 import { defineComponent, reactive, ref, onMounted, watch } from 'vue'
 import type { SelectProps } from 'ant-design-vue';
 import { useRouter, useRoute } from 'vue-router'
+import { string } from 'vue-types';
 
 type SelectItem = {
   value: string;
   label: string;
 };
+
+interface CharacterData {
+  name: string,
+  note: string,
+  image_name: string
+}
+
+interface GroupCharactersData {
+  group_name: string,
+  characters: CharacterData[]
+}
 
 export default defineComponent({
   name: "CharactersCards",
@@ -50,11 +58,14 @@ export default defineComponent({
 
     const characters = ref([]);
 
+    const groupCharactersData = ref<GroupCharactersData>();
+
     watch(() => props.topic, (first, second) => {
       init();
     });
 
     const init = () => {
+      /*
       axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
           characters.value = response.data.characters;
@@ -63,6 +74,20 @@ export default defineComponent({
           response.data.characters.forEach(character => {
             selectItems.push({ "value": character.name, "label": character.name })
           });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+        */
+
+        axios.get(`/api/topics/${props.topic}/groups_characters`)
+        .then(response => {
+
+          groupCharactersData.value = response.data.groups_and_characters;
+
+          console.log(groupCharactersData.value);
+
+
         })
         .catch(error => {
           console.log(error);
