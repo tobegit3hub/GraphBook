@@ -22,8 +22,9 @@
     <a-form layout="inline" :model="deleteTopicFormState" @finish="handleDeleteTopicFinish"
       @finishFailed="handleFinishFailed">
       <a-form-item>
-        <a-input v-model:value="deleteTopicFormState.name" placeholder="Topic name">
-        </a-input>
+        <a-select v-model:value="deleteTopicFormState.name" show-search placeholder="Select topic" style="width: 200px"
+          :options="selectTopicOptions" >
+        </a-select>
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">
@@ -33,6 +34,7 @@
     </a-form>
 
     <br /><br />
+    <!-- List of all topics -->
     <h1> Topics List</h1>
     <a-list item-layout="horizontal" :data-source="topics">
       <template #renderItem="{ item }">
@@ -52,8 +54,13 @@ import type { UnwrapRef } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
 import type { FormProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-
+import { SelectTypes } from 'ant-design-vue/es/select';
 import GraphDetail from './GraphDetail.vue';
+
+type SelectItem = {
+  value: string;
+  label: string;
+};
 
 interface FormState {
   name: string;
@@ -70,6 +77,11 @@ export default defineComponent({
     const topics = ref([]);
     const chosenTopicName = ref("");
 
+    const selectTopicOptions = ref<SelectTypes['options']>([]);
+    const filterOption = (input: string, option: any) => {
+      return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+    };
+
     const formState: UnwrapRef<FormState> = reactive({
       name: ''
     });
@@ -85,6 +97,7 @@ export default defineComponent({
       })
         .then(response => {
           message.success('Success to create topic: ' + formState.name);
+          
           initTopicListData()
         })
         .catch(error => {
@@ -123,6 +136,13 @@ export default defineComponent({
         .then(response => {
           topics.value = response.data.topics;
 
+          // Set select options
+          const selectItems: SelectItem[] = [];
+          response.data.topics.forEach(theTopic => {
+            selectItems.push({ "value": theTopic, "label": theTopic })
+          });
+          selectTopicOptions.value = [...selectItems];
+
           // Select the random topic to display by default
           const randomIndex = getRandomInt(0, response.data.topics.length - 1);
           chosenTopicName.value = response.data.topics[randomIndex];
@@ -131,7 +151,6 @@ export default defineComponent({
           console.log(error);
         });
     }
-
 
     onMounted(() => {
       initTopicListData();
@@ -146,7 +165,10 @@ export default defineComponent({
       deleteTopicFormState,
       handleDeleteTopicFinish,
       handleFinishFailed,
-      previewGraph
+      previewGraph,
+
+      selectTopicOptions,
+      filterOption,
     }
   }
 })
