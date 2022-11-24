@@ -526,6 +526,34 @@ class DbService(object):
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
 
     """
+    Get the upstream characters and relations of single character.
+
+    Return data should be like this.
+    [
+        {
+            "name": "foo",
+            "image_name": "foo.png",
+            "relation": "bar",
+            "relation_note": "bar"
+        }
+    ]
+    """
+    def get_upstream_characters_and_relations(self, topic: str, character_name: str) -> None:
+        conn = self.engine.connect()
+
+        sql = """
+        SELECT name, image_name, relation, relation_note FROM characters
+        RIGHT JOIN 
+            (SELECT topic, source, relation, note AS relation_note FROM relations WHERE topic='{}' AND target='{}') As t2 
+            ON characters.name = t2.source AND characters.topic = t2.topic
+        """.format(topic, character_name)
+
+        result = conn.execute(text(sql)).all()
+        conn.close()
+        return [{"name": row[0], "image_name": row[1], "relation": row[2], "relation_note": row[3]} for row in result]
+
+
+    """
     Get the downstream characters of single character.
     """
     def get_downstream_characters(self, topic: str, name: str) -> None:
@@ -536,6 +564,33 @@ class DbService(object):
 
         conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
+
+    """
+    Get the downstream characters and relations of single character.
+
+    Return data should be like this.
+    [
+        {
+            "name": "foo",
+            "image_name": "foo.png",
+            "relation": "bar",
+            "relation_note": "bar"
+        }
+    ]
+    """
+    def get_downstream_characters_and_relations(self, topic: str, character_name: str) -> None:
+        conn = self.engine.connect()
+
+        sql = """
+        SELECT name, image_name, relation, relation_note FROM characters
+        RIGHT JOIN 
+            (SELECT topic, target, relation, note AS relation_note FROM relations WHERE topic='{}' AND source='{}') As t2 
+            ON characters.name = t2.target AND characters.topic = t2.topic
+        """.format(topic, character_name)
+
+        result = conn.execute(text(sql)).all()
+        conn.close()
+        return [{"name": row[0], "image_name": row[1], "relation": row[2], "relation_note": row[3]} for row in result]
 
     """
     Update the characters weights from single topic.

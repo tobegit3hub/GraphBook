@@ -2,6 +2,36 @@
 <template>
 
   <div v-if="character">
+
+    <a-modal v-model:visible="isRelatioinModalVisible" title="Relation" width="1000px" @ok="handleRelationModalOk">
+
+    <a-row>
+        <a-col :span="8">
+          <h1>{{ character.name }}</h1>
+          <a-image :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
+        </a-col>
+        <a-col :span="8">
+          <div style="padding: 200px 30px">
+            <h3>{{ relationCharacterData.relation }}</h3>
+
+            <div v-if="isUpstream">
+              <h1>&lt;---------------</h1>
+            </div>
+            <div v-if="!isUpstream">
+              <h1>---------------&gt;</h1>
+            </div>
+
+            <h3>{{ relationCharacterData.relation_note }}</h3>
+          </div>
+        </a-col>
+        <a-col :span="8">
+          <h1> {{ relationCharacterData.name }} </h1>
+          <a-image :src="`${API_BASE_URI}/images/${topic}/${relationCharacterData.image_name}`" />
+        </a-col>
+      </a-row>
+
+    </a-modal>
+    
     <h1>Character {{ character.name }}</h1>
 
     <p>Name: {{ character.name }}</p>
@@ -13,7 +43,7 @@
   <h2>Character association:</h2>
   <a-switch v-model:checked="isUpstream" checked-children="Upstream" un-checked-children="Downstream"
     @change="handleUpstreamSwitchChange" />
-  <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph" />
+  <v-chart class="chart" :option="vuechartOption" @click="handleClickCharacter" />
 </template>
 
 <script>
@@ -72,11 +102,25 @@ export default defineComponent({
       }
     }
 
-    // TODO: Support modal when double click
-    const isShowModal = ref(false);
+    const isRelatioinModalVisible = ref(false);
+    const relationCharacterData = ref();
 
-    const handleDoubleClickGraph = (params) => {
-      isShowModal.value = true;
+    const handleRelationModalOk = (e) => {
+      isRelatioinModalVisible.value = false;
+    };
+
+    const handleClickCharacter = (params) => {
+
+      if (params.data.name != character.value.name) {
+        isRelatioinModalVisible.value = true;
+        relationCharacterData.value = {
+          "name": params.data.name,
+          "image_name": params.data.image_name,
+          "relation": params.data.relation,
+          "relation_note": params.data.relation_note
+        }
+      }
+
     }
 
     watch(() => props.topic, (first, second) => {
@@ -87,7 +131,7 @@ export default defineComponent({
     });
 
     const init = () => {
-      axios.get(`/api/topics/${props.topic}/characters/${props.character_name}`)
+      axios.get(`/api/topics/${props.topic}/characters/${props.character_name}/relations`)
         .then(response => {
           character.value = response.data.character;
 
@@ -96,11 +140,14 @@ export default defineComponent({
             "symbol": `image://${API_BASE_URI}/images/${props.topic}/${character.value.image_name}`
           }
 
-          response.data.upstream_characters.forEach(function (upstream_character, index) {
+          response.data.upstream_characters_and_relations.forEach(function (upstream_character_and_relation, index) {
             upstream_data["children"].push({
-              "name": upstream_character.name,
+              "name": upstream_character_and_relation.name,
               "symbolSize": 100,
-              "symbol": `image://${API_BASE_URI}/images/${props.topic}/${upstream_character.image_name}`
+              "symbol": `image://${API_BASE_URI}/images/${props.topic}/${upstream_character_and_relation.image_name}`,
+              "image_name": upstream_character_and_relation.image_name,
+              "relation": upstream_character_and_relation.relation,
+              "relation_note": upstream_character_and_relation.relation_note
             });
           })
 
@@ -109,11 +156,14 @@ export default defineComponent({
             "symbol": `image://${API_BASE_URI}/images/${props.topic}/${character.value.image_name}`
           }
 
-          response.data.downstream_characters.forEach(function (downstream_character, index) {
+          response.data.downstream_characters_and_relations.forEach(function (downstream_character_and_relation, index) {
             downstream_data["children"].push({
-              "name": downstream_character.name,
+              "name": downstream_character_and_relation.name,
               "symbolSize": 100,
-              "symbol": `image://${API_BASE_URI}/images/${props.topic}/${downstream_character.image_name}`
+              "symbol": `image://${API_BASE_URI}/images/${props.topic}/${downstream_character_and_relation.image_name}`,
+              "image_name": downstream_character_and_relation.image_name,
+              "relation": downstream_character_and_relation.relation,
+              "relation_note": downstream_character_and_relation.relation_note
             });
           })
 
@@ -133,10 +183,13 @@ export default defineComponent({
 
       character,
       vuechartOption,
-      handleDoubleClickGraph,
+      handleClickCharacter,
       isUpstream,
       handleUpstreamSwitchChange,
-      isShowModal
+
+      isRelatioinModalVisible,
+      relationCharacterData,
+      handleRelationModalOk
     }
   }
 })

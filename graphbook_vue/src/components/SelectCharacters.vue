@@ -10,7 +10,7 @@
     <br /><br />
 
     <!-- Only show when not selecting character -->
-    <div v-show="!currentSelectedCharacter">
+    <div v-if="!currentSelectedCharacter">
       <h1>Characters</h1>
       <a-row :gutter="16">
         <div v-for="character in characters" @click="chooseCharacterFromImage(character.name)">
@@ -42,7 +42,7 @@
 import axios from 'axios'
 import { defineComponent, reactive, ref, onMounted, watch } from 'vue'
 import type { SelectProps } from 'ant-design-vue';
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 type SelectItem = {
   value: string;
@@ -58,6 +58,7 @@ export default defineComponent({
   setup(props) {
     const API_BASE_URI = axios.defaults.baseURL;
 
+    const route = useRoute()
     const router = useRouter()
 
     const characters = ref([]);
@@ -84,6 +85,12 @@ export default defineComponent({
     });
 
     const init = () => {
+
+      if (route.params.character_name) {
+        // Get route to set selecter default value
+        currentSelectedCharacter.value = route.params.character_name;
+      }
+
       axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
           characters.value = response.data.characters;

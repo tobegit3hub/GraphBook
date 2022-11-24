@@ -112,11 +112,19 @@ def get_character(topic, character):
     if request.method == "GET":
         result = {
             "character": db_service.get_character(topic, character),
-            "upstream_characters": db_service.get_upstream_characters(topic, character),
-            "downstream_characters": db_service.get_downstream_characters(topic, character)
         }
         return jsonify(result)
 
+@app.route('/api/topics/<topic>/characters/<character>/relations', methods=['GET'])
+@cross_origin()
+def get_character_relatioins(topic, character):
+    if request.method == "GET":
+        result = {
+            "character": db_service.get_character(topic, character),
+            "upstream_characters_and_relations": db_service.get_upstream_characters_and_relations(topic, character),
+            "downstream_characters_and_relations": db_service.get_downstream_characters_and_relations(topic, character)
+        }
+        return jsonify(result)
 
 @app.route('/api/topics/<topic>/characters_names', methods=['GET'])
 @cross_origin()
