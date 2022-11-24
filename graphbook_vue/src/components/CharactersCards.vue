@@ -3,23 +3,27 @@
 
   <div style="background-color: #ececec; padding: 20px">
 
-    <h1>Character cards</h1>
-    <a-row :gutter="16">
-      <div v-for="character in characters">
-        <a-col :span="4">
-          <a-card hoverable style="width: 240px">
-            <!-- 240px by default-->
-            <template #cover>
-              <img :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
-            </template>
-            <a-card-meta :title="character.name">
-              <template #description>{{ character.note }}</template>
-            </a-card-meta>
-          </a-card>
-        </a-col>
-      </div>
-    </a-row>
+    <div v-for="groupCharactersItem in groupCharactersData">
 
+      <br/>
+      <h2>{{ groupCharactersItem.group_name }}</h2>
+
+      <a-row :gutter="16">
+        <div v-for="character in groupCharactersItem.characters" >
+          <a-col :span="4">
+            <a-card hoverable style="width: 240px" @click="redirectToCharacterPage(character.name)">
+              <template #cover>
+                <img :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
+              </template>
+              <a-card-meta :title="character.name">
+                <template #description>{{ character.note }}</template>
+              </a-card-meta>
+            </a-card>
+          </a-col>
+        </div>
+      </a-row>
+
+    </div>
 
   </div>
 
@@ -27,15 +31,8 @@
 
 <script lang="ts">
 import axios from 'axios'
-import { defineComponent, reactive, ref, onMounted, watch } from 'vue'
-import type { SelectProps } from 'ant-design-vue';
-import { useRouter, useRoute } from 'vue-router'
-import { string } from 'vue-types';
-
-type SelectItem = {
-  value: string;
-  label: string;
-};
+import { defineComponent, ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 interface CharacterData {
   name: string,
@@ -56,38 +53,22 @@ export default defineComponent({
   setup(props) {
     const API_BASE_URI = axios.defaults.baseURL;
 
-    const characters = ref([]);
+    const router = useRouter()
 
     const groupCharactersData = ref<GroupCharactersData>();
+
+    const redirectToCharacterPage = (character_name) => {
+      router.push({ path: `/topics/${props.topic}/characters/${character_name}` })
+    }
 
     watch(() => props.topic, (first, second) => {
       init();
     });
 
     const init = () => {
-      /*
-      axios.get(`/api/topics/${props.topic}/characters`)
-        .then(response => {
-          characters.value = response.data.characters;
-
-          const selectItems: SelectItem[] = [];
-          response.data.characters.forEach(character => {
-            selectItems.push({ "value": character.name, "label": character.name })
-          });
-        })
-        .catch(error => {
-          console.log(error);
-        });
-        */
-
         axios.get(`/api/topics/${props.topic}/groups_characters`)
         .then(response => {
-
           groupCharactersData.value = response.data.groups_and_characters;
-
-          console.log(groupCharactersData.value);
-
-
         })
         .catch(error => {
           console.log(error);
@@ -101,7 +82,9 @@ export default defineComponent({
     return {
       API_BASE_URI,
 
-      characters
+      groupCharactersData,
+
+      redirectToCharacterPage
     }
   }
 })

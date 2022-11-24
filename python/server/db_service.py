@@ -401,11 +401,19 @@ class DbService(object):
 
         return_list = []
         for group_name, character_data_map in group_characters_map.items():
-            
             return_list.append({
                 "group_name": group_name,
                 "characters": character_data_map
             })
+
+        
+        sql = "SELECT name, note, image_name FROM characters WHERE topic = '{}'".format(topic)
+        result = conn.execute(text(sql)).all()
+        the_group_all = {
+            "group_name": "All Characters",
+            "characters": [{"name": row[0], "note": row[1], "image_name": row[2]} for row in result]
+        }
+        return_list.append(the_group_all)
 
         conn.close()
         return return_list
