@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import VChart from "vue-echarts";
 
@@ -45,13 +45,11 @@ export default defineComponent({
       series: [
         {
           type: 'tree',
-          orient: 'RL',
+          orient: 'BT',
           data: [],
           leaves: {
             label: {
-              position: 'left',
               verticalAlign: 'middle',
-              align: 'right'
             }
           },
           emphasis: {
@@ -67,14 +65,10 @@ export default defineComponent({
     const handleUpstreamSwitchChange = () => {
       if (isUpstream.value) {
         vuechartOption.value.series[0].data[0] = upstream_data;
-        vuechartOption.value.series[0]["orient"] = "RL";
-        vuechartOption.value.series[0]["leaves"]["label"]["position"] = "left";
-        vuechartOption.value.series[0]["leaves"]["label"]["align"] = "right";
+        vuechartOption.value.series[0]["orient"] = "BT";
       } else {
         vuechartOption.value.series[0].data[0] = downstream_data;
-        vuechartOption.value.series[0]["orient"] = "LR";
-        vuechartOption.value.series[0]["leaves"]["label"]["position"] = "right";
-        vuechartOption.value.series[0]["leaves"]["label"]["align"] = "left";
+        vuechartOption.value.series[0]["orient"] = "TB";
       }
     }
 
@@ -85,7 +79,14 @@ export default defineComponent({
       isShowModal.value = true;
     }
 
-    onMounted(() => {
+    watch(() => props.topic, (first, second) => {
+      init();
+    });
+    watch(() => props.character_name, (first, second) => {
+      init();
+    });
+
+    const init = () => {
       axios.get(`/api/topics/${props.topic}/characters/${props.character_name}`)
         .then(response => {
           character.value = response.data.character;
@@ -121,6 +122,10 @@ export default defineComponent({
         .catch(error => {
           console.log(error);
         });
+    }
+
+    onMounted(() => {
+      init();
     })
 
     return {

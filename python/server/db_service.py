@@ -637,6 +637,7 @@ class DbService(object):
 
 
 if __name__ == "__main__":
+    pass
     #service = DbService(DbConfig.create_default_config())
     #service.export_topic("赛博朋克：边缘行者")
     
