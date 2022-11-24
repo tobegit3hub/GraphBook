@@ -105,6 +105,21 @@ def handle_characters(topic):
                 topic, insert_characters, update_characters, delete_characters)
         return jsonify({"code": 0})
 
+@app.route('/api/topics/<topic>/export', methods=['POST'])
+@cross_origin()
+def handle_topic_export(topic):
+    if request.method == "POST":
+        path = request.json["path"]
+        db_service.export_topic(topic, path)
+        return jsonify({"code": 0})
+
+@app.route('/api/topics/<topic>/import', methods=['POST'])
+@cross_origin()
+def handle_topic_import(topic):
+    if request.method == "POST":
+        path = request.json["path"]
+        db_service.import_topic(topic, path)
+        return jsonify({"code": 0})
 
 @app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])
 @cross_origin()

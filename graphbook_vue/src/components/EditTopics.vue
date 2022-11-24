@@ -33,6 +33,41 @@
       </a-form-item>
     </a-form>
 
+    <br />
+    <!-- Form to export topic -->
+    <a-form layout="inline" :model="exportTopicFormState" @finish="handleExportTopic" >
+      <a-form-item>
+        <a-select v-model:value="exportTopicFormState.topic" show-search placeholder="Select topic" style="width: 200px"
+          :options="selectTopicOptions" >
+        </a-select>
+      </a-form-item>
+      <a-form-item>
+        <a-input v-model:value="exportTopicFormState.path" placeholder="Export directory"></a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" html-type="submit">
+          Export Topic
+        </a-button>
+      </a-form-item>
+    </a-form>
+
+    <br />
+    <!-- Form to import topic -->
+    <a-form layout="inline" :model="importTopicFormState" @finish="handleImportTopic" >
+      <a-form-item>
+        <a-input v-model:value="importTopicFormState.topic" placeholder="Topic name"></a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-input v-model:value="importTopicFormState.path" placeholder="Import directory"></a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" html-type="submit">
+          Import Topic
+        </a-button>
+      </a-form-item>
+    </a-form>
+
+
     <br /><br />
     <!-- List of all topics -->
     <h1> Topics List</h1>
@@ -56,6 +91,7 @@ import type { FormProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import { SelectTypes } from 'ant-design-vue/es/select';
 import GraphDetail from './GraphDetail.vue';
+import { string } from 'vue-types';
 
 type SelectItem = {
   value: string;
@@ -64,6 +100,11 @@ type SelectItem = {
 
 interface FormState {
   name: string;
+}
+
+interface ImportExportTopicFormState {
+  name: string,
+  path: string
 }
 
 export default defineComponent({
@@ -77,6 +118,7 @@ export default defineComponent({
     const topics = ref([]);
     const chosenTopicName = ref("");
 
+    // Select options for selecting topic
     const selectTopicOptions = ref<SelectTypes['options']>([]);
     const filterOption = (input: string, option: any) => {
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -88,6 +130,16 @@ export default defineComponent({
 
     const deleteTopicFormState: UnwrapRef<FormState> = reactive({
       name: ''
+    });
+
+    const exportTopicFormState: UnwrapRef<ImportExportTopicFormState> = reactive({
+      topic: '',
+      path: '',
+    });
+
+    const importTopicFormState: UnwrapRef<ImportExportTopicFormState> = reactive({
+      topic: '',
+      path: '',
     });
 
     const handleCreateTopicFinish: FormProps['onFinish'] = values => {
@@ -106,7 +158,6 @@ export default defineComponent({
     };
 
     const handleDeleteTopicFinish: FormProps['onFinish'] = values => {
-
       axios.delete(`/api/topics/${deleteTopicFormState.name}`)
         .then(response => {
           message.success('Success to delete topic: ' + deleteTopicFormState.name);
@@ -115,6 +166,32 @@ export default defineComponent({
         .catch(error => {
           console.log(error);
         });
+    };
+
+    const handleExportTopic: FormProps['onFinish'] = values => {
+      axios.post(`/api/topics/${exportTopicFormState.topic}/export`, {
+        path: exportTopicFormState.path
+      })
+      .then(response => {
+        message.success('Success to export topic: ' + exportTopicFormState.topic);
+        initTopicListData();
+      })
+      .catch(error => {
+        console.log(error);
+      });
+    };
+
+    const handleImportTopic: FormProps['onFinish'] = values => {
+      axios.post(`/api/topics/${importTopicFormState.topic}/import`, {
+        path: importTopicFormState.path
+      })
+      .then(response => {
+        message.success('Success to import topic: ' + importTopicFormState.topic);
+        initTopicListData();
+      })
+      .catch(error => {
+        console.log(error);
+      });
     };
 
     const handleFinishFailed: FormProps['onFinishFailed'] = errors => {
@@ -169,6 +246,11 @@ export default defineComponent({
 
       selectTopicOptions,
       filterOption,
+
+      exportTopicFormState,
+      importTopicFormState,
+      handleExportTopic,
+      handleImportTopic
     }
   }
 })

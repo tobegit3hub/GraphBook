@@ -629,7 +629,7 @@ class DbService(object):
         # Export image files
         source_image_path = "./dist/images/" + topic
         target_image_path = export_topic_dir + "/images/"
-        if os.path.exists(export_topic_dir):
+        if os.path.exists(target_image_path):
             logging.warn("Image path of {} exists, remove first".format(target_image_path))
             shutil.rmtree(target_image_path)
         shutil.copytree(source_image_path, target_image_path)
@@ -658,8 +658,7 @@ class DbService(object):
     """
     def import_topic(self, topic, import_dir="/tmp/"):
         print("Try to import topic: {}, from directory: {}".format(topic, import_dir))
-        import_topic_dir = "{}{}".format(import_dir, topic)
-
+        import_topic_dir = "{}/{}".format(import_dir, topic)
 
         # Check if directory exists or not
         if not os.path.exists(import_topic_dir):
@@ -690,11 +689,3 @@ class DbService(object):
             data_df = pd.read_csv(file)
             data_df.to_sql(table_name, con=engine, index=False, if_exists='replace')
 
-
-if __name__ == "__main__":
-    pass
-    #service = DbService(DbConfig.create_default_config())
-    #service.export_topic("赛博朋克：边缘行者")
-    
-    #service = DbService(DbConfig("mysql", "127.0.0.1:3306", "root", "root", "graph_book"))
-    #service.import_topic("赛博朋克：边缘行者")
