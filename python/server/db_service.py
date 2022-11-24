@@ -8,8 +8,6 @@ import shutil
 import networkx_util
 import pandas as pd
 
-logging.basicConfig(level=logging.INFO)
-
 """
 The configuration of database, support SQLite and Mysql.
 """
@@ -364,9 +362,9 @@ class DbService(object):
         SELECT name, note, image_name, group_name 
         FROM characters 
         RIGHT JOIN 
-            (select topic, character_name, group_name FROM groupx WHERE character_name IS NOT NULL) AS t2 
+            (select topic, character_name, group_name FROM groupx WHERE topic='{}' AND character_name IS NOT NULL AND character_name <> '') AS t2 
             ON characters.name = t2.character_name AND characters.topic = t2.topic;
-        """.format()
+        """.format(topic)
 
         result = conn.execute(text(sql)).all()
 
@@ -407,7 +405,7 @@ class DbService(object):
             })
 
         
-        sql = "SELECT name, note, image_name FROM characters WHERE topic = '{}'".format(topic)
+        sql = "SELECT name, note, image_name FROM characters WHERE topic='{}'".format(topic)
         result = conn.execute(text(sql)).all()
         the_group_all = {
             "group_name": "All Characters",
