@@ -3,11 +3,11 @@
 
   <div v-if="character">
 
-    <a-modal v-model:visible="isRelatioinModalVisible" title="Relation" width="1000px" @ok="handleRelationModalOk">
+    <a-modal v-model:visible="isRelatioinModalVisible" title="Relation" width="1000px" @ok="cancelModel">
 
     <a-row>
         <a-col :span="8">
-          <h1>{{ character.name }}</h1>
+          <h3><router-link :to='`/topics/${topic}/characters/${character.name}`'>{{ character.name }}</router-link></h3>
           <a-image :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
         </a-col>
         <a-col :span="8">
@@ -25,7 +25,7 @@
           </div>
         </a-col>
         <a-col :span="8">
-          <h1> {{ relationCharacterData.name }} </h1>
+          <h3><router-link :to='`/topics/${topic}/characters/${relationCharacterData.name}`' @click="cancelModel">{{ relationCharacterData.name }}</router-link></h3>
           <a-image :src="`${API_BASE_URI}/images/${topic}/${relationCharacterData.image_name}`" />
         </a-col>
       </a-row>
@@ -105,7 +105,7 @@ export default defineComponent({
     const isRelatioinModalVisible = ref(false);
     const relationCharacterData = ref();
 
-    const handleRelationModalOk = (e) => {
+    const cancelModel = () => {
       isRelatioinModalVisible.value = false;
     };
 
@@ -189,7 +189,7 @@ export default defineComponent({
 
       isRelatioinModalVisible,
       relationCharacterData,
-      handleRelationModalOk
+      cancelModel
     }
   }
 })

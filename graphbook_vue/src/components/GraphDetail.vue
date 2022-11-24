@@ -6,9 +6,10 @@
 
   <div v-show="!onlyGraph">
     <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
-      <p>Name: {{ currentCharacterModalName }}</p>
+      <p>Name: <router-link :to='`/topics/${topic}/characters/${currentCharacterModalName}`'>{{ currentCharacterModalName }}</router-link></p>
       <p>Weight: {{ currentCharacterModalWeight }}</p>
       <a-image :src="`${API_BASE_URI}/images/${topic}/${currentCharacterModalImageName}`" />
+      <br/><br/>
       <p>Note:</p>
       <p>{{ currentModalNote }}</p>
     </a-modal>
