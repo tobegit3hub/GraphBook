@@ -186,12 +186,12 @@ class DbService(object):
             count = item[1]
             statistics[topic_name]["groups"] = count
 
-        conn.close()
-
         return_result = {
             "count": topic_count,
             "statistics": list(statistics.values())
         }
+
+        conn.close()
         return return_result
 
     """
@@ -240,9 +240,10 @@ class DbService(object):
             sql = "SELECT name, weight, note, image_name FROM characters WHERE topic = '{}'".format(
                 topic)
 
-        result = conn.execute(text(sql))
+        result = conn.execute(text(sql)).all()
+
         conn.close()
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
+        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
 
     """
     Get character detail.
@@ -252,8 +253,9 @@ class DbService(object):
         sql = "SELECT name, weight, note, image_name FROM characters WHERE topic='{}' AND name='{}'".format(
             topic, name)
         result = conn.execute(text(sql))
-        conn.close()
         row = result.all()[0]
+
+        conn.close()
         return {"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]}
 
     """
@@ -270,9 +272,10 @@ class DbService(object):
             sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}'".format(
                 topic)
 
-        result = conn.execute(text(sql))
+        result = conn.execute(text(sql)).all()
+
         conn.close()
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
+        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
 
     """
     Create one character. tobedev
@@ -292,9 +295,10 @@ class DbService(object):
         conn = self.engine.connect()
         sql = "SELECT source, target, relation, note FROM relations WHERE topic = '{}'".format(
             topic)
-        result = conn.execute(text(sql))
+        result = conn.execute(text(sql)).all()
+
         conn.close()
-        return [{"source": row[0], "target": row[1], "relation": row[2], "note": row[3]} for row in result.all()]
+        return [{"source": row[0], "target": row[1], "relation": row[2], "note": row[3]} for row in result]
 
     """
     Get groups from single topic.
@@ -303,9 +307,10 @@ class DbService(object):
         conn = self.engine.connect()
         sql = "SELECT group_name, character_name FROM groupx WHERE topic = '{}'".format(
             topic)
-        result = conn.execute(text(sql))
+        result = conn.execute(text(sql)).all()
+
         conn.close()
-        return [{"group_name": row[0], "character_name": row[1]} for row in result.all()]
+        return [{"group_name": row[0], "character_name": row[1]} for row in result]
 
     """
     Get group_names from single topic.
@@ -314,9 +319,10 @@ class DbService(object):
         conn = self.engine.connect()
         sql = "SELECT distinct(group_name) FROM groupx WHERE topic = '{}'".format(
             topic)
-        result = conn.execute(text(sql))
+        result = conn.execute(text(sql)).all()
+
         conn.close()
-        return [row[0] for row in result.all()]
+        return [row[0] for row in result]
 
     """
     Get characters names from some groups.
@@ -332,9 +338,10 @@ class DbService(object):
             sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}'".format(
                 topic)
 
-        result = conn.execute(text(sql))
+        result = conn.execute(text(sql)).all()
+
         conn.close()
-        return [row[0] for row in result.all()]
+        return [row[0] for row in result]
 
     """
     Update characters table.
@@ -499,9 +506,10 @@ class DbService(object):
         conn = self.engine.connect()
         sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT source FROM relations WHERE topic='{}' AND target='{}')".format(
             topic, name)
-        result = conn.execute(text(sql))
+        result = conn.execute(text(sql)).all()
+
         conn.close()
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
+        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
 
     """
     Get the downstream characters of single character.
@@ -510,9 +518,10 @@ class DbService(object):
         conn = self.engine.connect()
         sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT target FROM relations WHERE topic='{}' AND source='{}')".format(
             topic, name)
-        result = conn.execute(text(sql))
+        result = conn.execute(text(sql)).all()
+
         conn.close()
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result.all()]
+        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
 
     """
     Update the characters weights from single topic.
@@ -580,7 +589,7 @@ class DbService(object):
     """
     def import_topic(self, topic, import_dir="/tmp/"):
         print("Try to import topic: {}, from directory: {}".format(topic, import_dir))
-        import_topic_dir = "{}/{}".format(import_dir, topic)
+        import_topic_dir = "{}{}".format(import_dir, topic)
 
 
         # Check if directory exists or not
@@ -591,13 +600,29 @@ class DbService(object):
         # Create topic if not exists
         self.create_topic_if_not_exist(topic)
 
-        characters_csv_path = import_topic_dir + "/characters.csv"
-        with open(characters_csv_path, 'r') as file:
+        # Load data from csv files to tables
+        DbService.load_csv_to_table(import_topic_dir + "/characters.csv", self.engine, "characters")
+        DbService.load_csv_to_table(import_topic_dir + "/relations.csv", self.engine, "relations")
+        DbService.load_csv_to_table(import_topic_dir + "/groups.csv", self.engine, "groupx")
+
+        # Copy image files to dist
+        source_image_path = import_topic_dir + "/images/"
+        target_image_path = "./dist/images/" + topic
+        files = os.listdir(source_image_path)
+        for fname in files:
+            shutil.copy2(os.path.join(source_image_path, fname), target_image_path)
+
+    """
+    Load CSV file to table of database.
+    """
+    @staticmethod
+    def load_csv_to_table(csv_path: str, engine, table_name: str) -> None:
+        with open(csv_path, 'r') as file:
             data_df = pd.read_csv(file)
-            data_df.to_sql('tbl_name', con=self.engine, index=True, index_label='id', if_exists='replace')
-        
+            data_df.to_sql(table_name, con=engine, index=False, if_exists='replace')
 
 
 if __name__ == "__main__":
     service = DbService(DbConfig.create_default_config())
-    service.import_topic("赛博朋克：边缘行者");
+    #service.export_topic("赛博朋克：边缘行者")
+    service.import_topic("赛博朋克：边缘行者")
