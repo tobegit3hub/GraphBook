@@ -45,6 +45,7 @@ class DbService(object):
         self.db_config = db_config
         self.engine = None
         self.init_engine()
+        self.init_database()
         self.init_tables()
 
     def init_engine(self):
@@ -59,17 +60,30 @@ class DbService(object):
                 engine_url, echo=True, future=True, pool_size=100, max_overflow=0)
 
     """
+    Create the internal database.
+    """
+    def init_database(self) -> None:
+        if self.db_config.dbms == "sqlite":
+            # No need to create database for sqlite
+            pass
+
+        elif self.db_config.dbms == "mysql":
+            # Connect without default database
+            engine_url = "mysql+pymysql://{}:{}@{}".format(
+                self.db_config.username, self.db_config.password, self.db_config.endpoint)
+            engine = create_engine(
+                engine_url, echo=True, future=True, pool_size=100, max_overflow=0)
+            conn = engine.connect()
+
+            sql = "CREATE DATABASE IF NOT EXISTS `{}`".format(self.db_config.db_name)
+            conn.execute(text(sql))
+            conn.close()
+
+    """
     Create the internal tables.
     """
     def init_tables(self) -> None:
         conn = self.engine.connect()
-
-        # No need to create database for sqlite
-        if self.db_config.dbms != "sqlite":
-            sql = """
-            CREATE DATABASE IF NOT EXISTS `{}`;
-            """.format(self.db_config.db_name)
-            conn.execute(text(sql))
 
         sql = """
         CREATE TABLE IF NOT EXISTS `topics` (
@@ -623,6 +637,8 @@ class DbService(object):
 
 
 if __name__ == "__main__":
-    service = DbService(DbConfig.create_default_config())
+    #service = DbService(DbConfig.create_default_config())
     #service.export_topic("赛博朋克：边缘行者")
-    service.import_topic("赛博朋克：边缘行者")
+    
+    #service = DbService(DbConfig("mysql", "127.0.0.1:3306", "root", "root", "graph_book"))
+    #service.import_topic("赛博朋克：边缘行者")
