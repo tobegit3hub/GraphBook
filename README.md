@@ -23,6 +23,7 @@ npm install
 npm run build
 
 cd ../python/server/
+pip install -r ../requirements.txt
 ./server.py ./topicland.ini
 ```
 

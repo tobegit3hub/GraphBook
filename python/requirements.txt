@@ -1,12 +1,6 @@
 pymysql
-graphviz
-matplotlib
-sqlite3
-jaal
-pandas
 sqlalchemy
-dash_cytoscape
-plotly
-pyvis
-shutil
 pandas
+flask
+flask_cors
+networkx
