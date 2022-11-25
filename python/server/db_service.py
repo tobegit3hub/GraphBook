@@ -266,7 +266,7 @@ class DbService(object):
         conn = self.engine.connect()
         sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic AND name=:name"
         params = {"topic": topic, "name": name}
-        result = conn.execute(text(sql))
+        result = conn.execute(text(sql), params)
         row = result.all()[0]
 
         conn.close()

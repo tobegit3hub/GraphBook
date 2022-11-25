@@ -158,7 +158,7 @@ export default defineComponent({
       })
         .then(response => {
           message.success(`Success to create group: ${createGroupName.value}`);
-          initTableData();
+          init();
         })
         .catch(error => {
           console.log(error);
@@ -177,7 +177,7 @@ export default defineComponent({
       })
         .then(response => {
           message.success(`Success to add ${formState.character_name} to group ${formState.group_name}`);
-          initTableData();
+          init();
         })
         .catch(error => {
           console.log(error);
@@ -196,10 +196,22 @@ export default defineComponent({
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
 
-    const initTableData = () => {
+    const init = () => {
       axios.get(`/api/topics/${props.topic}/groups`)
         .then(response => {
           vxeTableOptions.data = response.data.groups;
+        })
+        .catch(error => {
+          console.log(error);
+      });
+
+      axios.get(`/api/topics/${props.topic}/groups_names`)
+        .then(response => {
+          const selectItems: SelectItem[] = [];
+          response.data.groups_names.forEach(group_name => {
+            selectItems.push({ "value": group_name, "label": group_name })
+          });
+          selectGroupOptions.value = [...selectItems];
         })
         .catch(error => {
           console.log(error);
@@ -207,7 +219,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      initTableData();
+      init();
 
       axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
@@ -221,17 +233,7 @@ export default defineComponent({
           console.log(error);
         });
 
-      axios.get(`/api/topics/${props.topic}/groups_names`)
-        .then(response => {
-          const selectItems: SelectItem[] = [];
-          response.data.groups_names.forEach(group_name => {
-            selectItems.push({ "value": group_name, "label": group_name })
-          });
-          selectGroupOptions.value = [...selectItems];
-        })
-        .catch(error => {
-          console.log(error);
-        });
+
     })
 
     return {
