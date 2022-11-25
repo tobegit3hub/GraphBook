@@ -18,7 +18,7 @@
             <a-card hoverable style="width: 240px">
               <!-- 240px by default-->
               <template #cover>
-                <img :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
+                <img v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
               </template>
               <a-card-meta :title="character.name">
                 <template #description>{{ character.note }}</template>

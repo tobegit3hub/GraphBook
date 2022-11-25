@@ -6,7 +6,7 @@ It is recommanded to record and explore complex topics such as *novels*, *movies
 
 * Clarify the relations of characters with [Knowledge Graph](https://en.wikipedia.org/wiki/Knowledge_graph).
 * Use [PageRanke](https://en.wikipedia.org/wiki/PageRank) or other algorithms to select out the prominent roles. 
-* Find the shortest path or all paths with [Dijkstra's Algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) for any characters.
+* Find the shortest path or all paths with [Dijkstra's Algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) for any character.
 * Persistent your knowledge graphs for custom topics and share with others.
 
 ![](./images/play_graph.gif)

@@ -8,7 +8,7 @@
     <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
       <p>Name: <router-link :to='`/topics/${topic}/characters/${currentCharacterModalName}`'>{{ currentCharacterModalName }}</router-link></p>
       <p>Weight: {{ currentCharacterModalWeight }}</p>
-      <a-image v-if="!currentCharacterModalImageName===''" :src="`${API_BASE_URI}/images/${topic}/${currentCharacterModalImageName}`" />
+      <a-image v-if="currentCharacterModalImageName" :src="`${API_BASE_URI}/images/${topic}/${currentCharacterModalImageName}`" />
       <br/><br/>
       <p>Note:</p>
       <p>{{ currentModalNote }}</p>
@@ -113,7 +113,7 @@ export default defineComponent({
         formatter: (param) => {
           let template = param.data.name
           if (param.data.name) {
-            if (!param.data.image_name==="") {
+            if (param.data.image_name) {
               template += '</br>'
               template += `<img src='${API_BASE_URI}/images/${props.topic}/${param.data.image_name}' width="150">`;
             }
@@ -244,7 +244,7 @@ export default defineComponent({
         }
 
         // Get image and crop for character
-        if (!characterInfo.image_name==="") {
+        if (characterInfo.image_name) {
           const imagePath = `${API_BASE_URI}/images/${props.topic}/${characterInfo.image_name}`;
           asyncCropImage(imagePath, function (result) {
             vuechartOption.value.series[0].data[index]["symbol"] = result;
