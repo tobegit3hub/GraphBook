@@ -8,7 +8,7 @@
     <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
       <p>Name: <router-link :to='`/topics/${topic}/characters/${currentCharacterModalName}`'>{{ currentCharacterModalName }}</router-link></p>
       <p>Weight: {{ currentCharacterModalWeight }}</p>
-      <a-image :src="`${API_BASE_URI}/images/${topic}/${currentCharacterModalImageName}`" />
+      <a-image v-if="!currentCharacterModalImageName===''" :src="`${API_BASE_URI}/images/${topic}/${currentCharacterModalImageName}`" />
       <br/><br/>
       <p>Note:</p>
       <p>{{ currentModalNote }}</p>
@@ -112,10 +112,11 @@ export default defineComponent({
         trigger: "item",
         formatter: (param) => {
           let template = param.data.name
-          // TODO: Display image, handle image not found
           if (param.data.name) {
-            template += '</br>'
-            template += `<img src='${API_BASE_URI}/images/${props.topic}/${param.data.image_name}' width="150">`;
+            if (!param.data.image_name==="") {
+              template += '</br>'
+              template += `<img src='${API_BASE_URI}/images/${props.topic}/${param.data.image_name}' width="150">`;
+            }
             template += '</br>'
             if (param.data.note) {
               template += '<div style="width: 100px">' + simplifyCharacterNote(param.data.note) + '</div>';
@@ -243,11 +244,12 @@ export default defineComponent({
         }
 
         // Get image and crop for character
-        const imagePath = `${API_BASE_URI}/images/${props.topic}/${characterInfo.image_name}`;
-        asyncCropImage(imagePath, function (result) {
-          // TODO: Handle if can not load image
-          vuechartOption.value.series[0].data[index]["symbol"] = result;
-        })
+        if (!characterInfo.image_name==="") {
+          const imagePath = `${API_BASE_URI}/images/${props.topic}/${characterInfo.image_name}`;
+          asyncCropImage(imagePath, function (result) {
+            vuechartOption.value.series[0].data[index]["symbol"] = result;
+          })
+        }
       });
     }
 
