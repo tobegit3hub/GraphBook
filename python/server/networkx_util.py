@@ -55,17 +55,3 @@ class NetworkxUtil(object):
 
         conn.commit()
 
-
-def main() -> None:
-    engine = create_engine("mysql+pymysql://root:wawa316@127.0.0.1:3306/graph_book?charset=utf8mb4",
-                           echo=True, future=True, pool_size=20, max_overflow=0)
-    topic = "Cyberpunk Edgerunner"
-    util = NetworkxUtil(engine, topic)
-    # util.update_characters_weight()
-
-    paths = util.get_all_path("david", "lucy", only_directed=True)
-    # print(list(paths))
-
-
-if __name__ == "__main__":
-    main()

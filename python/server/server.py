@@ -8,7 +8,7 @@ from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS, cross_origin
 import db_service
 
-logger = logging.getLogger("graph_book")
+logger = logging.getLogger("topicland")
 
 """
 Init flask web app.
@@ -24,7 +24,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 Read config from ini config file.
 """
 ini_config = configparser.ConfigParser()
-ini_config_path = "./graph_book.ini"
+ini_config_path = "./topicland.ini"
 # Get config file from the first argument
 if len(sys.argv) > 1:
     ini_config_path = sys.argv[1]

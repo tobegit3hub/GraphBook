@@ -16,13 +16,23 @@ It is recommanded to record and explore complex topics such as *novels*, *movies
 Build from scratch.
 
 ```
-git clone https://github.com/tobegit3hub/GraphBook.git
+git clone https://github.com/topicland/TopicLand.git
 
-cd ./GraphBook/graphbook_vue/
+cd ./TopicLand/graphbook_vue/
+npm install
 npm run build
 
 cd ../python/server/
-./server.py
+./server.py ./topicland.ini
+```
+
+Load official topics.
+
+```
+git submodule update --init
+
+cd ./python/server/
+./import_official_topics.py ./topicland.ini
 ```
 
 ## Usage

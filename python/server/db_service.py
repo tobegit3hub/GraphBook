@@ -12,7 +12,7 @@ import pandas as pd
 The configuration of database, support SQLite and Mysql.
 """
 class DbConfig(object):
-    def __init__(self, dbms: str, endpoint: str, username: str = "", password: str = "", db_name: str = "graph_book") -> None:
+    def __init__(self, dbms: str, endpoint: str, username: str = "", password: str = "", db_name: str = "topicland") -> None:
         self.dbms = dbms.lower()
         self.endpoint = endpoint
         self.username = username
@@ -23,7 +23,7 @@ class DbConfig(object):
 
     @staticmethod
     def create_default_config():
-        return DbConfig("sqlite", "graph_book.db")
+        return DbConfig("sqlite", "topicland.db")
 
     """
     Check if the DBMS is supported or not.
@@ -81,15 +81,21 @@ class DbService(object):
     def init_tables(self) -> None:
         conn = self.engine.connect()
 
+        unique_key = ""
+        if self.db_config.dbms == "mysql":
+            unique_key = "UNIQUE KEY (`name`),"
         sql = """
         CREATE TABLE IF NOT EXISTS `topics` (
             `name` varchar(64) NOT NULL,
-            PRIMARY KEY (`name`),
-            UNIQUE KEY (`name`)
+            {}
+            PRIMARY KEY (`name`)
         );
-        """
+        """.format(unique_key)
         conn.execute(text(sql))
 
+        unique_key = ""
+        if self.db_config.dbms == "mysql":
+            unique_key = "UNIQUE KEY (`topic`, `name`),"
         sql = """
         CREATE TABLE IF NOT EXISTS `characters` (
             `topic` varchar(64) NOT NULL,
@@ -98,12 +104,15 @@ class DbService(object):
             `note` varchar(4096) DEFAULT NULL,
             `image_name` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`topic`, `name`),
-            UNIQUE KEY (`topic`, `name`),
+            {}
             FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         );
-        """
+        """.format(unique_key)
         conn.execute(text(sql))
 
+        unique_key = ""
+        if self.db_config.dbms == "mysql":
+            unique_key = "UNIQUE KEY (`topic`, `source`, `target`),"
         sql = """
         CREATE TABLE IF NOT EXISTS `relations` (
             `topic` varchar(64) NOT NULL,
@@ -112,21 +121,24 @@ class DbService(object):
             `relation` varchar(64) NOT NULL,
             `note` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`topic`, `source`, `target`),
-            UNIQUE KEY (`topic`, `source`, `target`),
+            {}
             FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         );
-        """
+        """.format(unique_key)
         conn.execute(text(sql))
 
+        unique_key = ""
+        if self.db_config.dbms == "mysql":
+            unique_key = "UNIQUE KEY (`topic`, `group_name`, `character_name`),"
         sql = """
         CREATE TABLE IF NOT EXISTS `groupx` (
             `topic` varchar(64) NOT NULL,
             `group_name` varchar(64) NOT NULL,
             `character_name` varchar(64) DEFAULT NULL,
-            UNIQUE KEY (`topic`, `group_name`, `character_name`),
+            {}
             FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         )
-        """
+        """.format(unique_key)
         conn.execute(text(sql))
 
         conn.commit()
