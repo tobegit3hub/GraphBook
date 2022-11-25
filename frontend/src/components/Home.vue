@@ -43,7 +43,7 @@
     </a-layout-content>
 
     <a-layout-footer style="text-align: center">
-      GraphBook ©2023 created by <a href="https://github.com/tobegit3hub/GraphBook">GraphBook</a>
+      TopicLand ©2022 created by <a href="https://github.com/topicland/TopicLand">TopicLand</a>
     </a-layout-footer>
   </a-layout>
 

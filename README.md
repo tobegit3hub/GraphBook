@@ -18,7 +18,7 @@ Build from scratch.
 ```
 git clone https://github.com/topicland/TopicLand.git
 
-cd ./TopicLand/graphbook_vue/
+cd ./TopicLand/frontend/
 npm install
 npm run build
 
