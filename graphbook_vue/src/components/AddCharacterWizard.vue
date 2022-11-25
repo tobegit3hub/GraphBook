@@ -154,7 +154,7 @@
 
     <a-button v-if="currentStep > 0" style="margin-left: 8px" @click="prevStep">Previous</a-button>
     <a-button v-if="currentStep < totalStepCount - 1" type="primary" @click="nextStep">Next</a-button>
-    <a-button v-if="currentStep == totalStepCount - 1" type="primary" @click="">
+    <a-button v-if="currentStep == totalStepCount - 1" type="primary" @click="refreshCurrentPage">
       Done
     </a-button>
 
@@ -172,6 +172,7 @@ import { message } from 'ant-design-vue';
 import type { FormProps, UploadProps } from 'ant-design-vue';
 import { UploadOutlined } from '@ant-design/icons-vue';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import { useRouter, useRoute } from 'vue-router'
 
 interface SelectItem {
   value: string;
@@ -208,6 +209,9 @@ export default defineComponent({
   },
   setup(props) {
     const API_BASE_URI = axios.defaults.baseURL;
+
+    const router = useRouter()
+    const route = useRoute()
 
     const currentStep = ref<number>(0);
     const totalStepCount = 3;
@@ -356,6 +360,10 @@ export default defineComponent({
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
 
+    const refreshCurrentPage = () => {
+      window.location.reload()
+    }
+
     watch(() => props.topic, (first, second) => {
       init();
     });
@@ -416,7 +424,9 @@ export default defineComponent({
       addJoinGroupItem,
       removeJoinGroupItem,
       submitJoinGroupsForm,
-      selectGroupOptions
+      selectGroupOptions,
+
+      refreshCurrentPage
     }
   }
 })
