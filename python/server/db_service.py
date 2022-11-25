@@ -754,8 +754,8 @@ class DbService(object):
         # Copy image files to dist
         source_image_path = import_topic_dir + "/images/"
         if os.path.exists(source_image_path):
-            target_image_path = "./dist/images/" + topic
-            if os.path.exists(target_image_path):
+            target_image_path = "./dist/images/" + topic + "/"
+            if not os.path.exists(target_image_path):
                 os.makedirs(target_image_path)
             files = os.listdir(source_image_path)
             for fname in files:
