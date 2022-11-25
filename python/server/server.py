@@ -41,6 +41,8 @@ Init database service.
 db_config = db_service.DbConfig(ini_config["db"]["dbms"], ini_config["db"]["endpoint"],
                                 ini_config["db"]["user"], ini_config["db"]["password"], ini_config["db"]["db_name"])
 db_service = db_service.DbService(db_config)
+db_service.init_database()
+db_service.init_tables()
 
 """
 Render the vue generated single page app.

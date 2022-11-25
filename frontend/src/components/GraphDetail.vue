@@ -88,7 +88,7 @@ export default defineComponent({
       if (note) {
         // TODO: Support word wrap and substring more characters
         if (note.length > 6) {
-          return note.substring(0, 6) + "...";
+          return note.substring(0, 10) + "...";
         } else {
           return note;
         }

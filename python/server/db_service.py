@@ -43,8 +43,6 @@ class DbService(object):
         self.db_config = db_config
         self.engine = None
         self.init_engine()
-        self.init_database()
-        self.init_tables()
 
     def init_engine(self):
         config = self.db_config
@@ -86,7 +84,8 @@ class DbService(object):
         sql = """
         CREATE TABLE IF NOT EXISTS `topics` (
             `name` varchar(64) NOT NULL,
-            PRIMARY KEY (`name`)
+            PRIMARY KEY (`name`),
+            UNIQUE KEY (`name`)
         );
         """
         conn.execute(text(sql))
@@ -99,7 +98,8 @@ class DbService(object):
             `note` varchar(4096) DEFAULT NULL,
             `image_name` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`topic`, `name`),
-            CONSTRAINT `fk_characters_topic` FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
+            UNIQUE KEY (`topic`, `name`),
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         );
         """
         conn.execute(text(sql))
@@ -112,7 +112,8 @@ class DbService(object):
             `relation` varchar(64) NOT NULL,
             `note` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`topic`, `source`, `target`),
-            CONSTRAINT `fk_relations_topic` FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
+            UNIQUE KEY (`topic`, `source`, `target`),
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         );
         """
         conn.execute(text(sql))
@@ -121,9 +122,9 @@ class DbService(object):
         CREATE TABLE IF NOT EXISTS `groupx` (
             `topic` varchar(64) NOT NULL,
             `group_name` varchar(64) NOT NULL,
-            `character_name` varchar(64) NOT NULL,
-            PRIMARY KEY (`topic`, `group_name`, `character_name`),
-            CONSTRAINT `fk_groupx_topic` FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
+            `character_name` varchar(64) DEFAULT NULL,
+            UNIQUE KEY (`topic`, `group_name`, `character_name`),
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         )
         """
         conn.execute(text(sql))
@@ -693,10 +694,11 @@ class DbService(object):
         # Export image files
         source_image_path = "./dist/images/" + topic
         target_image_path = export_topic_dir + "/images/"
-        if os.path.exists(target_image_path):
-            logging.warn("Image path of {} exists, remove first".format(target_image_path))
-            shutil.rmtree(target_image_path)
-        shutil.copytree(source_image_path, target_image_path)
+        if os.path.exists(source_image_path):
+            if os.path.exists(target_image_path):
+                logging.warn("Image path of {} exists, remove first".format(target_image_path))
+                shutil.rmtree(target_image_path)
+            shutil.copytree(source_image_path, target_image_path)
 
         conn.close()
 
@@ -739,10 +741,11 @@ class DbService(object):
 
         # Copy image files to dist
         source_image_path = import_topic_dir + "/images/"
-        target_image_path = "./dist/images/" + topic
-        files = os.listdir(source_image_path)
-        for fname in files:
-            shutil.copy2(os.path.join(source_image_path, fname), target_image_path)
+        if os.path.exists(source_image_path):
+            target_image_path = "./dist/images/" + topic
+            files = os.listdir(source_image_path)
+            for fname in files:
+                shutil.copy2(os.path.join(source_image_path, fname), target_image_path)
 
     """
     Load CSV file to table of database.
@@ -751,5 +754,6 @@ class DbService(object):
     def load_csv_to_table(csv_path: str, engine, table_name: str) -> None:
         with open(csv_path, 'r') as file:
             data_df = pd.read_csv(file)
-            data_df.to_sql(table_name, con=engine, index=False, if_exists='replace')
+            # TODO: Can not append data or re-import which may erase table or import duplicate data 
+            data_df.to_sql(table_name, con=engine, index=False, if_exists='append')
 
