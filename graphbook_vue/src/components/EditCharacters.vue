@@ -221,6 +221,8 @@ export default defineComponent({
         .catch(function (error) {
           message.error('Fail to update characters weights, ' + error);
         });
+
+        initTableData();
     }
 
     onMounted(() => {

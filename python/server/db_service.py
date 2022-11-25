@@ -212,7 +212,7 @@ class DbService(object):
     def create_topic(self, name: str) -> list:
         conn = self.engine.connect()
         sql = "INSERT INTO topics (name) VALUES (:name)"
-        params = [{"name": name}]
+        params = {"name": name}
         conn.execute(text(sql), params)
         conn.commit()
         conn.close()
@@ -222,8 +222,9 @@ class DbService(object):
     """
     def create_topic_if_not_exist(self, name: str) -> list:
         conn = self.engine.connect()
-        sql = "INSERT INTO topics (name) SELECT '{}' WHERE not exists (SELECT name FROM topics WHERE name='{}')".format(name, name)
-        conn.execute(text(sql))
+        sql = "INSERT INTO topics (name) SELECT :name WHERE not exists (SELECT name FROM topics WHERE name=:name)"
+        params = {"name": name}
+        conn.execute(text(sql), params)
         conn.commit()
         conn.close()        
 
@@ -232,8 +233,9 @@ class DbService(object):
     """
     def delete_topic(self, topic_name: str) -> list:
         conn = self.engine.connect()
-        sql = "DELETE FROM topics WHERE name='{}'".format(topic_name)
-        conn.execute(text(sql))
+        sql = "DELETE FROM topics WHERE name=:name"
+        params = {"name": topic_name}
+        conn.execute(text(sql), params)
         conn.commit()
         conn.close()
 
@@ -246,13 +248,13 @@ class DbService(object):
             # If pass chosen nodes
             names_str = ",".join(["'{}'".format(name)
                                  for name in chosen_node_names])
-            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic = '{}' and name IN ({})".format(
-                topic, names_str)
+            # TODO: Execute with params
+            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic and name IN ({})".format(names_str)
         else:
-            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic = '{}'".format(
-                topic)
+            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic"
 
-        result = conn.execute(text(sql)).all()
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
 
         conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
@@ -262,8 +264,8 @@ class DbService(object):
     """
     def get_character(self, topic: str, name: str) -> list:
         conn = self.engine.connect()
-        sql = "SELECT name, weight, note, image_name FROM characters WHERE topic='{}' AND name='{}'".format(
-            topic, name)
+        sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic AND name=:name"
+        params = {"topic": topic, "name": name}
         result = conn.execute(text(sql))
         row = result.all()[0]
 
@@ -278,13 +280,11 @@ class DbService(object):
         if len(chosen_groups) > 0:
             group_str = ",".join(["'{}'".format(name)
                                  for name in chosen_groups])
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}' and group_name IN ({})".format(
-                topic, group_str)
+            sql = "SELECT distinct(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(group_str)
         else:
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}'".format(
-                topic)
-
-        result = conn.execute(text(sql)).all()
+            sql = "SELECT distinct(character_name) FROM groupx WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
 
         conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
@@ -294,9 +294,9 @@ class DbService(object):
     """
     def create_character(self, topic: str, name: str, note: str, image_name: str) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO characters (topic, name, note, image_name) VALUES ('{}', '{}', '{}', '{}')".format(
-            topic, name, note, image_name)
-        conn.execute(text(sql))
+        sql = "INSERT INTO characters (topic, name, note, image_name) VALUES (:topic, :name, :note, :image_name)"
+        params = [{"topic": topic, "name": name, "note": note, "image_name": image_name}]
+        conn.execute(text(sql), params)
         conn.commit()
         conn.close()
 
@@ -305,9 +305,9 @@ class DbService(object):
     """
     def get_relations(self, topic: str) -> None:
         conn = self.engine.connect()
-        sql = "SELECT source, target, relation, note FROM relations WHERE topic = '{}'".format(
-            topic)
-        result = conn.execute(text(sql)).all()
+        sql = "SELECT source, target, relation, note FROM relations WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
 
         conn.close()
         return [{"source": row[0], "target": row[1], "relation": row[2], "note": row[3]} for row in result]
@@ -317,9 +317,9 @@ class DbService(object):
     """
     def get_groups(self, topic: str) -> list:
         conn = self.engine.connect()
-        sql = "SELECT group_name, character_name FROM groupx WHERE topic = '{}'".format(
-            topic)
-        result = conn.execute(text(sql)).all()
+        sql = "SELECT group_name, character_name FROM groupx WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
 
         conn.close()
         return [{"group_name": row[0], "character_name": row[1]} for row in result]
@@ -329,9 +329,9 @@ class DbService(object):
     """
     def get_groups_names(self, topic: str) -> list:
         conn = self.engine.connect()
-        sql = "SELECT distinct(group_name) FROM groupx WHERE topic = '{}'".format(
-            topic)
-        result = conn.execute(text(sql)).all()
+        sql = "SELECT distinct(group_name) FROM groupx WHERE topic=:topic"
+        params = {"topic": topic}            
+        result = conn.execute(text(sql), params).all()
 
         conn.close()
         return [row[0] for row in result]
@@ -355,18 +355,15 @@ class DbService(object):
     """
     def get_groups_and_characters(self, topic: str) -> list:
         conn = self.engine.connect()
-        sql = "SELECT distinct(group_name) FROM groupx WHERE topic = '{}'".format(
-            topic)
-
         sql = """
         SELECT name, note, image_name, group_name 
         FROM characters 
         RIGHT JOIN 
-            (select topic, character_name, group_name FROM groupx WHERE topic='{}' AND character_name IS NOT NULL AND character_name <> '') AS t2 
+            (select topic, character_name, group_name FROM groupx WHERE topic=:topic AND character_name IS NOT NULL AND character_name <> '') AS t2 
             ON characters.name = t2.character_name AND characters.topic = t2.topic;
-        """.format(topic)
-
-        result = conn.execute(text(sql)).all()
+        """
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
 
         """
         Example data:
@@ -404,9 +401,9 @@ class DbService(object):
                 "characters": character_data_map
             })
 
-        
-        sql = "SELECT name, note, image_name FROM characters WHERE topic='{}'".format(topic)
-        result = conn.execute(text(sql)).all()
+        sql = "SELECT name, note, image_name FROM characters WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
         the_group_all = {
             "group_name": "All Characters",
             "characters": [{"name": row[0], "note": row[1], "image_name": row[2]} for row in result]
@@ -424,13 +421,12 @@ class DbService(object):
         if len(chosen_groups) > 0:
             group_str = ",".join(["'{}'".format(name)
                                  for name in chosen_groups])
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}' and group_name IN ({})".format(
-                topic, group_str)
+            sql = "SELECT distinct(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(group_str)
         else:
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic = '{}'".format(
-                topic)
+            sql = "SELECT distinct(character_name) FROM groupx WHERE topic=:topic"
 
-        result = conn.execute(text(sql)).all()
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
 
         conn.close()
         return [row[0] for row in result]
@@ -442,23 +438,20 @@ class DbService(object):
         conn = self.engine.connect()
 
         if len(insert_characters) > 0:
-            sql = "INSERT INTO characters (topic, name, note, image_name) VALUES ('{}', :name, :note, :image_name)".format(
-                topic)
-            params = [{"name": insert_character["name"], "note": insert_character["note"],
+            sql = "INSERT INTO characters (topic, name, note, image_name) VALUES (:topic, :name, :note, :image_name)"
+            params = [{"topic": topic, "name": insert_character["name"], "note": insert_character["note"],
                        "image_name": insert_character["image_name"]} for insert_character in insert_characters]
             conn.execute(text(sql), params)
 
         if len(update_characters) > 0:
-            sql = "UPDATE characters SET note=:note, image_name=:image_name WHERE topic='{}' AND name=:name".format(
-                topic)
-            params = [{"note": update_character["note"], "image_name": update_character["image_name"],
+            sql = "UPDATE characters SET note=:note, image_name=:image_name WHERE topic=:topic AND name=:name"
+            params = [{"topic": topic, "note": update_character["note"], "image_name": update_character["image_name"],
                        "name": update_character["name"]} for update_character in update_characters]
             conn.execute(text(sql), params)
 
         if len(delete_characters) > 0:
-            sql = "DELETE FROM characters WHERE topic='{}' AND name=:name".format(
-                topic)
-            params = [{"name": delete_character["name"]}
+            sql = "DELETE FROM characters WHERE topic=:topic AND name=:name"
+            params = [{"topic": topic, "name": delete_character["name"]}
                       for delete_character in delete_characters]
             conn.execute(text(sql), params)
 
@@ -470,9 +463,9 @@ class DbService(object):
     """
     def create_relation(self, topic: str, source: str, target: str, relation: str, note: str) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES ('{}', '{}', '{}', '{}', '{}')".format(
-            topic, source, target, relation, note)
-        conn.execute(text(sql))
+        sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
+        params = {"topic": topic, "source": source, "target": target, "relation": relation, "note": note}
+        conn.execute(text(sql), params)
         conn.commit()
         conn.close()
 
@@ -495,11 +488,10 @@ class DbService(object):
     """
     def add_relations_for_character(self, topic: str, character_name: str, upstream_relations: array, downstream_relations: array) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES ('{}', :source, :target, :relation, :note)".format(
-            topic)
-        upstream_params = [{"source": upstream_relation["character_name"], "target": character_name,
+        sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
+        upstream_params = [{"topic": topic, "source": upstream_relation["character_name"], "target": character_name,
                             "relation": upstream_relation["relation"], "note": upstream_relation["note"]} for upstream_relation in upstream_relations]
-        downstream_params = [{"source": character_name, "target": downstream_relation["character_name"],
+        downstream_params = [{"topic": topic, "source": character_name, "target": downstream_relation["character_name"],
                               "relation": downstream_relation["relation"], "note": downstream_relation["note"]} for downstream_relation in downstream_relations]
         conn.execute(text(sql), upstream_params + downstream_params)
         conn.commit()
@@ -512,25 +504,22 @@ class DbService(object):
         conn = self.engine.connect()
 
         if len(insert_relations) > 0:
-            sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES ('{}', :source, :target, :relation, :note)".format(
-                topic)
-            params = [{"source": insert_relation["source"], "target": insert_relation["target"],
+            sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
+            params = [{"topic": topic, "source": insert_relation["source"], "target": insert_relation["target"],
                        "relation": insert_relation["relation"], "note": insert_relation["note"]
                        } for insert_relation in insert_relations]
             conn.execute(text(sql), params)
 
         if len(update_relations) > 0:
-            sql = "UPDATE relations SET relation=:relation, note=:note WHERE topic='{}' AND source=:source AND target=:target".format(
-                topic)
-            params = [{"relation": update_relation["relation"], "note": update_relation["note"],
+            sql = "UPDATE relations SET relation=:relation, note=:note WHERE topic=:topic AND source=:source AND target=:target"
+            params = [{"topic": topic, "relation": update_relation["relation"], "note": update_relation["note"],
                        "source": update_relation["source"], "target": update_relation["target"]
                        } for update_relation in update_relations]
             conn.execute(text(sql), params)
 
         if len(delete_relations) > 0:
-            sql = "DELETE FROM relations WHERE topic='{}' AND source=:source AND target=:target".format(
-                topic)
-            params = [{"source": delete_relation["source"], "target": delete_relation["target"]}
+            sql = "DELETE FROM relations WHERE topic=:topic AND source=:source AND target=:target"
+            params = [{"topic": topic, "source": delete_relation["source"], "target": delete_relation["target"]}
                       for delete_relation in delete_relations]
             conn.execute(text(sql), params)
 
@@ -542,9 +531,9 @@ class DbService(object):
     """
     def create_group(self, topic: str, group_name: str, character_name: str) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES ('{}', '{}', '{}')".format(
-            topic, group_name, character_name)
-        conn.execute(text(sql))
+        sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES (:topic, :group_name, :character_name)"
+        params = {"topic": topic, "group_name": group_name, "character_name": character_name}
+        conn.execute(text(sql), params)
         conn.commit()
         conn.close()
 
@@ -553,9 +542,8 @@ class DbService(object):
     """
     def join_groups(self, topic: str, character_name: str, groups_names: array) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES ('{}', :group_name, '{}')".format(
-            topic, character_name)
-        params = [{"group_name": group_name} for group_name in groups_names]
+        sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES (:topic, :group_name, :character_name)"
+        params = [{"topic": topic, "character_name": character_name, "group_name": group_name} for group_name in groups_names]
         conn.execute(text(sql), params)
         conn.commit()
         conn.close()
@@ -567,16 +555,14 @@ class DbService(object):
         conn = self.engine.connect()
 
         if len(insert_groups) > 0:
-            sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES ('{}', :group_name, :character_name)".format(
-                topic)
-            params = [{"group_name": insert_group["group_name"],
+            sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES (:topic, :group_name, :character_name)"
+            params = [{"topic": topic, "group_name": insert_group["group_name"],
                        "character_name": insert_group["character_name"]} for insert_group in insert_groups]
             conn.execute(text(sql), params)
 
         if len(delete_groups) > 0:
-            sql = "DELETE FROM groupx WHERE topic='{}' AND group_name=:group_name AND character_name=:character_name".format(
-                topic)
-            params = [{"group_name": delete_group["group_name"],
+            sql = "DELETE FROM groupx WHERE topic=:topic AND group_name=:group_name AND character_name=:character_name"
+            params = [{"topic": topic, "group_name": delete_group["group_name"],
                        "character_name": delete_group["character_name"]} for delete_group in delete_groups]
             conn.execute(text(sql), params)
 
@@ -596,9 +582,9 @@ class DbService(object):
     """
     def get_upstream_characters(self, topic: str, name: str) -> None:
         conn = self.engine.connect()
-        sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT source FROM relations WHERE topic='{}' AND target='{}')".format(
-            topic, name)
-        result = conn.execute(text(sql)).all()
+        sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT source FROM relations WHERE topic=:topic AND target=:target)"
+        params = {"topic": topic, "target": name}
+        result = conn.execute(text(sql), params).all()
 
         conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
@@ -622,11 +608,11 @@ class DbService(object):
         sql = """
         SELECT name, image_name, relation, relation_note FROM characters
         RIGHT JOIN 
-            (SELECT topic, source, relation, note AS relation_note FROM relations WHERE topic='{}' AND target='{}') As t2 
+            (SELECT topic, source, relation, note AS relation_note FROM relations WHERE topic=:topic AND target=:target) As t2 
             ON characters.name = t2.source AND characters.topic = t2.topic
-        """.format(topic, character_name)
-
-        result = conn.execute(text(sql)).all()
+        """
+        params = {"topic": topic, "target": character_name}
+        result = conn.execute(text(sql), params).all()
         conn.close()
         return [{"name": row[0], "image_name": row[1], "relation": row[2], "relation_note": row[3]} for row in result]
 
@@ -636,9 +622,9 @@ class DbService(object):
     """
     def get_downstream_characters(self, topic: str, name: str) -> None:
         conn = self.engine.connect()
-        sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT target FROM relations WHERE topic='{}' AND source='{}')".format(
-            topic, name)
-        result = conn.execute(text(sql)).all()
+        sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT target FROM relations WHERE topic=:topic AND source=:source)"
+        params = {"topic": topic, "source": name}
+        result = conn.execute(text(sql), params).all()
 
         conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
@@ -662,11 +648,11 @@ class DbService(object):
         sql = """
         SELECT name, image_name, relation, relation_note FROM characters
         RIGHT JOIN 
-            (SELECT topic, target, relation, note AS relation_note FROM relations WHERE topic='{}' AND source='{}') As t2 
+            (SELECT topic, target, relation, note AS relation_note FROM relations WHERE topic=:topic AND source=:source) As t2 
             ON characters.name = t2.target AND characters.topic = t2.topic
-        """.format(topic, character_name)
-
-        result = conn.execute(text(sql)).all()
+        """
+        params = {"topic": topic, "source": character_name}
+        result = conn.execute(text(sql), params).all()
         conn.close()
         return [{"name": row[0], "image_name": row[1], "relation": row[2], "relation_note": row[3]} for row in result]
 
