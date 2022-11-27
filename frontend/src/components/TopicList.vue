@@ -3,7 +3,7 @@
 
   <a-row>
 
-    <a-col :span="12">
+    <a-col :span="8">
 
       <br />
       <h1>Topics</h1>
@@ -28,7 +28,7 @@
 
     </a-col>
 
-    <a-col :span="12">
+    <a-col :span="16">
       <div v-if="chosenTopicName">
         <GraphDetail :topic="chosenTopicName" :only-graph=true></GraphDetail>
       </div>

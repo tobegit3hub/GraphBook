@@ -57,8 +57,15 @@
         </a-col>
         <a-col :span="8">
           <a-button type="primary" @click="handlePlayGraph">Play Graph</a-button>
+          <a-button type="danger" @click="handleStopPlayGraph">Stop</a-button>
         </a-col>
       </a-row>
+    </div>
+
+    <br/>
+    <div>
+      <a-switch checked-children="PIC Mode" un-checked-children="No PIC Mode"
+        v-model:checked="isDisplayImage" @change="init" />
     </div>
   </div>
 
@@ -113,7 +120,7 @@ export default defineComponent({
         formatter: (param) => {
           let template = param.data.name
           if (param.data.name) {
-            if (param.data.image_name) {
+            if (param.data.image_name && isDisplayImage.value) {
               template += '</br>'
               template += `<img src='${API_BASE_URI}/images/${props.topic}/${param.data.image_name}' width="150">`;
             }
@@ -244,7 +251,7 @@ export default defineComponent({
         }
 
         // Get image and crop for character
-        if (characterInfo.image_name) {
+        if (characterInfo.image_name && isDisplayImage.value) {
           const imagePath = `${API_BASE_URI}/images/${props.topic}/${characterInfo.image_name}`;
           asyncCropImage(imagePath, function (result) {
             vuechartOption.value.series[0].data[index]["symbol"] = result;
@@ -400,6 +407,12 @@ export default defineComponent({
       startPlayGraph();
     }
 
+    const handleStopPlayGraph = () => {
+      stopIncreaseCharacters();
+    }
+
+    const isDisplayImage = ref(true);
+
     watch(() => props.topic, (first, second) => {
       // Watch the props and update the graph
       // This used for TopicList componenet which may change topic 
@@ -468,7 +481,11 @@ export default defineComponent({
       handleEnableCharacterWeight,
 
       handlePlayGraph,
-      playGraphInterval
+      handleStopPlayGraph,
+      playGraphInterval,
+
+      isDisplayImage,
+      init
     }
 
   }
