@@ -15,7 +15,8 @@
     <a-button type="primary" @click="handleClickComputePaths">Compute paths
     </a-button>
 
-    <a-list item-layout="horizontal" :data-source="computedPaths">
+    <br /><br />
+    <a-list item-layout="horizontal" size="large" bordered :data-source="computedPaths">
       <template #renderItem="{ item }">
         <a-list-item>{{ item }}</a-list-item>
       </template>
@@ -99,7 +100,6 @@ export default defineComponent({
     };
 
     const handleClickComputePaths = () => {
-
       axios.get(`/api/topics/${props.topic}/paths`, {
         params: {
           source: computePathSource.value,
@@ -108,7 +108,10 @@ export default defineComponent({
           // TODO: Support cutoff
         }
       }).then(response => {
-        computedPaths.value = response.data.paths;
+        computedPaths.value.splice(0);
+        response.data.paths.forEach((path_data) => {
+          computedPaths.value.push(path_data.join("->"));
+        })
       }, response => {
         console.log("Fail to get edges");
       });
