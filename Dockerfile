@@ -1,10 +1,10 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install dependencies
 RUN apt-get -y update
-RUN apt-get install -y  vim git python3 python3-pip npm
+RUN apt-get install -y vim git curl python3 python3-pip nodejs npm 
 
 # Install python packages
 ADD ./python/requirements.txt /work/python/requirements.txt
@@ -12,7 +12,7 @@ RUN pip install -r /work/python/requirements.txt
 
 # Install npm packages
 ADD ./frontend/package.json /work/frontend/package.json
-RUN cd ./frontend/ && npm install && cd -
+RUN cd /work/frontend/ && npm install
 
 # Add source code
 ADD . /work/
