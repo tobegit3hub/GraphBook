@@ -4,22 +4,26 @@
   <br />
   <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph" />
 
-  <br/>
-    <h2>Edit Graph</h2>
-    <a-button type="primary" @click="showEditGraphDrawer">Edit graph parameters</a-button>
-
-
   <div v-show="!onlyGraph">
     <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
-      <p>Name: <router-link :to='`/topics/${topic}/characters/${currentCharacterModalName}`'>{{ currentCharacterModalName }}</router-link></p>
+      <p>Name: <router-link :to='`/topics/${topic}/characters/${currentCharacterModalName}`'>{{
+          currentCharacterModalName
+      }}</router-link>
+      </p>
       <p>Weight: {{ currentCharacterModalWeight }}</p>
-      <a-image v-if="currentCharacterModalImageName" :src="`${API_BASE_URI}/images/${topic}/${currentCharacterModalImageName}`" />
-      <br/><br/>
+      <a-image v-if="currentCharacterModalImageName"
+        :src="`${API_BASE_URI}/images/${topic}/${currentCharacterModalImageName}`" />
+      <br /><br />
       <p>Note:</p>
       <p>{{ currentModalNote }}</p>
     </a-modal>
 
-    <br/>
+
+    <br />
+    <h2>Edit Graph</h2>
+    <a-button type="primary" @click="showEditGraphDrawer">Edit graph parameters</a-button>
+
+    <br />
     <h2>Characters</h2>
     <div>
       <a-checkbox v-model:checked="isChooseAllCharacters" :indeterminate="isChooseCharacterIndeterminateState"
@@ -29,7 +33,7 @@
     </div>
     <a-checkbox-group v-model:value="currentChosenCharacterNames" :options="allCharacterNames" />
 
-    <br/><br/>
+    <br /><br />
     <h2>Groups</h2>
     <div>
       <a-checkbox v-model:checked="isChooseAllGroups" :indeterminate="isChooseGroupIndeterminateState"
@@ -39,7 +43,7 @@
     </div>
     <a-checkbox-group v-model:value="currentChosenGroupNames" :options="allGroupNames" />
 
-    <br/><br/>
+    <br /><br />
     <h2>Play graph animation</h2>
     <div>
       <a-row>
@@ -53,47 +57,54 @@
       </a-row>
     </div>
 
-    <a-drawer
-      v-model:visible="isEditGraphDrawerVisible"
-      title="Edti Graph Parameters"
-      placement="right"
-    >
+    <a-drawer v-model:visible="isEditGraphDrawerVisible" title="Edti Graph Parameters" placement="right">
 
-    <div> <!-- The drawer to edit graph-->
-      
       <div>
-        <p>Enable image mdoe:</p>
-        <a-switch checked-children="PIC Mode" un-checked-children="No PIC Mode"
-          v-model:checked="isDisplayImage" @change="init" />
-      </div>
+        <!-- The drawer to edit graph-->
+        <div>
+          <p>Enable image mdoe:</p>
+          <a-switch checked-children="PIC Mode" un-checked-children="No PIC Mode" v-model:checked="isDisplayImage"
+            @change="init" />
+        </div>
 
-      <br/>
-      <div>
-        <p>Edit character size:</p>
-        <a-switch checked-children="Enable Weigth" un-checked-children="Disable Weight"
-          v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
-        <a-slider v-model:value="symbolSize" @change="handleEnableCharacterWeight" />
-      </div>
+        <br />
+        <div>
+          <p>Edit character size:</p>
+          <a-switch checked-children="Enable Weigth" un-checked-children="Disable Weight"
+            v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
+          <a-slider v-model:value="symbolSize" @change="handleEnableCharacterWeight" />
+        </div>
 
-      <br/>
-      <div>
-        <p>Edit symbol font size:</p>
-        <a-slider :min="0" :max="40" v-model:value="labelFontSize" @change="changeSymbolFontSize" />
-      </div>
+        <br />
+        <div>
+          <p>Edit symbol font size:</p>
+          <a-slider :min="0" :max="40" v-model:value="labelFontSize" @change="changeSymbolFontSize" />
+        </div>
 
-      <br/>
-      <div>
-        <p>Edit edge font size:</p>
-        <a-slider :min="0" :max="30" v-model:value="edgeFontSize" @change="changeEdgeFontSize" />
-      </div>
+        <br />
+        <div>
+          <p>Edit edge font size:</p>
+          <a-slider :min="0" :max="30" v-model:value="edgeFontSize" @change="changeEdgeFontSize" />
+        </div>
 
-      <br/>
-      <div>
-        <p>Edit shadow size:</p>
-        <a-slider :min="0" :max="10" v-model:value="shadowSize" @change="changeShadowSize" />
-      </div>
+        <br />
+        <div>
+          <p>Edit shadow size:</p>
+          <a-slider :min="0" :max="10" v-model:value="shadowSize" @change="changeShadowSize" />
+        </div>
 
-    </div>
+        <br />
+        <div>
+          <p>Edit line width:</p>
+          <a-slider :min="0" :max="10" v-model:value="lineWidth" @change="changeLineWidth" />
+        </div>
+
+        <br />
+        <div>
+          <p>Edit line curveness:</p>
+          <a-slider :min="0" :max="1" :step="0.1" v-model:value="lineCurveness" @change="chnageLineCurveness" />
+        </div>
+      </div>
 
 
     </a-drawer>
@@ -141,6 +152,8 @@ export default defineComponent({
     const edgeFontSize = ref(12);
     const isEnableCharacterWeight = ref(false);
     const shadowSize = ref(2);
+    const lineWidth = ref(2);
+    const lineCurveness = ref(0);
 
     const vuechartOption = ref({
       backgroundColor: '#f6f5f3',
@@ -203,18 +216,14 @@ export default defineComponent({
             color: '#000000'
           },
           cursor: 'pointer',
-          labelLayout: {
-            moveOverlap: 'shiftX', // TODO: Not work
-            draggable: false
-          },
           emphasis: {
             scale: true,
             focus: 'adjacency'
           },
           lineStyle: {
             color: '#3d3d3f',
-            width: 2,
-            curveness: 0
+            width: lineWidth,
+            curveness: lineCurveness
           },
           data: [],
           links: []
@@ -389,8 +398,6 @@ export default defineComponent({
     });
 
 
-
-
     const handleEnableCharacterWeight = () => {
       // TODO: If isEnableCharacterWeight is false, no need to handle when changing symbolSize
       let series_0 = vuechartOption.value.series[0];
@@ -476,6 +483,14 @@ export default defineComponent({
       vuechartOption.value.series[0].itemStyle.shadowOffsetY = shadowSize.value;
     }
 
+    const changeLineWidth = () => {
+      vuechartOption.value.series[0].lineStyle.width = lineWidth.value;
+    }
+
+    const chnageLineCurveness = () => {
+      vuechartOption.value.series[0].lineStyle.curveness = lineCurveness.value;
+    }
+
     onMounted(() => {
       init();
     })
@@ -517,12 +532,16 @@ export default defineComponent({
       changeSymbolFontSize,
       changeEdgeFontSize,
       changeShadowSize,
+      changeLineWidth,
+      chnageLineCurveness,
 
       isDisplayImage,
       symbolSize,
       labelFontSize,
       edgeFontSize,
       shadowSize,
+      lineWidth,
+      lineCurveness,
       isEnableCharacterWeight,
       handleEnableCharacterWeight,
 
