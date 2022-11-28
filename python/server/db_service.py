@@ -330,9 +330,20 @@ class DbService(object):
     """
     def delete_topic(self, topic_name: str) -> list:
         conn = self.engine.connect()
-        sql = "DELETE FROM topics WHERE name=:name"
-        params = {"name": topic_name}
+        params = {"topic": topic_name}
+
+        sql = "DELETE FROM characters WHERE topic=:topic"
         conn.execute(text(sql), params)
+
+        sql = "DELETE FROM relations WHERE topic=:topic"
+        conn.execute(text(sql), params)
+
+        sql = "DELETE FROM groupx WHERE topic=:topic"
+        conn.execute(text(sql), params)
+
+        sql = "DELETE FROM topics WHERE name=:topic"
+        conn.execute(text(sql), params)
+
         conn.commit()
         conn.close()
 
