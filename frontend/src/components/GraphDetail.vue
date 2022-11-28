@@ -18,12 +18,11 @@
       <p>{{ currentModalNote }}</p>
     </a-modal>
 
-
     <br />
     <h2>Edit Graph</h2>
     <a-button type="primary" @click="showEditGraphDrawer">Edit graph parameters</a-button>
 
-    <br />
+    <br /><br />
     <h2>Characters</h2>
     <div>
       <a-checkbox v-model:checked="isChooseAllCharacters" :indeterminate="isChooseCharacterIndeterminateState"

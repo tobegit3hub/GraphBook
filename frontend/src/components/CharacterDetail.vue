@@ -32,14 +32,15 @@
 
     </a-modal>
     
-    <h1>Character {{ character.name }}</h1>
+    <h1>{{ character.name }}</h1>
 
-    <p>Name: {{ character.name }}</p>
-    <p>Weight: {{ character.weight }}</p>
-    <p>Note: {{ character.note }}</p>
-    <a-image v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" width="100px" />
+    <p><b>Name:</b> {{ character.name }}</p>
+    <p><b>Weight:</b> {{ character.weight }}</p>
+    <p><b>Note:</b> {{ character.note }}</p>
+    <a-image v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" width="280px" />
   </div>
 
+  <br/>
   <h2>Character association:</h2>
   <a-switch v-model:checked="isUpstream" checked-children="Upstream" un-checked-children="Downstream"
     @change="handleUpstreamSwitchChange" />
@@ -85,7 +86,6 @@ export default defineComponent({
           emphasis: {
             focus: 'descendant'
           },
-          expandAndCollapse: false,
           animationDuration: 550,
           animationDurationUpdate: 750
         }]

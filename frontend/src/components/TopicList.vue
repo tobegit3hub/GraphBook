@@ -24,7 +24,7 @@
 
               <template #avatar>
                 <a @click="previewGraph(item.name)">
-                  <a-avatar src="/gb_logo.png" />
+                  <a-avatar src="/topicland_logo.png" />
                 </a>
               </template>
             </a-list-item-meta>
@@ -72,6 +72,8 @@ export default defineComponent({
     const selectTopicOptions = ref<SelectTypes['options']>([]);
 
     const changeSelectTopic = () => {
+      previewGraph(selectTopicName.value);
+
       // Get one topic statistics to show
       axios.get(`/api/topics_statistics`, {
         params: {
