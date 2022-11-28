@@ -47,8 +47,6 @@ db_service.init_tables()
 """
 Render the vue generated single page app.
 """
-
-
 @app.route('/')
 @cross_origin()
 def index():
@@ -71,7 +69,15 @@ def handle_topics():
 @cross_origin()
 def get_topics_statistics():
     if request.method == "GET":
-        result = db_service.get_topics_statistics()
+        #tobedev
+        if "count" in request.args:
+            count = request.args.get("count", type=int)
+            result = db_service.get_topics_statistics(count)
+        elif "topic_name" in request.args:
+            count = request.args.get("topic_name", type=str)
+            result = db_service.get_one_topic_statistics(count)
+        else:
+            result = db_service.get_all_topics_statistics()
         return jsonify(result)
 
 

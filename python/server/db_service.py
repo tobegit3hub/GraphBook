@@ -175,7 +175,7 @@ class DbService(object):
             ]
         }
     """
-    def get_topics_statistics(self) -> map:
+    def get_all_topics_statistics(self) -> map:
         conn = self.engine.connect()
         sql = "SELECT name FROM topics"
         result = conn.execute(text(sql)).all()
@@ -215,6 +215,90 @@ class DbService(object):
             "count": topic_count,
             "statistics": list(statistics.values())
         }
+
+        conn.close()
+        return return_result
+
+    def get_topics_statistics(self, count) -> map:
+        conn = self.engine.connect()
+        if self.db_config.dbms == "sqlite":
+            sql = "SELECT name FROM topics ORDER BY RANDOM() LIMIT :limit"
+        else:
+            sql = "SELECT name FROM topics ORDER BY RAND() LIMIT :limit"
+        params = {"limit": count}
+        result = conn.execute(text(sql), params).all()
+        topic_count = len(result)
+        names_str = ",".join(["'{}'".format(name_tuple[0]) for name_tuple in result])
+
+        statistics = {}
+        for item in result:
+            topic_name = item[0]
+            statistics[topic_name] = {
+                "topic": topic_name,
+                "characters": 0,
+                "relations": 0,
+                "groups": 0
+            }
+
+        sql = "SELECT topic, count(*) FROM characters WHERE topic IN ({}) GROUP BY topic".format(names_str)
+        result = conn.execute(text(sql)).all()
+        for item in result:
+            topic_name = item[0]
+            count = item[1]
+            statistics[topic_name]["characters"] = count
+
+        sql = "SELECT topic, count(*) FROM relations WHERE topic IN ({}) GROUP BY topic".format(names_str)
+        result = conn.execute(text(sql)).all()
+        for item in result:
+            topic_name = item[0]
+            count = item[1]
+            statistics[topic_name]["relations"] = count
+
+        sql = "SELECT topic, count(DISTINCT group_name) FROM groupx WHERE topic IN ({}) GROUP BY topic".format(names_str)
+        result = conn.execute(text(sql)).all()
+        for item in result:
+            topic_name = item[0]
+            count = item[1]
+            statistics[topic_name]["groups"] = count
+
+        return_result = {
+            "count": topic_count,
+            "statistics": list(statistics.values())
+        }
+
+        conn.close()
+        return return_result
+
+    """
+    Get statistics of one topic.
+
+    Return data should be like this:
+    {
+        "topic": "foo",
+        "characters": 10,
+        "relations": 20,
+        "groups": 5
+    }
+    """
+    def get_one_topic_statistics(self, topic: str) -> map:
+        conn = self.engine.connect()
+        
+        return_result = {
+            "topic": topic
+        }
+        params = {"topic": topic}
+
+        sql = "SELECT count(*) FROM characters WHERE topic=:topic"
+        result = conn.execute(text(sql), params).all()
+        return_result["characters"] = result[0][0]
+
+        sql = "SELECT count(*) FROM relations WHERE topic=:topic"
+        result = conn.execute(text(sql), params).all()
+        return_result["relations"] = result[0][0]
+
+        sql = "SELECT count(*) FROM groupx WHERE topic=:topic"
+        result = conn.execute(text(sql), params).all()
+        return_result["groups"] = result[0][0]
 
         conn.close()
         return return_result
@@ -303,7 +387,7 @@ class DbService(object):
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
 
     """
-    Create one character. tobedev
+    Create one character.
     """
     def create_character(self, topic: str, name: str, note: str, image_name: str) -> None:
         conn = self.engine.connect()
