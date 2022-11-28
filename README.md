@@ -13,6 +13,12 @@ It is recommanded to record and explore complex topics such as *novels*, *movies
 
 ## Install
 
+Run with docker.
+
+```
+docker run -p 7788:7788 tobegit3hub/topicland
+```
+
 Build from scratch.
 
 ```
