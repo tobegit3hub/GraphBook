@@ -14,8 +14,7 @@
       <p>{{ currentModalNote }}</p>
     </a-modal>
 
-    <br />
-
+    <br/>
     <h2>Characters</h2>
     <div>
       <a-checkbox v-model:checked="isChooseAllCharacters" :indeterminate="isChooseCharacterIndeterminateState"
@@ -25,7 +24,7 @@
     </div>
     <a-checkbox-group v-model:value="currentChosenCharacterNames" :options="allCharacterNames" />
 
-    <br /><br />
+    <br/><br/>
     <h2>Groups</h2>
     <div>
       <a-checkbox v-model:checked="isChooseAllGroups" :indeterminate="isChooseGroupIndeterminateState"
@@ -35,20 +34,7 @@
     </div>
     <a-checkbox-group v-model:value="currentChosenGroupNames" :options="allGroupNames" />
 
-    <br /><br />
-    <h2>Resize images with weight:</h2>
-    <div>
-      <a-row>
-        <a-col :span="8">
-          <a-slider v-model:value="characterWeightFactor" @change="handleEnableCharacterWeight" />
-        </a-col>
-        <a-col :span="8">
-          <a-switch v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
-        </a-col>
-      </a-row>
-    </div>
-
-    <br />
+    <br/><br/>
     <h2>Play graph animation</h2>
     <div>
       <a-row>
@@ -62,11 +48,24 @@
       </a-row>
     </div>
 
+
     <br/>
+    <h2>Edit Graph</h2>
+
     <div>
+      <p>Enable image mdoe:</p>
       <a-switch checked-children="PIC Mode" un-checked-children="No PIC Mode"
         v-model:checked="isDisplayImage" @change="init" />
     </div>
+
+    <br/>
+    <div>
+      <p>Resize with weight:</p>
+      <a-switch checked-children="Resize" un-checked-children="Normal"
+        v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
+      <a-slider v-model:value="characterWeightFactor" @change="handleEnableCharacterWeight" />
+    </div>
+
   </div>
 
 </template>
@@ -109,7 +108,6 @@ export default defineComponent({
       title: {
         text: props.topic,
         textStyle: {
-          color: '#368cbf',
           fontWeight: 700,
           fontSize: 30,
           left: 'center'
@@ -134,30 +132,28 @@ export default defineComponent({
       },
       series: [
         {
-          type: 'graph', // 类型设置为关系图
+          type: 'graph',
           layout: 'force',
           force: {
-            repulsion: [1000, 1200], //每个节点之间的斥力因子，越大离的越远
+            repulsion: [1000, 1200],
             layoutAnimation: true,
-            friction: 0.3, //刷新时节点的移动速度，越大越快，0 - 1 之间
-            edgeLength: [100, 130] //两节点之间的距离
+            friction: 0.3,
+            edgeLength: [100, 130]
           },
           label: {
-            show: true, // 节点圆盘上的文字
-            fontStyle: 'italic', //文字风格，normal，italic，oblique 三种可选
+            show: true,
+            fontStyle: 'normal',
             fontSize: 16,
-            color: '#000000',
           },
-          symbolSize: 60, //全局节点尺寸
-          itemStyle: {  // 给节点加上阴影，显着立体
+          symbolSize: 60,
+          itemStyle: {
             shadowColor: '#C0C0C0',
-            shadowOffsetX: 2,
-            shadowOffsetY: 2
+            shadowOffsetX: 3,
+            shadowOffsetY: 3
           },
-          //让节点可以通过鼠标拖拽和移动的设置
-          roam: false, //开启鼠标平移及缩放
-          draggable: true, //节点是否支持鼠标拖拽。
-          edgeSymbol: ['circle', 'arrow'],//两节点连线的样式
+          roam: false,
+          draggable: true,
+          edgeSymbol: ['circle', 'arrow'],
           edgeSymbolSize: [5, 10],
           edgeLabel: {
             show: true,
@@ -167,19 +163,19 @@ export default defineComponent({
             fontSize: 12,
             color: '#000000'
           },
-          cursor: 'pointer', //鼠标悬浮时在图形元素上时鼠标的样式
+          cursor: 'pointer',
           labelLayout: {
-            moveOverlap: 'shiftX', //标签重叠时，挪动标签防止重叠
-            draggable: false //节点标签是否允许鼠标拖拽定位
+            moveOverlap: 'shiftX', // TODO: Not work
+            draggable: false
           },
           emphasis: {
-            scale: true, //节点放大效果
+            scale: true,
             focus: 'adjacency'
           },
           lineStyle: {
             color: '#3d3d3f',
             width: 2,
-            curveness: 0 //节点连线的曲率，0-1 越大越弯。
+            curveness: 0
           },
           data: [],
           links: []
