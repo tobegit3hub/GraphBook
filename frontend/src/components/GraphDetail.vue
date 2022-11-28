@@ -4,6 +4,11 @@
   <br />
   <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph" />
 
+  <br/>
+    <h2>Edit Graph</h2>
+    <a-button type="primary" @click="showEditGraphDrawer">Edit graph parameters</a-button>
+
+
   <div v-show="!onlyGraph">
     <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
       <p>Name: <router-link :to='`/topics/${topic}/characters/${currentCharacterModalName}`'>{{ currentCharacterModalName }}</router-link></p>
@@ -48,23 +53,51 @@
       </a-row>
     </div>
 
+    <a-drawer
+      v-model:visible="isEditGraphDrawerVisible"
+      title="Edti Graph Parameters"
+      placement="right"
+    >
 
-    <br/>
-    <h2>Edit Graph</h2>
+    <div> <!-- The drawer to edit graph-->
+      
+      <div>
+        <p>Enable image mdoe:</p>
+        <a-switch checked-children="PIC Mode" un-checked-children="No PIC Mode"
+          v-model:checked="isDisplayImage" @change="init" />
+      </div>
 
-    <div>
-      <p>Enable image mdoe:</p>
-      <a-switch checked-children="PIC Mode" un-checked-children="No PIC Mode"
-        v-model:checked="isDisplayImage" @change="init" />
+      <br/>
+      <div>
+        <p>Edit character size:</p>
+        <a-switch checked-children="Enable Weigth" un-checked-children="Disable Weight"
+          v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
+        <a-slider v-model:value="symbolSize" @change="handleEnableCharacterWeight" />
+      </div>
+
+      <br/>
+      <div>
+        <p>Edit symbol font size:</p>
+        <a-slider :min="0" :max="40" v-model:value="labelFontSize" @change="changeSymbolFontSize" />
+      </div>
+
+      <br/>
+      <div>
+        <p>Edit edge font size:</p>
+        <a-slider :min="0" :max="30" v-model:value="edgeFontSize" @change="changeEdgeFontSize" />
+      </div>
+
+      <br/>
+      <div>
+        <p>Edit shadow size:</p>
+        <a-slider :min="0" :max="10" v-model:value="shadowSize" @change="changeShadowSize" />
+      </div>
+
     </div>
 
-    <br/>
-    <div>
-      <p>Resize with weight:</p>
-      <a-switch checked-children="Resize" un-checked-children="Normal"
-        v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
-      <a-slider v-model:value="characterWeightFactor" @change="handleEnableCharacterWeight" />
-    </div>
+
+    </a-drawer>
+
 
   </div>
 
@@ -102,6 +135,12 @@ export default defineComponent({
         return null;
       }
     };
+
+    const symbolSize = ref(60);
+    const labelFontSize = ref(16);
+    const edgeFontSize = ref(12);
+    const isEnableCharacterWeight = ref(false);
+    const shadowSize = ref(2);
 
     const vuechartOption = ref({
       backgroundColor: '#f6f5f3',
@@ -143,13 +182,13 @@ export default defineComponent({
           label: {
             show: true,
             fontStyle: 'normal',
-            fontSize: 16,
+            fontSize: labelFontSize.value,
           },
-          symbolSize: 60,
+          symbolSize: symbolSize.value,
           itemStyle: {
             shadowColor: '#C0C0C0',
-            shadowOffsetX: 3,
-            shadowOffsetY: 3
+            shadowOffsetX: shadowSize.value,
+            shadowOffsetY: shadowSize.value
           },
           roam: false,
           draggable: true,
@@ -160,7 +199,7 @@ export default defineComponent({
             formatter: (params) => {
               return params.data.relation;
             },
-            fontSize: 12,
+            fontSize: edgeFontSize,
             color: '#000000'
           },
           cursor: 'pointer',
@@ -181,6 +220,12 @@ export default defineComponent({
           links: []
         }]
     })
+
+    const isEditGraphDrawerVisible = ref(false);
+
+    const showEditGraphDrawer = () => {
+      isEditGraphDrawerVisible.value = true;
+    };
 
     const isCharacterModalVisible = ref(false);
     const currentCharacterModalName = ref("");
@@ -344,12 +389,10 @@ export default defineComponent({
     });
 
 
-    const characterWeightFactor = ref(50);
-    const isEnableCharacterWeight = ref(false);
+
 
     const handleEnableCharacterWeight = () => {
-      // TODO: If isEnableCharacterWeight is false, no need to handle when changing characterWeightFactor
-
+      // TODO: If isEnableCharacterWeight is false, no need to handle when changing symbolSize
       let series_0 = vuechartOption.value.series[0];
 
       // Copy the objects and only reset symbolSize
@@ -357,9 +400,9 @@ export default defineComponent({
       charactersInfos.forEach(function (characterInfo, index, array) {
         if (isEnableCharacterWeight.value) {
           // Update symbol size for characters
-          charactersInfos[index]["symbolSize"] = characterInfo.weight * characterWeightFactor.value * 20;
+          charactersInfos[index]["symbolSize"] = characterInfo.weight * symbolSize.value * 20;
         } else {
-          charactersInfos[index]["symbolSize"] = null;
+          charactersInfos[index]["symbolSize"] = symbolSize.value;
         }
 
         vuechartOption.value.series[0] = series_0;
@@ -409,6 +452,8 @@ export default defineComponent({
 
     const isDisplayImage = ref(true);
 
+
+
     watch(() => props.topic, (first, second) => {
       // Watch the props and update the graph
       // This used for TopicList componenet which may change topic 
@@ -417,6 +462,19 @@ export default defineComponent({
       // Manually update the title of the graph
       vuechartOption.value.title.text = props.topic;
     });
+
+    const changeSymbolFontSize = () => {
+      vuechartOption.value.series[0].label.fontSize = labelFontSize.value;
+    }
+
+    const changeEdgeFontSize = () => {
+      vuechartOption.value.series[0].edgeSymbol.fontSize = edgeFontSize.value;
+    }
+
+    const changeShadowSize = () => {
+      vuechartOption.value.series[0].itemStyle.shadowOffsetX = shadowSize.value;
+      vuechartOption.value.series[0].itemStyle.shadowOffsetY = shadowSize.value;
+    }
 
     onMounted(() => {
       init();
@@ -454,9 +512,26 @@ export default defineComponent({
 
     return {
       API_BASE_URI,
+      init,
+
+      changeSymbolFontSize,
+      changeEdgeFontSize,
+      changeShadowSize,
+
+      isDisplayImage,
+      symbolSize,
+      labelFontSize,
+      edgeFontSize,
+      shadowSize,
+      isEnableCharacterWeight,
+      handleEnableCharacterWeight,
 
       vuechartOption,
       handleDoubleClickGraph,
+
+      isEditGraphDrawerVisible,
+      showEditGraphDrawer,
+
       isCharacterModalVisible,
       handleCharacterModalOk,
       currentCharacterModalName,
@@ -472,16 +547,11 @@ export default defineComponent({
       allGroupNames,
       handleChooseAllGroups,
 
-      characterWeightFactor,
-      isEnableCharacterWeight,
-      handleEnableCharacterWeight,
-
       handlePlayGraph,
       handleStopPlayGraph,
       playGraphInterval,
 
-      isDisplayImage,
-      init
+
     }
 
   }
