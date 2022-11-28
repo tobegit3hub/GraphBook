@@ -66,6 +66,22 @@ Check out the detail of characters.
 
 ![](./images/character_detail.jpg)
 
+## TopicLand CLI
+
+Install package [topicland](https://pypi.org/project/topicland/).
+
+```
+pip install topicland
+```
+
+Run with `topicland` CLI.
+
+```
+topicland topic_list http://127.0.0.1:7788
+```
+
+Refer to [Python Client](./python/client/README.md) for more info.
+
 ## Contribution
 
 * Web developers and designers are required to beautify the web pages.

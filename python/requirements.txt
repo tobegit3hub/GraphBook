@@ -4,3 +4,5 @@ pandas
 flask
 flask_cors
 networkx
+requests
+fire

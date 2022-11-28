@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import fire
-from topicland_client import TopicLandClient
+from .topicland_client import TopicLandClient
 
 class TopicLandCmd(object):
 
