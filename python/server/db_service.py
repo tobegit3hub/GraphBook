@@ -105,7 +105,8 @@ class DbService(object):
             `image_name` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`topic`, `name`),
             {}
-            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`),
+            INDEX (`topic`)
         );
         """.format(unique_key)
         conn.execute(text(sql))
@@ -122,7 +123,8 @@ class DbService(object):
             `note` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`topic`, `source`, `target`),
             {}
-            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`),
+            INDEX (`topic`)
         );
         """.format(unique_key)
         conn.execute(text(sql))
@@ -136,7 +138,8 @@ class DbService(object):
             `group_name` varchar(64) NOT NULL,
             `character_name` varchar(64) DEFAULT NULL,
             {}
-            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`),
+            INDEX (`topic`)
         )
         """.format(unique_key)
         conn.execute(text(sql))
