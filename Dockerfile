@@ -26,8 +26,7 @@ WORKDIR /work/
 RUN cd ./frontend/ && npm run build && cd -
 
 # Import official topics
-# TODO: Need to create db and tables before importing
-#RUN cd ./python/server/ && ./import_official_topics.py ./topicland.ini && cd -
+RUN cd ./python/server/ && ./import_official_topics.py ./topicland.ini && cd -
 
 # Expose port
 EXPOSE 7788
