@@ -81,9 +81,14 @@ class DbService(object):
     def init_tables(self) -> None:
         conn = self.engine.connect()
 
-        unique_key = ""
-        if self.db_config.dbms == "mysql":
-            unique_key = "UNIQUE KEY (`name`),"
+        
+        topic_index = "INDEX (`topic`),"
+        if self.db_config.dbms == "sqlite":
+            topic_index = ""
+        
+        unique_key = "UNIQUE KEY (`name`),"
+        if self.db_config.dbms == "sqlite":
+            unique_key = ""
         sql = """
         CREATE TABLE IF NOT EXISTS `topics` (
             `name` varchar(64) NOT NULL,
@@ -93,9 +98,9 @@ class DbService(object):
         """.format(unique_key)
         conn.execute(text(sql))
 
-        unique_key = ""
-        if self.db_config.dbms == "mysql":
-            unique_key = "UNIQUE KEY (`topic`, `name`),"
+        unique_key = "UNIQUE KEY (`topic`, `name`),"
+        if self.db_config.dbms == "sqlite":
+            unique_key = ""
         sql = """
         CREATE TABLE IF NOT EXISTS `characters` (
             `topic` varchar(64) NOT NULL,
@@ -105,15 +110,15 @@ class DbService(object):
             `image_name` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`topic`, `name`),
             {}
-            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`),
-            INDEX (`topic`)
+            {}
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         );
-        """.format(unique_key)
+        """.format(unique_key, topic_index)
         conn.execute(text(sql))
 
-        unique_key = ""
-        if self.db_config.dbms == "mysql":
-            unique_key = "UNIQUE KEY (`topic`, `source`, `target`),"
+        unique_key = "UNIQUE KEY (`topic`, `source`, `target`),"
+        if self.db_config.dbms == "sqlite":
+            unique_key = ""
         sql = """
         CREATE TABLE IF NOT EXISTS `relations` (
             `topic` varchar(64) NOT NULL,
@@ -123,26 +128,37 @@ class DbService(object):
             `note` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`topic`, `source`, `target`),
             {}
-            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`),
-            INDEX (`topic`)
+            {}
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         );
-        """.format(unique_key)
+        """.format(unique_key, topic_index)
         conn.execute(text(sql))
 
-        unique_key = ""
-        if self.db_config.dbms == "mysql":
-            unique_key = "UNIQUE KEY (`topic`, `group_name`, `character_name`),"
+        unique_key = "UNIQUE KEY (`topic`, `group_name`, `character_name`),"
+        if self.db_config.dbms == "sqlite":
+            unique_key = ""
         sql = """
         CREATE TABLE IF NOT EXISTS `groupx` (
             `topic` varchar(64) NOT NULL,
             `group_name` varchar(64) NOT NULL,
             `character_name` varchar(64) DEFAULT NULL,
             {}
-            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`),
-            INDEX (`topic`)
+            {}
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
         )
-        """.format(unique_key)
+        """.format(unique_key, topic_index)
         conn.execute(text(sql))
+
+        if self.db_config.dbms == "sqlite":
+            # Create indexes for sqlite which may not create before
+            sql = "CREATE INDEX IF NOT EXISTS characters_topic_index ON characters (topic)"
+            conn.execute(text(sql))
+
+            sql = "CREATE INDEX IF NOT EXISTS relations_topic_index ON relations (topic)"
+            conn.execute(text(sql))
+
+            sql = "CREATE INDEX IF NOT EXISTS groups_topic_index ON groupx (topic)"
+            conn.execute(text(sql))
 
         conn.commit()
         conn.close()
