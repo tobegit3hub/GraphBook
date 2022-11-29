@@ -5,9 +5,13 @@ from .topicland_client import TopicLandClient
 
 class TopicLandCmd(object):
 
-  def topic_list(self, server):
+  def list_topics(self, server):
     client = TopicLandClient(server)
-    return client.get_topics_names()
+    return client.get_topics()
+
+  def delete_topic(self, server, topic):
+    client = TopicLandClient(server)
+    return client.delete_topic(topic)
 
 def main():
   fire.Fire(TopicLandCmd)

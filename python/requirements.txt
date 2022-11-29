@@ -1,8 +1,8 @@
 pymysql
 sqlalchemy
-pandas
 flask
 flask_cors
 networkx
 requests
 fire
+pandas>=1.4.3

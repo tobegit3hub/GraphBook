@@ -19,6 +19,9 @@ def main():
                                 ini_config["db"]["user"], ini_config["db"]["password"], ini_config["db"]["db_name"])
     service = db_service.DbService(db_config)
 
+    service.init_database()
+    service.init_tables()
+
     # TODO: Only support to run in current directory
     official_topics_path = "../../Topics/"
     topic_name_list = [f for f in os.listdir(official_topics_path) if os.path.isdir(os.path.join(official_topics_path, f))]
