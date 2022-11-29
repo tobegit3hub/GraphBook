@@ -62,9 +62,16 @@
         <!-- The drawer to edit graph-->
         <div>
           <p>Enable image mdoe:</p>
-          <a-switch checked-children="PIC Mode" un-checked-children="No PIC Mode" v-model:checked="isDisplayImage"
+          <a-switch checked-children="Show Images" un-checked-children="No Image" v-model:checked="isDisplayImage"
             @change="init" />
         </div>
+
+        <br />
+        <div>
+          <p>Enable roam scale:</p>
+          <a-switch v-model:checked="isEnableScale" @change="changeIsEnableScale" />
+        </div>
+      </div>
 
         <br />
         <div>
@@ -103,9 +110,6 @@
           <p>Edit line curveness:</p>
           <a-slider :min="0" :max="1" :step="0.1" v-model:value="lineCurveness" @change="chnageLineCurveness" />
         </div>
-      </div>
-
-
     </a-drawer>
 
 
@@ -153,6 +157,7 @@ export default defineComponent({
     const shadowSize = ref(2);
     const lineWidth = ref(2);
     const lineCurveness = ref(0);
+    const isEnableScale = ref(true);
 
     const vuechartOption = ref({
       backgroundColor: '#f6f5f3',
@@ -202,7 +207,7 @@ export default defineComponent({
             shadowOffsetX: shadowSize.value,
             shadowOffsetY: shadowSize.value
           },
-          roam: false,
+          roam: isEnableScale.value,
           draggable: true,
           edgeSymbol: ['circle', 'arrow'],
           edgeSymbolSize: [5, 10],
@@ -490,6 +495,10 @@ export default defineComponent({
       vuechartOption.value.series[0].lineStyle.curveness = lineCurveness.value;
     }
 
+    const changeIsEnableScale = () => {
+      vuechartOption.value.series[0].roam = isEnableScale.value;
+    }
+
     onMounted(() => {
       init();
     })
@@ -533,6 +542,7 @@ export default defineComponent({
       changeShadowSize,
       changeLineWidth,
       chnageLineCurveness,
+      changeIsEnableScale,
 
       isDisplayImage,
       symbolSize,
@@ -541,6 +551,7 @@ export default defineComponent({
       shadowSize,
       lineWidth,
       lineCurveness,
+      isEnableScale,
       isEnableCharacterWeight,
       handleEnableCharacterWeight,
 
