@@ -1,9 +1,6 @@
 # Git files
 .git
 
-# Local database
-./python/server/topicland.db
-
 # Docs files
 ./images/
 README.md
