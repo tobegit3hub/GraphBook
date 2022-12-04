@@ -34,7 +34,7 @@
     <br /><br />
     <a-list item-layout="horizontal" size="large" bordered :data-source="computedPaths">
       <template #renderItem="{ item }">
-        <a-list-item>{{ item }}</a-list-item>
+        <a-list-item @click="selectPathItem(item)">{{ item.join(" -> ") }}</a-list-item>
       </template>
     </a-list>
 
@@ -108,11 +108,11 @@ export default defineComponent({
     let computedPaths = ref([]);
     let isComputePathOnlyDirected = ref()
     const computePathOptions = ref([]);
-    //const computePathSource = ref();
-    //const computePathTarget = ref();
-
-    const computePathSource = ref("Dorio");
-    const computePathTarget = ref("Faraday");
+    const computePathSource = ref();
+    const computePathTarget = ref();
+    // tobedev
+    //const computePathSource = ref("Dorio");
+    //const computePathTarget = ref("Faraday");
     const computePathCutoff = ref();
 
     const computePathFilterOption = (input, option) => {
@@ -134,11 +134,32 @@ export default defineComponent({
       }).then(response => {
         computedPaths.value.splice(0);
         response.data.paths.forEach((path_data) => {
-          computedPaths.value.push(path_data.join("->"));
+          // computedPaths.value.push(path_data.join("->"));
+          computedPaths.value.push(path_data);
         })
       }, response => {
         console.log("Fail to get edges");
       });
+    }
+
+
+    /**
+     * Select the item of result paths and get nodes/edges to update the graph.
+     */
+    const selectPathItem = (path_item) => {
+      console.log(path_item);
+
+      axios.get(`/api/topics/${props.topic}/path_data`, { params: {
+        "characters_names": path_item
+      }})
+      .then(response => {
+        // tobedev
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+
     }
 
     return {
@@ -152,7 +173,9 @@ export default defineComponent({
       computePathSource,
       computePathTarget,
       computePathCutoff,
-      handleClickComputePaths
+      handleClickComputePaths,
+
+      selectPathItem
     }
 
   }

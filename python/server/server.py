@@ -69,7 +69,6 @@ def handle_topics():
 @cross_origin()
 def get_topics_statistics():
     if request.method == "GET":
-        #tobedev
         if "count" in request.args:
             count = request.args.get("count", type=int)
             result = db_service.get_topics_statistics(count)
@@ -268,6 +267,15 @@ def get_node_node_paths(topic):
         else:
             # TODO: Throw error if failed
             result = {"code": -1}
+        return jsonify(result)
+
+@app.route('/api/topics/<topic>/path_data', methods=['GET'])
+@cross_origin()
+def get_path_data(topic):
+    if request.method == "GET":
+        characters_names = request.args.getlist(
+            'characters_names[]')
+        result = db_service.get_path_data(topic, characters_names)
         return jsonify(result)
 
 

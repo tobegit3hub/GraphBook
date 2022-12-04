@@ -705,6 +705,38 @@ class DbService(object):
         return util.get_all_path(source, target, cutoff, only_directed)
 
     """
+    Get the nodes and edges for characters which are in single path.
+    """
+    def get_path_data(self, topic: str, characters_names: array) -> list:
+        if len(characters_names) > 0:
+            conn = self.engine.connect()
+
+            characters_names_str = ",".join(["'{}'".format(name) for name in characters_names])
+            sql = "SELECT name, image_name FROM characters WHERE topic=:topic and name IN ({})".format(characters_names_str)
+            params = {"topic": topic}
+            characters_result = conn.execute(text(sql), params).all()
+            characters_data = [{"name": row[0], "image_name": row[1]} for row in characters_result]
+
+            source_target_pair_list = []
+            for i in range(len(characters_names) - 1):
+                # Add the data for forward relation
+                source_target_pair_list.append({"source": characters_names[i], "target": characters_names[i+1]})
+                # Add the data for backward relation
+                source_target_pair_list.append({"source": characters_names[i+1], "target": characters_names[i]})
+
+            # Example string: (source='Dorio' AND target='Maine') OR (source='Maine' AND target='Dorio')
+            source_target_condiction_str = " OR ".join(["(source='{}' AND target='{}')".format(source_target_pair["source"], source_target_pair["target"]) for source_target_pair in source_target_pair_list])
+            sql = "SELECT source, target, relation FROM relations WHERE topic=:topic AND ({})".format(source_target_condiction_str)
+            relations_result = conn.execute(text(sql), params).all()
+            relations_data = [{"source": row[0], "target": row[1], "relation": row[2]} for row in relations_result]
+
+            conn.close()
+            return {"characters": characters_data, "relations": relations_data}
+        else:        
+            return {"characters": [], "relations": []}
+
+
+    """
     Get the upstream characters of single character.
     """
     def get_upstream_characters(self, topic: str, name: str) -> None:
