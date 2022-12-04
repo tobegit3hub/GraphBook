@@ -3,17 +3,33 @@
   <div style="padding: 20px">
     <h1>Compute Paths</h1>
 
-    <a-select v-model:value="computePathSource" show-search placeholder="Select user" style="width: 200px"
-      :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
+    <a-form layout="inline">
 
-    <a-select v-model:value="computePathTarget" show-search placeholder="Select user" style="width: 200px"
-      :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
+      <a-form-item>
+        <a-select v-model:value="computePathSource" show-search placeholder="Select user" style="width: 200px"
+          :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
+      </a-form-item>
 
-    <a-select v-model:value="isComputePathOnlyDirected" placeholder="Only directed" style="width: 200px"
-      :options=computePathOnlyDirectedOptions></a-select>
+      <a-form-item>
+        <a-select v-model:value="computePathTarget" show-search placeholder="Select user" style="width: 200px"
+          :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
+      </a-form-item>
 
-    <a-button type="primary" @click="handleClickComputePaths">Compute paths
-    </a-button>
+      <a-form-item>
+        <a-select v-model:value="isComputePathOnlyDirected" placeholder="Only directed" style="width: 200px"
+          :options=computePathOnlyDirectedOptions></a-select>
+
+      </a-form-item>
+
+      <a-form-item>
+        <a-input v-model:value="computePathCutoff" placeholder="Cutoff of paths" />
+      </a-form-item>
+
+      <a-form-item>
+        <a-button type="primary" @click="handleClickComputePaths">Compute paths
+        </a-button>
+      </a-form-item>
+    </a-form>
 
     <br /><br />
     <a-list item-layout="horizontal" size="large" bordered :data-source="computedPaths">
@@ -92,20 +108,28 @@ export default defineComponent({
     let computedPaths = ref([]);
     let isComputePathOnlyDirected = ref()
     const computePathOptions = ref([]);
-    const computePathSource = ref();
-    const computePathTarget = ref()
+    //const computePathSource = ref();
+    //const computePathTarget = ref();
+
+    const computePathSource = ref("Dorio");
+    const computePathTarget = ref("Faraday");
+    const computePathCutoff = ref();
 
     const computePathFilterOption = (input, option) => {
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
 
     const handleClickComputePaths = () => {
+      let intCutoff = -1;
+      if (computePathCutoff.value) {
+        intCutoff = parseInt(computePathCutoff.value)
+      }
       axios.get(`/api/topics/${props.topic}/paths`, {
         params: {
           source: computePathSource.value,
           target: computePathTarget.value,
-          only_directed: isComputePathOnlyDirected.value === 'true'
-          // TODO: Support cutoff
+          only_directed: isComputePathOnlyDirected.value === 'true',
+          cutoff: intCutoff
         }
       }).then(response => {
         computedPaths.value.splice(0);
@@ -127,6 +151,7 @@ export default defineComponent({
       computePathFilterOption,
       computePathSource,
       computePathTarget,
+      computePathCutoff,
       handleClickComputePaths
     }
 

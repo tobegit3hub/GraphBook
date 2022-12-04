@@ -257,6 +257,7 @@ def get_node_node_paths(topic):
         source = request.args.get('source', type=str)
         target = request.args.get('target', type=str)
         cutoff = request.args.get('cutoff', default=-1, type=int)
+
         only_directed = request.args.get(
             'only_directed', default=False, type=lambda v: v.lower() == 'true')
 
