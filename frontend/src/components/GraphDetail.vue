@@ -294,7 +294,7 @@ export default defineComponent({
 
     // Copy the original data and only update the data of vuechart
     const updateGraphCharactersData = (charactersInfos) => {
-      let series_0 = vuechartOption.value.series[0];
+      const series_0 = vuechartOption.value.series[0];
       series_0.data = charactersInfos;
       vuechartOption.value.series[0] = series_0;
 

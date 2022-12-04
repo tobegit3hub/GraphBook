@@ -1,5 +1,10 @@
 
 <template>
+
+  <a-modal v-model:visible="isGraphModalVisible" @ok="handleGraphModalOk">
+    <v-chart class="chart" :option="vuechartOption" />
+  </a-modal>
+
   <div style="padding: 20px">
     <h1>Compute Paths</h1>
 
@@ -44,15 +49,19 @@
 
 <script>
 import { defineComponent, ref, reactive, watch, onMounted } from 'vue'
-
 import axios from 'axios'
+import VChart from "vue-echarts";
 
 export default defineComponent({
   name: "ComputePaths",
+  components: {
+    VChart
+  },
   props: {
     topic: String,
   },
   setup(props) {
+    const API_BASE_URI = axios.defaults.baseURL;
 
     let allCharactersNames = ref([]);
     const chooseUserCheckboxState = reactive({
@@ -110,9 +119,6 @@ export default defineComponent({
     const computePathOptions = ref([]);
     const computePathSource = ref();
     const computePathTarget = ref();
-    // tobedev
-    //const computePathSource = ref("Dorio");
-    //const computePathTarget = ref("Faraday");
     const computePathCutoff = ref();
 
     const computePathFilterOption = (input, option) => {
@@ -134,7 +140,6 @@ export default defineComponent({
       }).then(response => {
         computedPaths.value.splice(0);
         response.data.paths.forEach((path_data) => {
-          // computedPaths.value.push(path_data.join("->"));
           computedPaths.value.push(path_data);
         })
       }, response => {
@@ -149,18 +154,94 @@ export default defineComponent({
     const selectPathItem = (path_item) => {
       console.log(path_item);
 
-      axios.get(`/api/topics/${props.topic}/path_data`, { params: {
-        "characters_names": path_item
-      }})
-      .then(response => {
-        // tobedev
-        console.log(response.data);
+      axios.get(`/api/topics/${props.topic}/path_data`, {
+        params: {
+          "characters_names": path_item
+        }
       })
-      .catch(error => {
-        console.log(error);
-      });
+        .then(response => {
+          // Show the graph
+          isGraphModalVisible.value = true;
 
+          // Update nodes and edges
+          const series_0 = vuechartOption.value.series[0];
+          series_0.data = response.data.characters;
+          series_0.links = response.data.relations;
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
+
+    const isGraphModalVisible = ref(false);
+
+    const handleGraphModalOk = (e) => {
+      isGraphModalVisible.value = false;
+    };
+
+    const vuechartOption = ref({
+      backgroundColor: '#f6f5f3',
+      tooltip: {
+        trigger: "item",
+        formatter: (param) => {
+          let template = param.data.name
+          if (param.data.name) {
+            if (param.data.image_name) {
+              template += '</br>'
+              template += `<img src='${API_BASE_URI}/images/${props.topic}/${param.data.image_name}' width="150">`;
+            }
+          }
+          return template;
+        }
+      },
+      series: [
+        {
+          type: 'graph',
+          layout: 'force',
+          force: {
+            repulsion: [1000, 1200],
+            layoutAnimation: true,
+            friction: 0.3,
+            edgeLength: [100, 130]
+          },
+          label: {
+            show: true,
+            fontStyle: 'normal',
+            fontSize: 16,
+          },
+          symbolSize: 60,
+          itemStyle: {
+            shadowColor: '#C0C0C0',
+            shadowOffsetX: 2,
+            shadowOffsetY: 2
+          },
+          roam: false,
+          draggable: true,
+          edgeSymbol: ['circle', 'arrow'],
+          edgeSymbolSize: [5, 10],
+          edgeLabel: {
+            show: true,
+            formatter: (params) => {
+              return params.data.relation;
+            },
+            fontSize: 12,
+            color: '#000000'
+          },
+          cursor: 'pointer',
+          emphasis: {
+            scale: true,
+            focus: 'adjacency'
+          },
+          lineStyle: {
+            color: '#3d3d3f',
+            width: 2,
+            curveness: 0
+          },
+          data: [],
+          links: []
+        }]
+    })
+
 
     return {
       allCharactersNames,
@@ -175,10 +256,21 @@ export default defineComponent({
       computePathCutoff,
       handleClickComputePaths,
 
-      selectPathItem
+      selectPathItem,
+
+      isGraphModalVisible,
+      handleGraphModalOk,
+
+      vuechartOption
     }
 
   }
 })
 
 </script>
+
+<style scoped>
+.chart {
+  height: 600px;
+}
+</style>
