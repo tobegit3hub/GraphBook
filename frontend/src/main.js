@@ -6,7 +6,7 @@ import axios from 'axios'
 import "echarts"
 
 import App from './App.vue'
-import TopicList from './components/TopicList.vue';
+import HomeTopicList from './components/HomeTopicList.vue';
 import GraphDetail from './components/GraphDetail.vue';
 import ComputePaths from './components/ComputePaths.vue'
 import CharactersCards from './components/CharactersCards.vue'
@@ -27,7 +27,7 @@ function useTable(app) {
 }
 
 const routes = [
-  { path: '/', component: TopicList },
+  { path: '/', component: HomeTopicList },
   { path: '/topics/:topic/graph', component: GraphDetail, props: true },
   {
     path: '/topics/:topic/characters', component: SelectCharacters, props: true,

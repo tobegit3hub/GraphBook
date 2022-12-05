@@ -70,20 +70,7 @@
 
     <br /><br />
     <!-- List of all topics -->
-    <h1> Topics List</h1>
-    <a-list item-layout="horizontal" :data-source="topics">
-      <template #renderItem="{ item }">
-        <a-list-item>          
-          <router-link :to='`/topics/${item.name}/graph`'>
-            {{ item.name }}
-            <!-- Show official icon if it is -->
-            <span v-show="(item.official == 1)">
-              &nbsp;<img src="/verified_icon.png" width="10" />
-            </span>
-          </router-link>
-        </a-list-item>
-      </template>
-    </a-list>
+    <all-topic-list></all-topic-list>
 
   </div>
 </template>
@@ -96,7 +83,7 @@ import { useRouter, useRoute } from 'vue-router'
 import type { FormProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import { SelectTypes } from 'ant-design-vue/es/select';
-import GraphDetail from './GraphDetail.vue';
+import AllTopicList from './AllTopicList.vue';
 import { string } from 'vue-types';
 
 type SelectItem = {
@@ -117,11 +104,9 @@ export default defineComponent({
   name: "EditTopics",
   props: {},
   components: {
-    GraphDetail
+    AllTopicList
   },
   setup() {
-
-    const topics = ref([]);
     const chosenTopicName = ref("");
 
     // Select options for selecting topic
@@ -154,8 +139,6 @@ export default defineComponent({
       })
         .then(response => {
           message.success('Success to create topic: ' + formState.name);
-          
-          initTopicListData()
         })
         .catch(error => {
           console.log(error);
@@ -166,7 +149,6 @@ export default defineComponent({
       axios.delete(`/api/topics/${deleteTopicFormState.name}`)
         .then(response => {
           message.success('Success to delete topic: ' + deleteTopicFormState.name);
-          initTopicListData();
         })
         .catch(error => {
           console.log(error);
@@ -203,11 +185,9 @@ export default defineComponent({
       console.log(errors);
     };
 
-    const initTopicListData = () => {
+    const init = () => {
       axios.get(`/api/topics`)
         .then(response => {
-          topics.value = response.data.topics;
-
           // Set select options
           const selectItems: SelectItem[] = [];
           response.data.topics.forEach(theTopic => {
@@ -222,11 +202,10 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      initTopicListData();
+      init();
     })
 
     return {
-      topics,
       chosenTopicName,
       formState,
       handleCreateTopicFinish,

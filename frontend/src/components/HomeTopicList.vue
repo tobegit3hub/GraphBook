@@ -68,7 +68,7 @@ interface TopicsListItem {
 }
 
 export default defineComponent({
-  name: "TopicList",
+  name: "HomeTopicList",
   props: {},
   components: {
     GraphDetail
