@@ -131,7 +131,7 @@ def handle_topic_export(topic):
 def handle_topic_import(topic):
     if request.method == "POST":
         path = request.json["path"]
-        db_service.import_topic(topic, path)
+        db_service.import_topic(topic, path, False)
         return jsonify({"code": 0})
 
 @app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])

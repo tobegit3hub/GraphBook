@@ -388,6 +388,17 @@ class DbService(object):
         conn.close()        
 
     """
+    Create one official topic with name if not exists.
+    """
+    def create_official_topic_if_not_exist(self, name: str) -> list:
+        conn = self.engine.connect()
+        sql = "INSERT INTO topics (name, official) SELECT :name, true WHERE not exists (SELECT name FROM topics WHERE name=:name)"
+        params = {"name": name}
+        conn.execute(text(sql), params)
+        conn.commit()
+        conn.close()    
+
+    """
     Delete one topic with name.
     """
     def delete_topic(self, topic_name: str) -> list:
@@ -923,7 +934,7 @@ class DbService(object):
     """
     Load one topic data from specified directory.
     """
-    def import_topic(self, topic, import_dir="/tmp/"):
+    def import_topic(self, topic, import_dir, official=False):
         print("Try to import topic: {}, from directory: {}".format(topic, import_dir))
         import_topic_dir = "{}/{}".format(import_dir, topic)
 
@@ -933,7 +944,10 @@ class DbService(object):
             return
 
         # Create topic if not exists
-        self.create_topic_if_not_exist(topic)
+        if official:
+            self.create_official_topic_if_not_exist(topic)
+        else:
+            self.create_topic_if_not_exist(topic)
 
         # Load data from csv files to tables
         DbService.load_csv_to_table(import_topic_dir + "/characters.csv", self.engine, "characters")
