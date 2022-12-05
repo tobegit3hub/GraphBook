@@ -92,6 +92,7 @@ class DbService(object):
         sql = """
         CREATE TABLE IF NOT EXISTS `topics` (
             `name` varchar(64) NOT NULL,
+            `official` bool NOT NULL DEFAULT(false),
             {}
             PRIMARY KEY (`name`)
         );
@@ -168,11 +169,22 @@ class DbService(object):
     """
     def get_topics(self) -> list:
         conn = self.engine.connect()
+        sql = "SELECT name, official FROM topics"
+        result = conn.execute(text(sql))
+        return [{"name": row[0], "official": row[1]} for row in result.all()]
+
+    """
+    Get names of all topics.
+    """
+    def get_topics_names(self) -> list:
+        conn = self.engine.connect()
         sql = "SELECT name FROM topics"
         result = conn.execute(text(sql))
         return [t[0] for t in result.all()]
 
     """
+    Deprecated: Do not return is_official data.
+
     Get statistics of all topics.
 
     Return data should be like this:
@@ -238,15 +250,40 @@ class DbService(object):
         conn.close()
         return return_result
 
+    """
+    Get statistics of limited topics.
+
+    Return data should be like this:
+        {
+            count: 2,
+            statistic: [
+                {
+                    "name": "topic_a",
+                    "official": true,
+                    "characters": 10,
+                    "relations": 20,
+                    "groups": 5
+                },
+                {
+                    "name": "topic_b",
+                    "official": false,
+                    "characters": 20,
+                    "relations": 30,
+                    "groups": 0
+                }
+            ]
+        }
+    """
     def get_topics_statistics(self, count) -> map:
         conn = self.engine.connect()
         if self.db_config.dbms == "sqlite":
-            sql = "SELECT name FROM topics ORDER BY RANDOM() LIMIT :limit"
+            sql = "SELECT name, official FROM topics ORDER BY RANDOM() LIMIT :limit"
         else:
-            sql = "SELECT name FROM topics ORDER BY RAND() LIMIT :limit"
+            sql = "SELECT name, official FROM topics ORDER BY RAND() LIMIT :limit"
         params = {"limit": count}
         result = conn.execute(text(sql), params).all()
         topic_count = len(result)
+
         names_str = ",".join(["'{}'".format(name_tuple[0]) for name_tuple in result])
 
         statistics = {}
@@ -254,6 +291,7 @@ class DbService(object):
             topic_name = item[0]
             statistics[topic_name] = {
                 "topic": topic_name,
+                "official": item[1],
                 "characters": 0,
                 "relations": 0,
                 "groups": 0
@@ -294,6 +332,7 @@ class DbService(object):
     Return data should be like this:
     {
         "topic": "foo",
+        "official": true,
         "characters": 10,
         "relations": 20,
         "groups": 5
@@ -303,9 +342,13 @@ class DbService(object):
         conn = self.engine.connect()
         
         return_result = {
-            "topic": topic
+            "topic": topic,            
         }
         params = {"topic": topic}
+
+        sql = "SELECT official FROM topics WHERE name=:topic"
+        result = conn.execute(text(sql), params).all()
+        return_result["official"] = result[0][0]
 
         sql = "SELECT count(*) FROM characters WHERE topic=:topic"
         result = conn.execute(text(sql), params).all()

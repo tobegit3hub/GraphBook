@@ -73,8 +73,14 @@
     <h1> Topics List</h1>
     <a-list item-layout="horizontal" :data-source="topics">
       <template #renderItem="{ item }">
-        <a-list-item>
-          <router-link :to='`/topics/${item}/graph`'>{{ item }}</router-link>
+        <a-list-item>          
+          <router-link :to='`/topics/${item.name}/graph`'>
+            {{ item.name }}
+            <!-- Show official icon if it is -->
+            <span v-show="(item.official == 1)">
+              &nbsp;<img src="/verified_icon.png" width="10" />
+            </span>
+          </router-link>
         </a-list-item>
       </template>
     </a-list>
@@ -143,7 +149,6 @@ export default defineComponent({
     });
 
     const handleCreateTopicFinish: FormProps['onFinish'] = values => {
-
       axios.post(`/api/topics`, {
         "name": formState.name
       })
@@ -198,16 +203,6 @@ export default defineComponent({
       console.log(errors);
     };
 
-    const previewGraph = (name) => {
-      chosenTopicName.value = name;
-    }
-
-    const getRandomInt = (min, max) => {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
     const initTopicListData = () => {
       axios.get(`/api/topics`)
         .then(response => {
@@ -216,13 +211,10 @@ export default defineComponent({
           // Set select options
           const selectItems: SelectItem[] = [];
           response.data.topics.forEach(theTopic => {
-            selectItems.push({ "value": theTopic, "label": theTopic })
+            selectItems.push({ "value": theTopic.name, "label": theTopic.name })
           });
           selectTopicOptions.value = [...selectItems];
 
-          // Select the random topic to display by default
-          const randomIndex = getRandomInt(0, response.data.topics.length - 1);
-          chosenTopicName.value = response.data.topics[randomIndex];
         })
         .catch(error => {
           console.log(error);
@@ -242,7 +234,6 @@ export default defineComponent({
       deleteTopicFormState,
       handleDeleteTopicFinish,
       handleFinishFailed,
-      previewGraph,
 
       selectTopicOptions,
       filterOption,

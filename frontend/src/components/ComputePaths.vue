@@ -152,8 +152,6 @@ export default defineComponent({
      * Select the item of result paths and get nodes/edges to update the graph.
      */
     const selectPathItem = (path_item) => {
-      console.log(path_item);
-
       axios.get(`/api/topics/${props.topic}/path_data`, {
         params: {
           "characters_names": path_item

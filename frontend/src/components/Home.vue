@@ -101,7 +101,7 @@ export default defineComponent({
     }
 
     const initTopicOptions = () => {
-      axios.get(`/api/topics`)
+      axios.get(`/api/topics/names`)
         .then(response => {
           const selectItems: SelectItem[] = [];
           response.data.topics.forEach(theTopic => {

@@ -19,7 +19,13 @@
           <a-list-item>
             <a-list-item-meta :description="item.statistic_string">
               <template #title>
-                <router-link :to='`/topics/${item.name}/graph`'>{{ item.name }}</router-link>
+                <router-link :to='`/topics/${item.name}/graph`'>
+                  {{ item.name }}
+                  <span v-show="item.official">
+                    &nbsp;<img src="/verified_icon.png" width="10" />
+                  </span>
+                </router-link>
+
               </template>
 
               <template #avatar>
@@ -57,7 +63,8 @@ type SelectItem = {
 
 interface TopicsListItem {
   name: string;
-  statistic_string: string
+  official: boolean;
+  statistic_string: string;
 }
 
 export default defineComponent({
@@ -75,7 +82,7 @@ export default defineComponent({
       previewGraph(selectTopicName.value);
 
       // Get one topic statistics to show
-      axios.get(`/api/topics_statistics`, {
+      axios.get(`/api/topics/statistics`, {
         params: {
           "topic_name": selectTopicName.value
         }
@@ -85,7 +92,11 @@ export default defineComponent({
           topicsListData.splice(0)
 
           const statistic_string = `${response.data.characters} characters / ${response.data.relations} relations / ${response.data.groups} groups`
-          topicsListData.push({ name: response.data.topic, statistic_string: statistic_string })
+          topicsListData.push({ 
+            name: response.data.topic,
+            official: response.data.official,
+            statistic_string: statistic_string 
+          })
         })
         .catch(error => {
           console.log(error);
@@ -112,14 +123,14 @@ export default defineComponent({
     }
 
     const init = () => {
-      axios.get(`/api/topics`)
+      axios.get(`/api/topics/names`)
         .then(response => {
           topic_count.value = response.data.topics.length;
 
           const selectItems: SelectItem[] = [];
           // Set the options for select
-          response.data.topics.forEach(theTopic => {
-            selectItems.push({ "value": theTopic, "label": theTopic })
+          response.data.topics.forEach(topicName => {
+            selectItems.push({ "value": topicName, "label": topicName })
           });
           selectTopicOptions.value = [...selectItems];
         })
@@ -131,7 +142,7 @@ export default defineComponent({
     }
 
     const initTopicListData = () => {
-      axios.get(`/api/topics_statistics`, {
+      axios.get(`/api/topics/statistics`, {
         params: {
           count: 10
         }
@@ -145,7 +156,11 @@ export default defineComponent({
           // Get topic list and their statistics
           response.data.statistics.forEach((statistic) => {
             const statistic_string = `${statistic.characters} characters / ${statistic.relations} relations / ${statistic.groups} groups`
-            topicsListData.push({ name: statistic.topic, statistic_string: statistic_string })
+            topicsListData.push({
+              name: statistic.topic,
+              official: statistic.official,
+              statistic_string: statistic_string
+            })
           });
 
           // Select the random topic to display by default
