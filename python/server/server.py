@@ -139,7 +139,8 @@ def handle_topic_import(topic):
 def export_all_topics():
     if request.method == "POST":
         path = request.json["path"]
-        db_service.export_all_topics(path)
+        is_official = request.json["official"]
+        db_service.export_all_topics(path, is_official)
         return jsonify({"code": 0})
 
 @app.route('/api/topics/import_all', methods=['POST'])
@@ -147,7 +148,8 @@ def export_all_topics():
 def import_all_topics():
     if request.method == "POST":
         path = request.json["path"]
-        db_service.import_all_topics(path)
+        is_official = request.json["official"]
+        db_service.import_all_topics(path, is_official)
         return jsonify({"code": 0})
 
 @app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])

@@ -74,6 +74,9 @@
         <a-input v-model:value="exportAllTopicsFormState.path" placeholder="Export directory"></a-input>
       </a-form-item>
       <a-form-item>
+        <a-switch v-model:checked="exportAllTopicsFormState.official" checked-children="Official" un-checked-children="Not Official" />
+      </a-form-item>
+      <a-form-item>
         <a-button type="primary" html-type="submit">
           Export All Topics
         </a-button>
@@ -86,6 +89,9 @@
       <a-form-item>
         <a-input v-model:value="importAllTopicsFormState.path" placeholder="Import directory"></a-input>
       </a-form-item>
+      <a-form-item>
+        <a-switch v-model:checked="importAllTopicsFormState.official" checked-children="Official" un-checked-children="Not Official" />
+      </a-form-item>      
       <a-form-item>
         <a-button type="primary" html-type="submit">
           Import All Topics
@@ -121,12 +127,13 @@ interface CreateDeleteTopicFormState {
 }
 
 interface ImportExportTopicFormState {
-  topic: string,
-  path: string
+  topic: string;
+  path: string;
 }
 
 interface ImportExportTopicsFormState {
-  path: string
+  path: string;
+  official: boolean;
 }
 
 export default defineComponent({
@@ -164,10 +171,12 @@ export default defineComponent({
 
     const exportAllTopicsFormState: UnwrapRef<ImportExportTopicsFormState> = reactive({
       path: '',
+      official: true
     });
 
     const importAllTopicsFormState: UnwrapRef<ImportExportTopicsFormState> = reactive({
       path: '',
+      official: true
     });
 
     const handleCreateTopicFinish: FormProps['onFinish'] = values => {
@@ -220,7 +229,8 @@ export default defineComponent({
 
     const handleExportAllTopics: FormProps['onFinish'] = values => {
       axios.post("/api/topics/export_all", {
-        path: exportAllTopicsFormState.path
+        path: exportAllTopicsFormState.path,
+        official: exportAllTopicsFormState.official
       })
       .then(response => {
         message.success("Success to export all topics");
@@ -233,7 +243,8 @@ export default defineComponent({
 
     const handleImportAllTopics: FormProps['onFinish'] = values => {
       axios.post("/api/topics/import_all", {
-        path: importAllTopicsFormState.path
+        path: importAllTopicsFormState.path,
+        official: importAllTopicsFormState.official
       })
       .then(response => {
         message.success("Success to import all topics");

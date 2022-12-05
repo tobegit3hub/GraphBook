@@ -918,11 +918,20 @@ class DbService(object):
     Export all topics data to specified directory.
     """
     def export_all_topics(self, export_dir, is_official=False):
+        conn = self.engine.connect()
+
+        # Create directory if not exists
         if not os.path.exists(export_dir):
             logging.info("The path: {} does not exist and try to create")
             os.makedirs(export_dir)
 
-        topics_names = self.get_topics_names()
+        # Get topics names
+        sql = "SELECT name FROM topics WHERE official=:official"
+        params = {"official": is_official}
+        result = conn.execute(text(sql), params)
+        topics_names = [t[0] for t in result.all()]
+        
+        # Export topics one by one
         for topic in topics_names:
             logging.info("Try to export topic: {} in path: {}".format(topic, export_dir))
             self.export_topic(topic, export_dir)
@@ -991,7 +1000,10 @@ class DbService(object):
     Import all topics data from the specified directory.
     """
     def import_all_topics(self, import_dir, is_official=False):
-        topic_name_list = [f for f in os.listdir(import_dir) if os.path.isdir(os.path.join(import_dir, f))]
+        topic_name_list = [f for f in 
+            os.listdir(import_dir) 
+            if os.path.isdir(os.path.join(import_dir, f)) and not f.startswith(".")
+        ]
         for topic_name in topic_name_list:
             logging.info("Try to import topic: {} in path: {}".format(topic_name, import_dir))
             self.import_topic(topic_name, import_dir, is_official)
