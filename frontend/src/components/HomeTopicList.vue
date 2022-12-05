@@ -19,7 +19,7 @@
           <a-list-item>
             <a-list-item-meta :description="item.statistic_string">
               <template #title>
-                <router-link :to='`/topics/${item.name}/graph`'>
+                <router-link :to='`/topics/${item.name}`'>
                   {{ item.name }}
                   <span v-show="item.official">
                     &nbsp;<img src="/verified_icon.png" width="10" />
