@@ -30,10 +30,7 @@ def main():
         logging.info("Try to import topic: {} in path: {}".format(topic_name, official_topics_path))
         service.import_topic(topic_name, official_topics_path, True)
 
-
     print("Finish importing official topics")
-
-
 
 if __name__ == "__main__":
     main()

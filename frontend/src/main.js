@@ -30,6 +30,8 @@ function useTable(app) {
 const routes = [
   { path: '/', component: HomeTopicList },
   { path: '/topics/:topic/graph', component: GraphDetail, props: true },
+  // TODO: Use redirect if possible
+  { path: '/topics/:topic', component: GraphDetail, props: true },
   {
     path: '/topics/:topic/characters', component: SelectCharacters, props: true,
     children: [
