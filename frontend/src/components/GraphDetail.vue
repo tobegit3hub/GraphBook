@@ -150,8 +150,8 @@ export default defineComponent({
       }
     };
 
-    const symbolSize = ref(60);
-    const labelFontSize = ref(16);
+    const symbolSize = ref(80);
+    const labelFontSize = ref(15);
     const edgeFontSize = ref(12);
     const isEnableCharacterWeight = ref(false);
     const shadowSize = ref(2);

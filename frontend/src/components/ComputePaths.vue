@@ -205,9 +205,9 @@ export default defineComponent({
           label: {
             show: true,
             fontStyle: 'normal',
-            fontSize: 16,
+            fontSize: 15,
           },
-          symbolSize: 60,
+          symbolSize: 80,
           itemStyle: {
             shadowColor: '#C0C0C0',
             shadowOffsetX: 2,
