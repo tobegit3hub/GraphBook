@@ -879,7 +879,7 @@ class DbService(object):
     """
     Export one topic data to specified directory.
     """
-    def export_topic(self, topic, export_dir="/tmp/"):
+    def export_topic(self, topic, export_dir):
         print("Try to export topic: {}, to directory: {}".format(topic, export_dir))
         export_topic_dir = "{}/{}".format(export_dir, topic)
         conn = self.engine.connect()
@@ -913,6 +913,19 @@ class DbService(object):
             shutil.copytree(source_image_path, target_image_path)
 
         conn.close()
+
+    """
+    Export all topics data to specified directory.
+    """
+    def export_all_topics(self, export_dir, is_official=False):
+        if not os.path.exists(export_dir):
+            logging.info("The path: {} does not exist and try to create")
+            os.makedirs(export_dir)
+
+        topics_names = self.get_topics_names()
+        for topic in topics_names:
+            logging.info("Try to export topic: {} in path: {}".format(topic, export_dir))
+            self.export_topic(topic, export_dir)
 
     """
     Execute SQL and export result to CSV file.
@@ -974,3 +987,11 @@ class DbService(object):
             # TODO: Can not append data or re-import which may erase table or import duplicate data 
             data_df.to_sql(table_name, con=engine, index=False, if_exists='append')
 
+    """
+    Import all topics data from the specified directory.
+    """
+    def import_all_topics(self, import_dir, is_official=False):
+        topic_name_list = [f for f in os.listdir(import_dir) if os.path.isdir(os.path.join(import_dir, f))]
+        for topic_name in topic_name_list:
+            logging.info("Try to import topic: {} in path: {}".format(topic_name, import_dir))
+            self.import_topic(topic_name, import_dir, is_official)

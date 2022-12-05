@@ -134,6 +134,22 @@ def handle_topic_import(topic):
         db_service.import_topic(topic, path, False)
         return jsonify({"code": 0})
 
+@app.route('/api/topics/export_all', methods=['POST'])
+@cross_origin()
+def export_all_topics():
+    if request.method == "POST":
+        path = request.json["path"]
+        db_service.export_all_topics(path)
+        return jsonify({"code": 0})
+
+@app.route('/api/topics/import_all', methods=['POST'])
+@cross_origin()
+def import_all_topics():
+    if request.method == "POST":
+        path = request.json["path"]
+        db_service.import_all_topics(path)
+        return jsonify({"code": 0})
+
 @app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])
 @cross_origin()
 def get_character(topic, character):

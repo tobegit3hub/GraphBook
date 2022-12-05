@@ -5,9 +5,9 @@
     <h1> Manage Topics</h1>
 
     <!-- Form to create topic -->
-    <a-form layout="inline" :model="formState" @finish="handleCreateTopicFinish" @finishFailed="handleFinishFailed">
+    <a-form layout="inline" :model="createTopicFormState" @finish="handleCreateTopicFinish" @finishFailed="handleFinishFailed">
       <a-form-item>
-        <a-input v-model:value="formState.name" placeholder="Topic name">
+        <a-input v-model:value="createTopicFormState.name" placeholder="Topic name">
         </a-input>
       </a-form-item>
       <a-form-item>
@@ -67,6 +67,31 @@
       </a-form-item>
     </a-form>
 
+    <br />
+    <!-- Form to export all topics -->
+    <a-form layout="inline" :model="exportAllTopicsFormState" @finish="handleExportAllTopics" >
+      <a-form-item>
+        <a-input v-model:value="exportAllTopicsFormState.path" placeholder="Export directory"></a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" html-type="submit">
+          Export All Topics
+        </a-button>
+      </a-form-item>
+    </a-form>
+
+    <br />
+    <!-- Form to import all topics -->
+    <a-form layout="inline" :model="importAllTopicsFormState" @finish="handleImportAllTopics" >
+      <a-form-item>
+        <a-input v-model:value="importAllTopicsFormState.path" placeholder="Import directory"></a-input>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" html-type="submit">
+          Import All Topics
+        </a-button>
+      </a-form-item>
+    </a-form>
 
     <br /><br />
     <!-- List of all topics -->
@@ -82,7 +107,7 @@ import type { UnwrapRef } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
 import type { FormProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import { SelectTypes } from 'ant-design-vue/es/select';
+import SelectTypes from 'ant-design-vue/es/select';
 import AllTopicList from './AllTopicList.vue';
 import { string } from 'vue-types';
 
@@ -91,12 +116,16 @@ type SelectItem = {
   label: string;
 };
 
-interface FormState {
+interface CreateDeleteTopicFormState {
   name: string;
 }
 
 interface ImportExportTopicFormState {
-  name: string,
+  topic: string,
+  path: string
+}
+
+interface ImportExportTopicsFormState {
   path: string
 }
 
@@ -115,11 +144,11 @@ export default defineComponent({
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
 
-    const formState: UnwrapRef<FormState> = reactive({
+    const createTopicFormState: UnwrapRef<CreateDeleteTopicFormState> = reactive({
       name: ''
     });
 
-    const deleteTopicFormState: UnwrapRef<FormState> = reactive({
+    const deleteTopicFormState: UnwrapRef<CreateDeleteTopicFormState> = reactive({
       name: ''
     });
 
@@ -133,12 +162,20 @@ export default defineComponent({
       path: '',
     });
 
+    const exportAllTopicsFormState: UnwrapRef<ImportExportTopicsFormState> = reactive({
+      path: '',
+    });
+
+    const importAllTopicsFormState: UnwrapRef<ImportExportTopicsFormState> = reactive({
+      path: '',
+    });
+
     const handleCreateTopicFinish: FormProps['onFinish'] = values => {
       axios.post(`/api/topics`, {
-        "name": formState.name
+        "name": createTopicFormState.name
       })
         .then(response => {
-          message.success('Success to create topic: ' + formState.name);
+          message.success('Success to create topic: ' + createTopicFormState.name);
         })
         .catch(error => {
           console.log(error);
@@ -181,11 +218,40 @@ export default defineComponent({
       });
     };
 
+    const handleExportAllTopics: FormProps['onFinish'] = values => {
+      axios.post("/api/topics/export_all", {
+        path: exportAllTopicsFormState.path
+      })
+      .then(response => {
+        message.success("Success to export all topics");
+        initTopicListData();
+      })
+      .catch(error => {
+        console.log(error);
+      });
+    };
+
+    const handleImportAllTopics: FormProps['onFinish'] = values => {
+      axios.post("/api/topics/import_all", {
+        path: importAllTopicsFormState.path
+      })
+      .then(response => {
+        message.success("Success to import all topics");
+        initTopicListData();
+      })
+      .catch(error => {
+        console.log(error);
+      });
+    };
+
+
     const handleFinishFailed: FormProps['onFinishFailed'] = errors => {
       console.log(errors);
     };
 
-    const init = () => {
+    const initTopicListData = () => {
+      // TODO(tobe): Refresh child component of AllTopicList
+
       axios.get(`/api/topics`)
         .then(response => {
           // Set select options
@@ -202,12 +268,14 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      init();
+      initTopicListData();
     })
 
     return {
+      initTopicListData,
+
       chosenTopicName,
-      formState,
+      createTopicFormState,
       handleCreateTopicFinish,
 
       deleteTopicFormState,
@@ -220,7 +288,12 @@ export default defineComponent({
       exportTopicFormState,
       importTopicFormState,
       handleExportTopic,
-      handleImportTopic
+      handleImportTopic,
+
+      exportAllTopicsFormState,
+      importAllTopicsFormState,
+      handleExportAllTopics,
+      handleImportAllTopics
     }
   }
 })
