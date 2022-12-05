@@ -2,7 +2,7 @@
 
 **TopicLand** is the tool to manage and explore topics with knowledge graphs and so on.
 
-It is recommanded to record and explore complex topics such as *novels*, *movies*, *TV series* and *games*.
+It is recommanded to record and explore complex topics such as *novels*, *movies*, *TV series* and *games*. Checkout more topics on [topicland/Topics](https://github.com/topicland/Topics).
 
 * Clarify the relations of characters with [Knowledge Graph](https://en.wikipedia.org/wiki/Knowledge_graph).
 * Use [PageRanke](https://en.wikipedia.org/wiki/PageRank) or other algorithms to select out the prominent roles. 
