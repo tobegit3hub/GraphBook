@@ -1,5 +1,5 @@
 # DB
-./python/server/topicland.db
+python/server/topicland.db
 
 # IDE
 .vscode
