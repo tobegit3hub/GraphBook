@@ -5,6 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Install dependencies
 RUN apt-get -y update
 RUN apt-get install -y vim git curl python3 python3-pip npm sqlite3
+RUN apt-get remove -y nodejs
 
 # Upgrade nodejs
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
