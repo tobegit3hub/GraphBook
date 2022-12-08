@@ -43,7 +43,9 @@
     </a-layout-content>
 
     <a-layout-footer style="text-align: center">
-      TopicLand ©2022 created by <a href="https://github.com/topicland/TopicLand">TopicLand</a>
+      <div>
+        <a href="https://github.com/topicland/TopicLand">TopicLand</a> ©2022 <a href="https://beian.miit.gov.cn/" target="_blank">粤ICP备2022148128号</a>
+      </div>
     </a-layout-footer>
   </a-layout>
 
