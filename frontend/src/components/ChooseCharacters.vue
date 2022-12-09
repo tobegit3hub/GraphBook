@@ -51,7 +51,7 @@ type SelectItem = {
 
 
 export default defineComponent({
-  name: "SelectCharacters",
+  name: "ChooseCharacters",
   props: {
     topic: String,
   },

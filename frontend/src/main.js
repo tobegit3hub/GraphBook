@@ -11,7 +11,7 @@ import HomeTopicList from './components/HomeTopicList.vue';
 import GraphDetail from './components/GraphDetail.vue';
 import ComputePaths from './components/ComputePaths.vue'
 import CharactersCards from './components/CharactersCards.vue'
-import SelectCharacters from './components/SelectCharacters.vue';
+import ChooseCharacters from './components/ChooseCharacters.vue';
 import CharacterDetail from './components/CharacterDetail.vue'
 import EditTopics from './components/EditTopics.vue';
 import EditGraph from './components/EditGraph.vue';
@@ -34,7 +34,7 @@ const routes = [
   // TODO: Use redirect if possible
   { path: '/topics/:topic', component: GraphDetail, props: true },
   {
-    path: '/topics/:topic/characters', component: SelectCharacters, props: true,
+    path: '/topics/:topic/characters', component: ChooseCharacters, props: true,
     children: [
       { path: ':character_name', component: CharacterDetail, props: true }
     ]
