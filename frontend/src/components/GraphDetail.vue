@@ -2,117 +2,102 @@
 <template>
 
   <br />
+  <!-- Echarts Graph -->
   <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph" />
 
   <div v-show="!onlyGraph">
+    <!-- The modal to show character -->
     <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
-      <p>Name: <router-link :to='`/topics/${topic}/characters/${currentCharacterModalName}`'>{{
+      <p>{{ $t('message.Name') }}: <router-link :to='`/topics/${topic}/characters/${currentCharacterModalName}`'>{{
           currentCharacterModalName
       }}</router-link>
       </p>
-      <p>Weight: {{ currentCharacterModalWeight }}</p>
+      <p>{{ $t('message.Weight') }}: {{ currentCharacterModalWeight }}</p>
       <a-image v-if="currentCharacterModalImageName"
         :src="`${API_BASE_URI}/images/${topic}/${currentCharacterModalImageName}`" />
       <br /><br />
-      <p>Note:</p>
+      <p>{{ $t('message.Note') }}:</p>
       <p>{{ currentModalNote }}</p>
     </a-modal>
 
+    <!-- Edit Graph -->
     <br />
-    <h2>Edit Graph</h2>
-    <a-button type="primary" @click="showEditGraphDrawer">Edit graph parameters</a-button>
+    <h2>{{ $t('message.Edit') }}</h2>
+    <a-button type="primary" @click="showEditGraphDrawer">{{ $t('message.GraphParameters') }}</a-button>
 
     <br /><br />
-    <h2>Characters</h2>
+    <h2>{{ $t('message.Characters') }}</h2>
     <div>
       <a-checkbox v-model:checked="isChooseAllCharacters" :indeterminate="isChooseCharacterIndeterminateState"
         @change="handleChooseAllCharacters">
-        Choose all
+        {{ $t('message.ChooseAll') }}
       </a-checkbox>
     </div>
     <a-checkbox-group v-model:value="currentChosenCharacterNames" :options="allCharacterNames" />
 
     <br /><br />
-    <h2>Groups</h2>
+    <h2>{{ $t('message.Groups') }}</h2>
     <div>
       <a-checkbox v-model:checked="isChooseAllGroups" :indeterminate="isChooseGroupIndeterminateState"
         @change="handleChooseAllGroups">
-        Choose all
+        {{ $t('message.ChooseAll') }}
       </a-checkbox>
     </div>
     <a-checkbox-group v-model:value="currentChosenGroupNames" :options="allGroupNames" />
 
     <br /><br />
-    <h2>Play graph animation</h2>
+    <h2>{{ $t('message.GraphAnimation') }}</h2>
     <div>
       <a-row>
         <a-col :span="8">
           <a-slider v-model:value="playGraphInterval" :min="10" :max="10000" />
         </a-col>
         <a-col :span="8">
-          <a-button type="primary" @click="handlePlayGraph">Play Graph</a-button>
-          <a-button type="danger" @click="handleStopPlayGraph">Stop</a-button>
+          <a-button type="primary" @click="handlePlayGraph">{{ $t('message.Play') }}</a-button>
+          <a-button type="danger" @click="handleStopPlayGraph">{{ $t('message.Stop') }}</a-button>
         </a-col>
       </a-row>
     </div>
 
-    <a-drawer v-model:visible="isEditGraphDrawerVisible" title="Edti Graph Parameters" placement="right">
+    <!-- The drawer to edit graph -->
+    <a-drawer v-model:visible="isEditGraphDrawerVisible" :title="$t('message.GraphParameters')" placement="right">
 
-      <div>
-        <!-- The drawer to edit graph-->
-        <div>
-          <p>Enable image mode:</p>
-          <a-switch checked-children="Show Images" un-checked-children="No Image" v-model:checked="isDisplayImage"
-            @change="init" />
-        </div>
+      <p>{{ $t('message.ImageMode') }}</p>
+      <a-switch v-model:checked="isDisplayImage" @change="init" />
 
-        <br />
-        <div>
-          <p>Enable roam scale:</p>
-          <a-switch v-model:checked="isEnableScale" @change="changeIsEnableScale" />
-        </div>
-      </div>
+      <br /><br />
+      <p>{{ $t('message.RoamScaleMode') }}</p>
+      <a-switch v-model:checked="isEnableScale" @change="changeIsEnableScale" />
 
-        <br />
-        <div>
-          <p>Edit character size:</p>
-          <a-switch checked-children="Enable Weigth" un-checked-children="Disable Weight"
-            v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
-          <a-slider v-model:value="symbolSize" @change="handleEnableCharacterWeight" />
-        </div>
+      <br /><br />
+      <p>{{ $t('message.CharactrWeightMode') }}</p>
+      <a-switch v-model:checked="isEnableCharacterWeight" @change="handleEnableCharacterWeight" />
 
-        <br />
-        <div>
-          <p>Edit symbol font size:</p>
-          <a-slider :min="0" :max="40" v-model:value="labelFontSize" @change="changeSymbolFontSize" />
-        </div>
+      <br /><br />
+      <p>{{ $t('message.CharactrSize') }}</p>
+      <a-slider :max="200" v-model:value="symbolSize" @change="handleEnableCharacterWeight" />
 
-        <br />
-        <div>
-          <p>Edit edge font size:</p>
-          <a-slider :min="0" :max="30" v-model:value="edgeFontSize" @change="changeEdgeFontSize" />
-        </div>
+      <br /><br />
+      <p>{{ $t('message.CharacterFontSize') }}</p>
+      <a-slider :min="0" :max="40" v-model:value="labelFontSize" @change="changeSymbolFontSize" />
 
-        <br />
-        <div>
-          <p>Edit shadow size:</p>
-          <a-slider :min="0" :max="10" v-model:value="shadowSize" @change="changeShadowSize" />
-        </div>
+      <br /><br />
+      <p>{{ $t('message.RelationFontSize') }}</p>
+      <a-slider :min="0" :max="30" v-model:value="edgeFontSize" @change="changeEdgeFontSize" />
 
-        <br />
-        <div>
-          <p>Edit line width:</p>
-          <a-slider :min="0" :max="10" v-model:value="lineWidth" @change="changeLineWidth" />
-        </div>
+      <br /><br />
+      <p>{{ $t('message.ShadowSize') }}</p>
+      <a-slider :min="0" :max="10" v-model:value="shadowSize" @change="changeShadowSize" />
 
-        <br />
-        <div>
-          <p>Edit line curveness:</p>
-          <a-slider :min="0" :max="1" :step="0.1" v-model:value="lineCurveness" @change="chnageLineCurveness" />
-        </div>
+      <br /><br />
+      <p>{{ $t('message.LineWidth') }}</p>
+      <a-slider :min="0" :max="10" v-model:value="lineWidth" @change="changeLineWidth" />
+
+      <br /><br />
+      <p>{{ $t('message.LineCurveness') }}</p>
+      <a-slider :min="0" :max="1" :step="0.1" v-model:value="lineCurveness" @change="chnageLineCurveness" />
+
     </a-drawer>
-
-
   </div>
 
 </template>

@@ -6,12 +6,12 @@
     <a-col :span="8">
 
       <br />
-      <h1>Topics</h1>
+      <h1>{{ $t('message.Topics') }}</h1>
 
-      <a-select v-model:value="selectTopicName" show-search :placeholder="`Search from ${topic_count} topics`"
+      <a-select v-model:value="selectTopicName" show-search :placeholder="$t('message.SearchFromTopics', {topic_count: topic_count})"
         style="width: 250px" :options="selectTopicOptions" @change="changeSelectTopic">
       </a-select>
-      <a-button @click="resetSelectTopic">Reset</a-button>
+      <a-button @click="resetSelectTopic">{{ $t('message.Reset') }}</a-button>
 
       <br /><br />
       <a-list item-layout="horizontal" :data-source="topicsListData">

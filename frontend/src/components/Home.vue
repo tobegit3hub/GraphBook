@@ -36,6 +36,7 @@
         </a-menu-item>
 
         <a-menu-item>
+          {{ $t('message.Languages') }}
           <select v-model="$i18n.locale">
             <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">
               {{ lang }}
@@ -76,7 +77,7 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
 
-    const langs = ['en', 'zh']
+    const langs = ["English", "简体中文"]
 
     const currentTopicName = ref<string>("");
     const selectTopicOptions = ref<SelectTypes['options']>([]);

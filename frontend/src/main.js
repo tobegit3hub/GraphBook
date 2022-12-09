@@ -63,8 +63,9 @@ const router = createRouter({
 
 
 const messages = {
-  en: {
+  English: {
     message: {
+      // Home
       Home: 'Home',
       Graph: 'Graph',
       Characters: "Characters",
@@ -72,26 +73,39 @@ const messages = {
       Cards: "Cards",
       Paths: "Paths",
       Topics: "Topics",
-
+      Languages: "Language",
       PleaseChooseTopic: "Please choose topic",
       TopicsList: "Topics List",
-
       Reset: "Reset",
-      SearchFrom: "Search from",
-      topics: "topics",
-
+      SearchFromTopics: "Search from {topic_count} topics",
+      // Graph
       Groups: "Groups",
-      PlayGraphAnimation: "Play graph animation",
+      GraphAnimation: "Graph Animation",
       Play: "Play",
       Stop: "Stop",
-
+      GraphParameters: "Graph Parameters",
+      ChooseAll: "Choose All",
+      Name: "Name",
+      Weight: "Weight",
+      Note: "Note",
+      ImageMode: "Image Mode",
+      RoamScaleMode: "ROAM Scale Mode",
+      CharactrWeightMode: "Character Weight Mode",
+      CharactrSize: "Character Size",
+      CharacterFontSize: "Character Font Size",
+      RelationFontSize: "Relation Font Size",
+      ShadowSize: "Shadow Size",
+      LineWidth: "Line Width",
+      LineCurveness: "Line Curveness",
+      // Characters
       Choose: "Choose",
       CharacterAssociation: "Character Association",
       Upstream: "Upstream",
       Downstream: "Downstream",
-
+      // Edit
+      // Paths
       Compute: "Compute",
-
+      // Topics
       Manage: "Manage",
       Export: "Export",
       Import: "Import",
@@ -100,8 +114,9 @@ const messages = {
       NotOfficial: "Not official",
     }
   },
-  zh: {
+  简体中文: {
     message: {
+      // Home
       Home: '首页',
       Graph: '关系图',
       Characters: "角色",
@@ -109,38 +124,51 @@ const messages = {
       Cards: "卡片",
       Paths: "路径",
       Topics: "主题",
-
+      Languages: "语言",
       PleaseChooseTopic: "请选择主题",
       TopicsList: "主题列表",
-
-      Reset: "重制",
-      SearchFrom: "搜索自",
-      topics: "主题",
-
+      Reset: "重置",
+      SearchFromTopics: "从 {topic_count} 个主题中搜索",
+      // Graph
       Groups: "分组",
-      PlayGraphAnimation: "Play graph animation",
-      Play: "Play",
-      Stop: "Stop",
-
-      Choose: "Choose",
-      CharacterAssociation: "Character Association",
-      Upstream: "Upstream",
-      Downstream: "Downstream",
-
-      Compute: "Compute",
-
-      Manage: "Manage",
-      Export: "Export",
-      Import: "Import",
-      All: "All",
-      Official: "Official",
-      NotOfficial: "Not official",
+      GraphAnimation: "关系图动画",
+      Play: "播放",
+      Stop: "暂停",
+      GraphParameters: "关系图参数",
+      ChooseAll: "选择全部",
+      Name: "名字",
+      Weight: "权重",
+      Note: "备注",
+      ImageMode: "图片模式",
+      RoamScaleMode: "ROAM缩放模式",
+      CharactrWeightMode: "角色权重模式",
+      CharactrSize: "角色大小",
+      CharacterFontSize: "角色字体大小",
+      RelationFontSize: "关系字体大小",
+      ShadowSize: "阴影大小",
+      LineWidth: "线宽",
+      LineCurveness: "线曲度",
+      // Characters
+      Choose: "选择",
+      CharacterAssociation: "关联角色",
+      Upstream: "上游",
+      Downstream: "下游",
+      // Edit
+      // Paths
+      Compute: "计算",
+      // Topics
+      Manage: "管理",
+      Export: "导出",
+      Import: "导入",
+      All: "所有",
+      Official: "官方",
+      NotOfficial: "非官方",
     }
   }
 }
 
 const i18n = createI18n({
-  locale: 'zh',
+  locale: '简体中文',
   fallbackLocale: 'en',
   messages
 })
