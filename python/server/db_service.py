@@ -872,9 +872,9 @@ class DbService(object):
     """
     Update the characters weights from single topic.
     """
-    def update_characters_weights(self, topic: str) -> None:
+    def update_characters_weights(self, topic: str, algorithm: str) -> None:
         util = networkx_util.NetworkxUtil(self.engine, topic)
-        util.update_characters_weight()
+        util.update_characters_weight(algorithm)
 
     """
     Export one topic data to specified directory.

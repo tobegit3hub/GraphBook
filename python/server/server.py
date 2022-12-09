@@ -307,8 +307,12 @@ def get_path_data(topic):
 @cross_origin()
 def update_characters_weights(topic):
     if request.method == "PUT":
-        db_service.update_characters_weights(topic)
-        result = {"code": 0}
+        if "algorithm" in request.json:
+            algorithm = request.json["algorithm"]
+            db_service.update_characters_weights(topic, algorithm)
+            result = {"code": 0}
+        else:
+            result = {"code": -1, "msg": "Algorithm should not be null"}
         return jsonify(result)
 
 

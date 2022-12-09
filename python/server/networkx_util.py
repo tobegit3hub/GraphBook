@@ -43,15 +43,23 @@ class NetworkxUtil(object):
         else:
             return list(nx.all_simple_paths(graph, source, target))
 
-    def update_characters_weight(self) -> None:
+    def update_characters_weight(self, algorithm: str) -> None:
         conn = self.engine.connect()
 
-        page_rank_map = nx.pagerank(self.directed_graph)
+        if algorithm.lower().startswith("pagerank") or algorithm.lower().endswith("pagerank"):
+            if algorithm.lower() == "PageRank".lower():
+                page_rank_map = nx.pagerank(self.directed_graph)
+            elif algorithm.lower() == "NondirectedPageRank".lower():
+                page_rank_map = nx.pagerank(self.nondirected_graph)
+            else:
+                raise Exception("Unsupport algorithm: {}".format(algorithm))
 
-        for name, rank_value in page_rank_map.items():
-            sql = "UPDATE characters SET weight = {} WHERE topic='{}' AND name = '{}';".format(
-                rank_value, self.topic, name)
-            conn.execute(text(sql))
-
-        conn.commit()
+            for name, rank_value in page_rank_map.items():
+                sql = "UPDATE characters SET weight = {} WHERE topic='{}' AND name = '{}';".format(
+                    rank_value, self.topic, name)
+                conn.execute(text(sql))
+                conn.commit()
+        else:
+            raise Exception("Unsupport algorithm: {}".format(algorithm))
+        
 

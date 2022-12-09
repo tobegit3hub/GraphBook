@@ -20,9 +20,7 @@
           {{$t('message.UploadImage')}}
         </a-button>
       </a-upload>
-
     </a-form-item>
-
 
     <a-form-item>
       <a-button type="primary" html-type="submit" :disabled="formState.name === ''">
@@ -34,8 +32,10 @@
 
   <br/><br/>
   <h1>{{$t('message.UpdateCharactersWeights')}}</h1>
+  <a-select v-model:value="updateWeightsAlgorithm" :placeholder="$t('message.Algorithm')" style="width: 300px"
+          :options=updateWeightsAlgorithmOptions></a-select>
   <a-button type="primary" @click="updateCharactersWeights">
-    {{$t('message.PageRankAlgorithm')}}
+    {{$t('message.Submit')}}
   </a-button>
 
   <br/><br/><br/>
@@ -212,16 +212,22 @@ export default defineComponent({
         });
     }
 
+    const updateWeightsAlgorithm = ref(undefined);
+    const updateWeightsAlgorithmOptions = ref([
+      { value: "PageRank", label: "PageRank" }, 
+      { value: "NondirectedPageRank", label: "PageRank(Nondirected Graph)" }]
+    )
+
     const updateCharactersWeights = () => {
-      axios.put(`/api/topics/${props.topic}/weights`)
+      axios.put(`/api/topics/${props.topic}/weights`, {
+        algorithm: updateWeightsAlgorithm.value
+      })
         .then(function (response) {
-          // TODO: ant css is lost
           message.success('Success to update characters weights');
         })
         .catch(function (error) {
           message.error('Fail to update characters weights, ' + error);
         });
-
         initTableData();
     }
 
@@ -240,7 +246,9 @@ export default defineComponent({
       handleSubmitForm,
       handleSubmitFormFailed,
 
-      updateCharactersWeights
+      updateCharactersWeights,
+      updateWeightsAlgorithm,
+      updateWeightsAlgorithmOptions
     }
   }
 })
