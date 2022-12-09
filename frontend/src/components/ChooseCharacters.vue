@@ -3,15 +3,15 @@
 
   <div style="background-color: #ececec; padding: 20px">
 
-    <h1>Select character</h1>
-    <a-select v-model:value="currentSelectedCharacter" show-search placeholder="Select character" style="width: 200px"
+    <!-- Form to choose characteer -->
+    <h1>{{$t('message.ChooseCharacter')}}</h1>
+    <a-select v-model:value="currentSelectedCharacter" show-search :placeholder="$t('message.Character')" style="width: 200px"
       :options="selectCharacterOptions" :filter-option="filterOption" @change="changeSelectedCharacter"></a-select>
 
     <br /><br />
-
     <!-- Only show when not selecting character -->
     <div v-if="!currentSelectedCharacter">
-      <h1>Characters</h1>
+      <h1>{{$t('message.CharacterList')}}</h1>
       <a-row :gutter="16">
         <div v-for="character in characters" @click="chooseCharacterFromImage(character.name)">
           <a-col :span="4">

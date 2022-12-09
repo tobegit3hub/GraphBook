@@ -3,9 +3,9 @@
 
   <div v-if="character">
 
+    <!-- Modal to show relation -->
     <a-modal v-model:visible="isRelatioinModalVisible" title="Relation" width="1000px" @ok="cancelModel">
-
-    <a-row>
+      <a-row>
         <a-col :span="8">
           <h3><router-link :to='`/topics/${topic}/characters/${character.name}`'>{{ character.name }}</router-link></h3>
           <a-image v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
@@ -25,25 +25,31 @@
           </div>
         </a-col>
         <a-col :span="8">
-          <h3><router-link :to='`/topics/${topic}/characters/${relationCharacterData.name}`' @click="cancelModel">{{ relationCharacterData.name }}</router-link></h3>
-          <a-image v-if="relationCharacterData.image_name" :src="`${API_BASE_URI}/images/${topic}/${relationCharacterData.image_name}`" />
+          <h3><router-link :to='`/topics/${topic}/characters/${relationCharacterData.name}`' @click="cancelModel">{{
+              relationCharacterData.name
+          }}</router-link></h3>
+          <a-image v-if="relationCharacterData.image_name"
+            :src="`${API_BASE_URI}/images/${topic}/${relationCharacterData.image_name}`" />
         </a-col>
       </a-row>
 
     </a-modal>
-    
-    <h1>{{ character.name }}</h1>
 
-    <p><b>Name:</b> {{ character.name }}</p>
-    <p><b>Weight:</b> {{ character.weight }}</p>
-    <p><b>Note:</b> {{ character.note }}</p>
-    <a-image v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" width="280px" />
+    <br />
+    <!-- Detail of character -->
+    <h1>{{ character.name }}</h1>
+    <p><b>{{ $t('message.Name') }}:</b> {{ character.name }}</p>
+    <p><b>{{ $t('message.Weight') }}:</b> {{ character.weight }}</p>
+    <p><b>{{ $t('message.Note') }}:</b> {{ character.note }}</p>
+    <a-image v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`"
+      width="280px" />
   </div>
 
-  <br/>
-  <h2>Character association:</h2>
-  <a-switch v-model:checked="isUpstream" checked-children="Upstream" un-checked-children="Downstream"
-    @change="handleUpstreamSwitchChange" />
+  <br /><br />
+  <!-- The graph of all associated characters -->
+  <h2>{{ $t('message.AssociatedCharacters') }}</h2>
+  <a-switch v-model:checked="isUpstream" :checked-children="$t('message.Upstream')"
+    :un-checked-children="$t('message.Downstream')" @change="handleUpstreamSwitchChange" />
   <v-chart class="chart" :option="vuechartOption" @click="handleClickCharacter" />
 </template>
 

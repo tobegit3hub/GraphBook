@@ -1,14 +1,14 @@
 
 <template>
 
-  <h1>Add character</h1>
+  <h1>{{$t('message.CreateCharacter')}}</h1>
   <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
 
-    <a-form-item label="Name" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
+    <a-form-item :label="$t('message.Name')" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
       <a-input v-model:value="formState.name" />
     </a-form-item>
 
-    <a-form-item label="Note" name="note">
+    <a-form-item :label="$t('message.Note')" name="note">
       <a-input v-model:value="formState.note" />
     </a-form-item>
 
@@ -17,7 +17,7 @@
         list-type="picture" :multiple="false">
         <a-button>
           <upload-outlined></upload-outlined>
-          Upload image
+          {{$t('message.UploadImage')}}
         </a-button>
       </a-upload>
 
@@ -26,20 +26,20 @@
 
     <a-form-item>
       <a-button type="primary" html-type="submit" :disabled="formState.name === ''">
-        Add
+        {{$t('message.Submit')}}
       </a-button>
     </a-form-item>
   </a-form>
 
 
-  <br />
+  <br/><br/>
+  <h1>{{$t('message.UpdateCharactersWeights')}}</h1>
+  <a-button type="primary" @click="updateCharactersWeights">
+    {{$t('message.PageRankAlgorithm')}}
+  </a-button>
 
-  <h1>Update weights:</h1>
-  <a-button type="primary" @click="updateCharactersWeights">Update with PageRank</a-button>
-
-  <br /><br />
-
-  <h1>Characters table</h1>
+  <br/><br/><br/>
+  <h1>{{$t('message.CharactersTable')}}</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #name_edit="{ row }">
       <vxe-input v-model="row.name"></vxe-input>

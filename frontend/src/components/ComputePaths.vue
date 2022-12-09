@@ -1,37 +1,37 @@
 
 <template>
 
+  <!-- The modal of graph with associated characters -->
   <a-modal v-model:visible="isGraphModalVisible" @ok="handleGraphModalOk">
     <v-chart class="chart" :option="vuechartOption" />
   </a-modal>
 
   <div style="padding: 20px">
-    <h1>Compute Paths</h1>
+    <h1>{{$t('message.ComputePaths')}}</h1>
 
     <a-form layout="inline">
-
       <a-form-item>
-        <a-select v-model:value="computePathSource" show-search placeholder="Select user" style="width: 200px"
+        <a-select v-model:value="computePathSource" show-search :placeholder="$t('message.SourceUser')" style="width: 200px"
           :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
       </a-form-item>
 
       <a-form-item>
-        <a-select v-model:value="computePathTarget" show-search placeholder="Select user" style="width: 200px"
+        <a-select v-model:value="computePathTarget" show-search :placeholder="$t('message.TargetUser')" style="width: 200px"
           :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
       </a-form-item>
 
       <a-form-item>
-        <a-select v-model:value="isComputePathOnlyDirected" placeholder="Only directed" style="width: 200px"
+        <a-select v-model:value="isComputePathOnlyDirected" :placeholder="$t('message.OnlyDirected')" style="width: 200px"
           :options=computePathOnlyDirectedOptions></a-select>
-
       </a-form-item>
 
       <a-form-item>
-        <a-input v-model:value="computePathCutoff" placeholder="Cutoff of paths" />
+        <a-input v-model:value="computePathCutoff" :placeholder="$t('message.CutoffDegree')" />
       </a-form-item>
 
       <a-form-item>
-        <a-button type="primary" @click="handleClickComputePaths">Compute paths
+        <a-button type="primary" @click="handleClickComputePaths">
+          {{$t('message.Compute')}}
         </a-button>
       </a-form-item>
     </a-form>

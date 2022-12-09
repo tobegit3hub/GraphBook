@@ -1,38 +1,39 @@
 
 <template>
 
-  <h1>Create group</h1>
+  <h1>{{$t('message.CreateGroup')}}</h1>
   <a-input-group compact>
-    <a-input v-model:value="createGroupName" style="width: calc(100% - 200px)" placeholder="group name" />
-    <a-button type="primary" @click="handleCreateGroup">Create</a-button>
+    <a-input v-model:value="createGroupName" style="width: calc(100% - 200px)" :placeholder="$t('message.GroupName')" />
+    <a-button type="primary" @click="handleCreateGroup">
+      {{$t('message.Submit')}}
+    </a-button>
   </a-input-group>
 
-  <br />
-
-  <h1>Add to group</h1>
+  <br/><br/>
+  <h1>{{$t('message.AddToGroup')}}</h1>
   <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
 
     <a-form-item>
-      <a-select v-model:value="formState.character_name" show-search placeholder="Select character" style="width: 200px"
+      <a-select v-model:value="formState.character_name" show-search style="width: 200px"
         :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
     <a-form-item>
-      <a-select v-model:value="formState.group_name" show-search placeholder="Select group" style="width: 200px"
+      <a-select v-model:value="formState.group_name" show-search style="width: 200px"
         :options="selectGroupOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
     <a-form-item>
       <a-button type="primary" html-type="submit"
         :disabled="formState.group_name === '' || formState.character_name === ''">
-        Add
+        {{$t('message.Submit')}}
       </a-button>
     </a-form-item>
   </a-form>
 
   <br /><br />
 
-  <h1>Groups table</h1>
+  <h1>{{$t('message.GroupsTable')}}</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #group_name_edit="{ row }">
       <vxe-input v-model="row.group_name"></vxe-input>

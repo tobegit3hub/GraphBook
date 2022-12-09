@@ -2,17 +2,17 @@
 <template>
 
   <div style="padding: 20px">
-    <h1> Manage Topics</h1>
+    <h1>{{$t('message.ManageTopics')}}</h1>
 
     <!-- Form to create topic -->
     <a-form layout="inline" :model="createTopicFormState" @finish="handleCreateTopicFinish" @finishFailed="handleFinishFailed">
       <a-form-item>
-        <a-input v-model:value="createTopicFormState.name" placeholder="Topic name">
+        <a-input v-model:value="createTopicFormState.name" :placeholder="$t('message.TopicName')">
         </a-input>
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">
-          Create Topic
+          {{$t('message.CreateTopic')}}
         </a-button>
       </a-form-item>
     </a-form>
@@ -28,7 +28,7 @@
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">
-          Delete Topic
+          {{$t('message.DeleteTopic')}}
         </a-button>
       </a-form-item>
     </a-form>
@@ -37,16 +37,16 @@
     <!-- Form to export topic -->
     <a-form layout="inline" :model="exportTopicFormState" @finish="handleExportTopic" >
       <a-form-item>
-        <a-select v-model:value="exportTopicFormState.topic" show-search placeholder="Select topic" style="width: 200px"
+        <a-select v-model:value="exportTopicFormState.topic" show-search style="width: 200px"
           :options="selectTopicOptions" >
         </a-select>
       </a-form-item>
       <a-form-item>
-        <a-input v-model:value="exportTopicFormState.path" placeholder="Export directory"></a-input>
+        <a-input v-model:value="exportTopicFormState.path" :placeholder="$t('message.ExportDirectory')"></a-input>
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">
-          Export Topic
+          {{$t('message.ExportTopic')}}
         </a-button>
       </a-form-item>
     </a-form>
@@ -55,14 +55,14 @@
     <!-- Form to import topic -->
     <a-form layout="inline" :model="importTopicFormState" @finish="handleImportTopic" >
       <a-form-item>
-        <a-input v-model:value="importTopicFormState.topic" placeholder="Topic name"></a-input>
+        <a-input v-model:value="importTopicFormState.topic" :placeholder="$t('message.TopicName')"></a-input>
       </a-form-item>
       <a-form-item>
-        <a-input v-model:value="importTopicFormState.path" placeholder="Import directory"></a-input>
+        <a-input v-model:value="importTopicFormState.path" :placeholder="$t('message.ImportDirectory')"></a-input>
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">
-          Import Topic
+          {{$t('message.ImportTopic')}}
         </a-button>
       </a-form-item>
     </a-form>
@@ -71,14 +71,14 @@
     <!-- Form to export all topics -->
     <a-form layout="inline" :model="exportAllTopicsFormState" @finish="handleExportAllTopics" >
       <a-form-item>
-        <a-input v-model:value="exportAllTopicsFormState.path" placeholder="Export directory"></a-input>
+        <a-input v-model:value="exportAllTopicsFormState.path" :placeholder="$t('message.ExportDirectory')"></a-input>
       </a-form-item>
       <a-form-item>
-        <a-switch v-model:checked="exportAllTopicsFormState.official" checked-children="Official" un-checked-children="Not Official" />
+        <a-switch v-model:checked="exportAllTopicsFormState.official" :checked-children="$t('message.Official')" :un-checked-children="$t('message.NotOfficial')" />
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">
-          Export All Topics
+          {{$t('message.ExportAllTopic')}}
         </a-button>
       </a-form-item>
     </a-form>
@@ -87,14 +87,14 @@
     <!-- Form to import all topics -->
     <a-form layout="inline" :model="importAllTopicsFormState" @finish="handleImportAllTopics" >
       <a-form-item>
-        <a-input v-model:value="importAllTopicsFormState.path" placeholder="Import directory"></a-input>
+        <a-input v-model:value="importAllTopicsFormState.path" :placeholder="$t('message.ImportDirectory')"></a-input>
       </a-form-item>
       <a-form-item>
-        <a-switch v-model:checked="importAllTopicsFormState.official" checked-children="Official" un-checked-children="Not Official" />
+        <a-switch v-model:checked="importAllTopicsFormState.official" :checked-children="$t('message.Official')" :un-checked-children="$t('message.NotOfficial')" />
       </a-form-item>      
       <a-form-item>
         <a-button type="primary" html-type="submit">
-          Import All Topics
+          {{$t('message.importAllTopic')}}
         </a-button>
       </a-form-item>
     </a-form>

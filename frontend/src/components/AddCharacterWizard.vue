@@ -1,14 +1,14 @@
 
 <template>
 
-  <h1>Wizard to add new character</h1>
+  <h1>{{$t('message.WizardToAddNewCharacter')}}</h1>
 
+  <br/>
   <div>
-
     <a-steps :current="currentStep">
-      <a-step title="Create Character" />
-      <a-step title="Add Relations" />
-      <a-step title="Join Groups" />
+      <a-step :title="$t('message.CreateCharacter')" />
+      <a-step :title="$t('message.AddRelations')" />
+      <a-step :title="$t('message.JoinGroups')" />
     </a-steps>
 
     <div :style="{ background: '#fff', margin: '24px', padding: '24px' }">
@@ -17,11 +17,11 @@
       <div v-show="currentStep === 0">
         <a-form :model="createCharacterFormState" @finish="submitCreateCharacterForm">
 
-          <a-form-item label="Name" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
+          <a-form-item :label="$t('message.Name')" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
             <a-input v-model:value="createCharacterFormState.name" />
           </a-form-item>
 
-          <a-form-item label="Note" name="note">
+          <a-form-item :label="$t('message.Note')" name="note">
             <a-textarea auto-size v-model:value="createCharacterFormState.note" />
           </a-form-item>
 
@@ -30,7 +30,7 @@
               list-type="picture" :multiple="false">
               <a-button>
                 <upload-outlined></upload-outlined>
-                Upload image
+                {{$t('message.UploadImage')}}
               </a-button>
             </a-upload>
 
@@ -38,7 +38,7 @@
 
           <a-form-item>
             <a-button type="primary" html-type="submit" :disabled="createCharacterFormState.name === ''">
-              Submit
+              {{$t('message.Submit')}}
             </a-button>
           </a-form-item>
         </a-form>
@@ -54,17 +54,17 @@
 
           <a-form layout="inline">
             <a-form-item>
-              <span>Upstream character: </span>
+              <span>{{$t('message.UpstreamCharacter')}}: </span>
               <a-select v-model:value="addRelationItem.character_name" show-search placeholder="Select character"
                 style="width: 200px" :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
             </a-form-item>
 
-            <a-form-item label="relation" name="relation">
+            <a-form-item :label="$t('message.Relation')" name="relation">
               <!-- TODO: not work of :rules="[{ required: true, message: 'Please input relation!' }]" -->
               <a-input v-model:value="addRelationItem.relation" />
             </a-form-item>
 
-            <a-form-item label="note" name="note">
+            <a-form-item :label="$t('message.Note')" name="note">
               <a-input v-model:value="addRelationItem.note" />
             </a-form-item>
 
@@ -78,7 +78,7 @@
         <a-form-item>
           <a-button type="dashed" style="width: 60%" @click="addUpstreamRelationItem">
             <PlusOutlined />
-            Add upstream relation
+            {{$t('message.AddUpstreamRelation')}}
           </a-button>
         </a-form-item>
       </a-form>
@@ -90,17 +90,17 @@
 
           <a-form layout="inline">
             <a-form-item>
-              <span>Downstream character: </span>
+              <span>{{$t('message.DownstreamCharacter')}}: </span>
               <a-select v-model:value="addRelationItem.character_name" show-search placeholder="Select character"
                 style="width: 200px" :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
             </a-form-item>
 
-            <a-form-item label="relation" name="relation">
+            <a-form-item :label="$t('message.Relation')" name="relation">
               <!-- TODO: not work of :rules="[{ required: true, message: 'Please input relation!' }]" -->
               <a-input v-model:value="addRelationItem.relation" />
             </a-form-item>
 
-            <a-form-item label="note" name="note">
+            <a-form-item :label="$t('message.Note')" name="note">
               <a-input v-model:value="addRelationItem.note" />
             </a-form-item>
 
@@ -114,14 +114,16 @@
         <a-form-item>
           <a-button type="dashed" style="width: 60%" @click="addDownstreamRelationItem">
             <PlusOutlined />
-            Add downstream relation
+            {{$t('message.AddDownstreamRelation')}}
           </a-button>
         </a-form-item>
       </a-form>
 
       <a-form>
         <a-form-item>
-          <a-button type="primary" html-type="submit" @click="submitAddRelationsForm">Submit</a-button>
+          <a-button type="primary" html-type="submit" @click="submitAddRelationsForm">
+            {{$t('message.Submit')}}
+          </a-button>
         </a-form-item>
       </a-form>
     </div>
@@ -131,9 +133,9 @@
     <div v-show="currentStep === 2">
 
       <a-form :model="joinGroupsForm">
-        <a-form-item v-for="(joinGroupItem, index) in joinGroupsForm.joinGroupItems" :key="joinGroupItem.key"
-          label="Group:">
+        <a-form-item v-for="(joinGroupItem, index) in joinGroupsForm.joinGroupItems" :key="joinGroupItem.key">
 
+          <span>{{$t('message.Group')}}: </span>
           <a-select v-model:value="joinGroupItem.group_name" show-search placeholder="Select group" style="width: 200px"
             :options="selectGroupOptions" :filter-option="filterOption"></a-select>
 
@@ -143,21 +145,22 @@
         <a-form-item>
           <a-button type="dashed" style="width: 60%" @click="addJoinGroupItem">
             <PlusOutlined />
-            Join group
+            
           </a-button>
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" html-type="submit" @click="submitJoinGroupsForm">Submit</a-button>
+          <a-button type="primary" html-type="submit" @click="submitJoinGroupsForm">
+            {{$t('message.Submit')}}
+          </a-button>
         </a-form-item>
       </a-form>
     </div>
 
-    <a-button v-if="currentStep > 0" style="margin-left: 8px" @click="prevStep">Previous</a-button>
-    <a-button v-if="currentStep < totalStepCount - 1" type="primary" @click="nextStep">Next</a-button>
+    <a-button v-if="currentStep > 0" style="margin-left: 8px" @click="prevStep">{{$t('message.PreviousStep')}}</a-button>
+    <a-button v-if="currentStep < totalStepCount - 1" type="primary" @click="nextStep">{{$t('message.NextStep')}}</a-button>
     <a-button v-if="currentStep == totalStepCount - 1" type="primary" @click="refreshCurrentPage">
-      Done
+      {{$t('message.Done')}}
     </a-button>
-
 
   </div>
 

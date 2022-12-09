@@ -17,17 +17,18 @@
           <router-link :to='`/topics/${currentTopicName}/characters`'>{{ $t('message.Characters') }}</router-link>
         </a-menu-item>
         <a-menu-item key="4">
-          <router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>{{ $t('message.Edit') }}</router-link>
-        </a-menu-item>
-        <a-menu-item key="5">
           <router-link :to='`/topics/${currentTopicName}/cards`'>{{ $t('message.Cards') }}</router-link>
         </a-menu-item>
-        <a-menu-item key="6">
+        <a-menu-item key="5">
           <router-link :to='`/topics/${currentTopicName}/paths`'>{{ $t('message.Paths') }}</router-link>
         </a-menu-item>
-        <a-menu-item key="7">
+        <a-menu-item key="6">
           <router-link to='/topics/edit'>{{ $t('message.Topics') }}</router-link>
         </a-menu-item>
+        <a-menu-item key="7">
+          <router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>{{ $t('message.Edit') }}</router-link>
+        </a-menu-item>
+
         <!-- TODO: float:right does not work-->
         <a-menu-item key="8" :disabled="true" style="float:rigt">
           <a-select v-model:value="currentTopicName" show-search placeholder="Select topic" style="width: 200px"
@@ -52,7 +53,7 @@
 
     <a-layout-footer style="text-align: center">
       <div>
-        <a href="https://github.com/topicland/TopicLand" target="_blank">TopicLand</a> ©2022 <a href="https://beian.miit.gov.cn/" target="_blank">粤ICP备2022148128号</a>
+        <a href="https://github.com/topicland/TopicLand" target="_blank">TopicLand</a> ©2022 <a href="https://beian.miit.gov.cn/" target="_blank">{{$t('message.ICP_MESSAGE')}}</a>
       </div>
     </a-layout-footer>
   </a-layout>

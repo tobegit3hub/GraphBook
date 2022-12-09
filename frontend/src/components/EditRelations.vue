@@ -1,38 +1,38 @@
 
 <template>
 
-  <h1>Add realtion</h1>
+  <h1>{{$t('message.AddRelation')}}</h1>
   <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
 
     <a-form-item>
-      <a-select v-model:value="formState.source" show-search placeholder="Select character" style="width: 200px"
+      <a-select v-model:value="formState.source" show-search style="width: 200px"
         :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
     <a-form-item>
-      <a-select v-model:value="formState.target" show-search placeholder="Select character" style="width: 200px"
+      <a-select v-model:value="formState.target" show-search style="width: 200px"
         :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
-    <a-form-item label="relation" name="relation" :rules="[{ required: true, message: 'Please input relation!' }]">
+    <a-form-item :label="$t('message.Relation')" name="relation" :rules="[{ required: true, message: 'Please input relation!' }]">
       <a-input v-model:value="formState.relation" />
     </a-form-item>
 
-    <a-form-item label="note" name="note">
+    <a-form-item :label="$t('message.Note')" name="note">
       <a-input v-model:value="formState.note" />
     </a-form-item>
 
     <a-form-item>
       <a-button type="primary" html-type="submit"
         :disabled="formState.source === '' || formState.target === '' || formState.relation === ''">
-        Add
+        {{$t('message.Submit')}}
       </a-button>
     </a-form-item>
   </a-form>
 
   <br /><br />
 
-  <h1>Relations table</h1>
+  <h1>{{$t('message.RelationsTable')}}</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #source_edit="{ row }">
       <vxe-input v-model="row.source"></vxe-input>
