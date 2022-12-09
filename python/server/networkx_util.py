@@ -2,7 +2,6 @@ from sqlalchemy import text
 from sqlalchemy import create_engine
 import networkx as nx
 
-
 class NetworkxUtil(object):
 
     def __init__(self, db_engine, topic: str) -> None:
@@ -61,5 +60,3 @@ class NetworkxUtil(object):
                 conn.commit()
         else:
             raise Exception("Unsupport algorithm: {}".format(algorithm))
-        
-
