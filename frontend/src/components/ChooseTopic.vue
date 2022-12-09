@@ -3,7 +3,7 @@
 
   <div style="padding: 20px">
 
-    <a-result status="warning" title="Please choose topic.">
+    <a-result status="warning" :title="$t('message.PleaseChooseTopic')">
       <template #extra>
       </template>
     </a-result>

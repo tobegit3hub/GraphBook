@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createI18n } from 'vue-i18n'
 import { createRouter, createWebHashHistory } from "vue-router";
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
@@ -60,7 +61,92 @@ const router = createRouter({
   routes
 })
 
+
+const messages = {
+  en: {
+    message: {
+      Home: 'Home',
+      Graph: 'Graph',
+      Characters: "Characters",
+      Edit: "Edit",
+      Cards: "Cards",
+      Paths: "Paths",
+      Topics: "Topics",
+
+      PleaseChooseTopic: "Please choose topic",
+      TopicsList: "Topics List",
+
+      Reset: "Reset",
+      SearchFrom: "Search from",
+      topics: "topics",
+
+      Groups: "Groups",
+      PlayGraphAnimation: "Play graph animation",
+      Play: "Play",
+      Stop: "Stop",
+
+      Choose: "Choose",
+      CharacterAssociation: "Character Association",
+      Upstream: "Upstream",
+      Downstream: "Downstream",
+
+      Compute: "Compute",
+
+      Manage: "Manage",
+      Export: "Export",
+      Import: "Import",
+      All: "All",
+      Official: "Official",
+      NotOfficial: "Not official",
+    }
+  },
+  zh: {
+    message: {
+      Home: '首页',
+      Graph: '关系图',
+      Characters: "角色",
+      Edit: "编辑",
+      Cards: "卡片",
+      Paths: "路径",
+      Topics: "主题",
+
+      PleaseChooseTopic: "请选择主题",
+      TopicsList: "主题列表",
+
+      Reset: "重制",
+      SearchFrom: "搜索自",
+      topics: "主题",
+
+      Groups: "分组",
+      PlayGraphAnimation: "Play graph animation",
+      Play: "Play",
+      Stop: "Stop",
+
+      Choose: "Choose",
+      CharacterAssociation: "Character Association",
+      Upstream: "Upstream",
+      Downstream: "Downstream",
+
+      Compute: "Compute",
+
+      Manage: "Manage",
+      Export: "Export",
+      Import: "Import",
+      All: "All",
+      Official: "Official",
+      NotOfficial: "Not official",
+    }
+  }
+}
+
+const i18n = createI18n({
+  locale: 'zh',
+  fallbackLocale: 'en',
+  messages
+})
+
 const app = createApp(App)
 app.use(router)
 app.use(useTable)
+app.use(i18n)
 app.mount('#app')

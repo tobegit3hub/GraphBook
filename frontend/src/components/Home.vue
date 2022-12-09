@@ -8,25 +8,25 @@
       <div class="logo" />
       <a-menu theme="dark" mode="horizontal" :style="{ lineHeight: '64px' }">
         <a-menu-item key="1">
-          <router-link to='/'>Home</router-link>
+          <router-link to='/'>{{ $t('message.Home') }}</router-link>
         </a-menu-item>
         <a-menu-item key="2">
-          <router-link :to='`/topics/${currentTopicName}/graph`'>Graph</router-link>
+          <router-link :to='`/topics/${currentTopicName}/graph`'>{{ $t('message.Graph') }}</router-link>
         </a-menu-item>
         <a-menu-item key="3">
-          <router-link :to='`/topics/${currentTopicName}/characters`'>Characters</router-link>
+          <router-link :to='`/topics/${currentTopicName}/characters`'>{{ $t('message.Characters') }}</router-link>
         </a-menu-item>
         <a-menu-item key="4">
-          <router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>Edit</router-link>
+          <router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>{{ $t('message.Edit') }}</router-link>
         </a-menu-item>
         <a-menu-item key="5">
-          <router-link :to='`/topics/${currentTopicName}/cards`'>Cards</router-link>
+          <router-link :to='`/topics/${currentTopicName}/cards`'>{{ $t('message.Cards') }}</router-link>
         </a-menu-item>
         <a-menu-item key="6">
-          <router-link :to='`/topics/${currentTopicName}/paths`'>Paths</router-link>
+          <router-link :to='`/topics/${currentTopicName}/paths`'>{{ $t('message.Paths') }}</router-link>
         </a-menu-item>
         <a-menu-item key="7">
-          <router-link to='/topics/edit'>Topics</router-link>
+          <router-link to='/topics/edit'>{{ $t('message.Topics') }}</router-link>
         </a-menu-item>
         <!-- TODO: float:right does not work-->
         <a-menu-item key="8" :disabled="true" style="float:rigt">
@@ -34,8 +34,15 @@
             :options="selectTopicOptions" @change="handleChangeTopic">
           </a-select>
         </a-menu-item>
-      </a-menu>
 
+        <a-menu-item>
+          <select v-model="$i18n.locale">
+            <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">
+              {{ lang }}
+            </option>
+          </select>
+        </a-menu-item>
+      </a-menu>
     </a-layout-header>
 
     <a-layout-content style="padding: 0 50px">
@@ -68,6 +75,8 @@ export default defineComponent({
   setup() {
     const router = useRouter()
     const route = useRoute()
+
+    const langs = ['en', 'zh']
 
     const currentTopicName = ref<string>("");
     const selectTopicOptions = ref<SelectTypes['options']>([]);
@@ -125,6 +134,8 @@ export default defineComponent({
       currentTopicName,
       filterOption,
       handleChangeTopic,
+
+      langs
     };
   }
 

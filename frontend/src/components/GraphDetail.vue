@@ -61,7 +61,7 @@
       <div>
         <!-- The drawer to edit graph-->
         <div>
-          <p>Enable image mdoe:</p>
+          <p>Enable image mode:</p>
           <a-switch checked-children="Show Images" un-checked-children="No Image" v-model:checked="isDisplayImage"
             @change="init" />
         </div>
