@@ -78,7 +78,11 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
 
-    const langs = ["English", "简体中文"]
+    const langs = [
+      "English",
+      "简体中文",
+      "繁體中文"
+    ]
 
     const currentTopicName = ref<string>("");
     const selectTopicOptions = ref<SelectTypes['options']>([]);
