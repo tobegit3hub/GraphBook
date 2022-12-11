@@ -79,6 +79,7 @@ const messages = {
       Reset: "Reset",
       SearchFromTopics: "Search from {topic_count} topics",
       ICP_MESSAGE: "ICP 2022148128",
+      TopicStatisticsFormat: "{character_count} topics / {relation_count} relations / {group_count} groups",
       // Graph
       Groups: "Groups",
       GraphAnimation: "Graph Animation",
@@ -173,6 +174,7 @@ const messages = {
       Reset: "重置",
       SearchFromTopics: "从 {topic_count} 个主题中搜索",
       ICP_MESSAGE: "粤ICP备2022148128号",
+      TopicStatisticsFormat: "{character_count} 角色 / {relation_count} 关系 / {group_count} 分组",
       // Graph
       Groups: "分组",
       GraphAnimation: "关系图动画",
@@ -267,6 +269,7 @@ const messages = {
       Reset: "重置",
       SearchFromTopics: "從 {topic_count} 個主題中搜索",
       ICP_MESSAGE: "粤ICP備2022148128號",
+      TopicStatisticsFormat: "{character_count} 角色 / {relation_count} 關係 / {group_count} 分組",
       // Graph
       Groups: "分組",
       GraphAnimation: "關係圖動畫",

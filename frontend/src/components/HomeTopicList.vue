@@ -17,7 +17,7 @@
       <a-list item-layout="horizontal" :data-source="topicsListData">
         <template #renderItem="{ item }">
           <a-list-item>
-            <a-list-item-meta :description="item.statistic_string">
+            <a-list-item-meta :description="$t('message.TopicStatisticsFormat', {character_count: item.character_count, relation_count: item.relation_count, group_count: item.group_count})">
               <template #title>
                 <router-link :to='`/topics/${item.name}`'>
                   {{ item.name }}
@@ -64,7 +64,9 @@ type SelectItem = {
 interface TopicsListItem {
   name: string;
   official: boolean;
-  statistic_string: string;
+  character_count: number;
+  relation_count: number;
+  group_count: number;
 }
 
 export default defineComponent({
@@ -91,11 +93,12 @@ export default defineComponent({
           // Reset the array
           topicsListData.splice(0)
 
-          const statistic_string = `${response.data.characters} characters / ${response.data.relations} relations / ${response.data.groups} groups`
           topicsListData.push({ 
             name: response.data.topic,
             official: response.data.official,
-            statistic_string: statistic_string 
+            character_count: response.data.characters,
+            relation_count: response.data.relations,
+            group_count: response.data.groups
           })
         })
         .catch(error => {
@@ -155,11 +158,12 @@ export default defineComponent({
 
           // Get topic list and their statistics
           response.data.statistics.forEach((statistic) => {
-            const statistic_string = `${statistic.characters} characters / ${statistic.relations} relations / ${statistic.groups} groups`
             topicsListData.push({
               name: statistic.topic,
               official: statistic.official,
-              statistic_string: statistic_string
+              character_count: statistic.characters,
+              relation_count: statistic.relations,
+              group_count: statistic.groups
             })
           });
 
