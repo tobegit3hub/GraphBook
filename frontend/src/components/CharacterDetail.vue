@@ -41,6 +41,7 @@
     <p><b>{{ $t('message.Name') }}:</b> {{ character.name }}</p>
     <p><b>{{ $t('message.Weight') }}:</b> {{ character.weight }}</p>
     <p><b>{{ $t('message.Note') }}:</b> {{ character.note }}</p>
+    <p><b>{{ $t('message.ImageName') }}:</b> {{ character.image_name }}</p>
     <a-image v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`"
       width="280px" />
   </div>

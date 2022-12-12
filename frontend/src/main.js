@@ -12,7 +12,7 @@ import GraphDetail from './components/GraphDetail.vue';
 import ComputePaths from './components/ComputePaths.vue'
 import CharactersCards from './components/CharactersCards.vue'
 import ChooseCharacters from './components/ChooseCharacters.vue';
-import CharacterDetail from './components/CharacterDetail.vue'
+import CharacterDetail from './components/CharacterDetail.vue';
 import EditTopics from './components/EditTopics.vue';
 import EditGraph from './components/EditGraph.vue';
 import AddCharacterWizard from './components/AddCharacterWizard.vue';
@@ -107,6 +107,7 @@ const messages = {
       Upstream: "Upstream",
       Downstream: "Downstream",
       Relation: "Relation",
+      ImageName: "Image name",
       // Paths
       ComputePaths: "Compute Paths",
       SourceUser: "SourceUser",
@@ -202,6 +203,7 @@ const messages = {
       Upstream: "上游",
       Downstream: "下游",
       Relation: "关系",
+      ImageName: "图片名",
       // Paths
       ComputePaths: "计算路径",
       SourceUser: "源用户",
@@ -297,6 +299,7 @@ const messages = {
       Upstream: "上游",
       Downstream: "下游",
       Relation: "關係",
+      ImageName: "圖片名",
       // Paths
       ComputePaths: "計算路徑",
       SourceUser: "源用户",
