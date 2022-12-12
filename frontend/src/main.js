@@ -20,6 +20,7 @@ import EditCharacters from './components/EditCharacters.vue';
 import EditRelations from './components/EditRelations.vue';
 import EditGroups from './components/EditGroups.vue';
 import ChooseTopic from './components/ChooseTopic.vue';
+import MainlineDetail from './components/MainlineDetail.vue';
 
 // Read config from .env.development and .env.production to set global server endpoint
 axios.defaults.baseURL = import.meta.env.VITE_API_ENDPOINT;
@@ -52,6 +53,7 @@ const routes = [
   { path: '/topics/:topic/paths', component: ComputePaths, props: true },
   { path: '/topics/edit', component: EditTopics, props: true },
   { path: '/topics/choose', component: ChooseTopic },
+  { path: '/topics/:topic/mainline', component: MainlineDetail, props: true },
   { path: '/404', redirect: "/topics/choose" },
   { path: '/:pathMatch(.*)*', redirect: "/404" }
 ]
