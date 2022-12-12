@@ -26,15 +26,18 @@
         <a-menu-item key="7">
           <router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>{{ $t('message.Edit') }}</router-link>
         </a-menu-item>
+        <a-menu-item key="8">
+          <router-link :to='`/topics/${currentTopicName}/mainline`'>{{ $t('message.Mainline') }}</router-link>
+        </a-menu-item>
 
         <!-- TODO: float:right does not work-->
-        <a-menu-item key="8" :disabled="true" style="float:rigt">
+        <a-menu-item key="9" :disabled="true" style="float:rigt">
           <a-select v-model:value="currentTopicName" show-search placeholder="Select topic" style="width: 200px"
             :options="selectTopicOptions" @change="handleChangeTopic">
           </a-select>
         </a-menu-item>
 
-        <a-menu-item>
+        <a-menu-item key="10" :disabled="true" style="float:rigt">
           {{ $t('message.Languages') }}
           <select v-model="$i18n.locale">
             <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">
