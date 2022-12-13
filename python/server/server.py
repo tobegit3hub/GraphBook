@@ -315,6 +315,25 @@ def update_characters_weights(topic):
             result = {"code": -1, "msg": "Algorithm should not be null"}
         return jsonify(result)
 
+@app.route('/api/topics/<topic>/mainline', methods=['GET', 'POST'])
+@cross_origin()
+def handle_mainline(topic):
+    if request.method == "GET":
+        result = db_service.get_mainline_data(topic)
+        return jsonify(result)
+    elif request.method == "POST":
+        return jsonify({"code": 0})
+
+@app.route('/api/topics/<topic>/related_characters', methods=['POST'])
+@cross_origin()
+def get_related_characters(topic):
+    if request.method == "POST":
+        # Use POST to get raw text parameter
+        if "text" not in request.json or request.json["text"] == None or request.json["text"] == "":
+            return jsonify({"code": -1, "characters": []})
+        text = request.json["text"]
+        result = {"characters": db_service.get_related_characters(topic, text)}
+        return jsonify(result)
 
 def main():
   app.run(host=ini_config["server"]["host"],

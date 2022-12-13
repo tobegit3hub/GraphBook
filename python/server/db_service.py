@@ -461,9 +461,9 @@ class DbService(object):
         if len(chosen_groups) > 0:
             group_str = ",".join(["'{}'".format(name)
                                  for name in chosen_groups])
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(group_str)
+            sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(group_str)
         else:
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic=:topic"
+            sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic"
         params = {"topic": topic}
         result = conn.execute(text(sql), params).all()
 
@@ -510,7 +510,7 @@ class DbService(object):
     """
     def get_groups_names(self, topic: str) -> list:
         conn = self.engine.connect()
-        sql = "SELECT distinct(group_name) FROM groupx WHERE topic=:topic"
+        sql = "SELECT DISTINCT(group_name) FROM groupx WHERE topic=:topic"
         params = {"topic": topic}            
         result = conn.execute(text(sql), params).all()
 
@@ -602,9 +602,9 @@ class DbService(object):
         if len(chosen_groups) > 0:
             group_str = ",".join(["'{}'".format(name)
                                  for name in chosen_groups])
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(group_str)
+            sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(group_str)
         else:
-            sql = "SELECT distinct(character_name) FROM groupx WHERE topic=:topic"
+            sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic"
 
         params = {"topic": topic}
         result = conn.execute(text(sql), params).all()
@@ -1007,3 +1007,119 @@ class DbService(object):
         for topic_name in topic_name_list:
             logging.info("Try to import topic: {} in path: {}".format(topic_name, import_dir))
             self.import_topic(topic_name, import_dir, is_official)
+
+    """
+    Get the data of mainline.
+
+    Return data should be like this.
+    [
+        {
+            "categories": [
+                {
+                    "name": "主线"
+                },
+                {
+                    "name": "小鱼儿线"
+                },
+                {
+                    "name": "花无缺线"
+                }
+            ],
+            "nodes": [
+                {
+                    "category": "主线",
+                    "name": "江枫逃亡", 
+                    "note": "江枫逃亡记录",
+                    "symbolSize": 80,
+                }
+            ],
+            "edges": [
+                {
+                    "source": "江枫逃亡",
+                    "target": "移花宫主弃婴"
+                }
+            ]
+        }
+    ]
+    """
+    def get_mainline_data(self, topic: str) -> None:
+        conn = self.engine.connect()
+
+        return_result = {"categories": [], "nodes": [], "edges": []}
+
+        # Get all branch names
+        sql = "SELECT DISTINCT(branch) FROM mainlines WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
+        return_result["categories"] = [{"name": row[0]} for row in result]
+
+        # Get all nodes
+        sql = "SELECT branch, event, note FROM mainlines WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
+
+        def get_symbol_size(branch_name):
+            name = branch_name.lower()
+            if name == "main" or name == "mainline" or name == "主线":
+                return 120
+            else:
+                return 80
+        
+        return_result["nodes"] = [{
+            "category": row[0],
+            "name": row[1],
+            "note": row[2],
+            "symbolSize": get_symbol_size(row[0])
+        } for row in result]
+
+        # Get all edges
+        sql = "SELECT event, previous_event, final_event FROM mainlines WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
+        for row in result:
+            event = row[0]
+            previous_event = row[1]
+            final_event = row[2]
+
+            if previous_event and previous_event != "" and previous_event != " ":
+                return_result["edges"].append({"source": previous_event, "target": event})
+
+            if final_event and final_event != "" and final_event != " ":
+                return_result["edges"].append({"source": event, "target": final_event})
+
+        conn.close()
+        return return_result
+
+    """
+    Get related characters from the text.
+
+    Return data should be like this.
+    [
+        {
+            "name": "",
+            "image_name": ""
+        }
+    ]
+    """
+    def get_related_characters(self, topic: str, text_str: str) -> None:
+        conn = self.engine.connect()
+
+        return_result = []
+
+        # Get all character names
+        sql = "SELECT name FROM characters WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
+
+        # Check if character name is in the text content
+        related_character_names = [row[0] for row in result if row[0] in text_str]
+
+        if len(related_character_names) > 0:
+            names_str = ",".join(["'{}'".format(name)
+                                 for name in related_character_names])
+            sql = "SELECT name, image_name FROM characters WHERE topic=:topic and name IN ({})".format(names_str)
+            result = conn.execute(text(sql), params).all()
+            return_result = [{"name": row[0], "image_name": row[1]} for row in result]
+        
+        conn.close()
+        return return_result

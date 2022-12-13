@@ -3,12 +3,37 @@
 
   <br />
   <!-- Echarts Graph -->
-  <v-chart class="chart" :option="vuechartOption" />
+  <v-chart class="chart" :option="vuechartOption" @dblclick="doubleClickGraph" />
+
+  <!-- The modal to show single event -->
+  <a-modal v-model:visible="isModalVisible" :title="modalTitle" @ok="handleModalOk">
+    <br/>
+    <p>{{ modalNote }}</p>
+
+    <br/>
+    <h3>Related Characters</h3>
+    <a-list :grid="{ gutter: 16, column: 4 }" :data-source="modalRelatedCharacters">
+      <template #renderItem="{ item }">
+        <a-list-item>
+          <a-card hoverable @click="redirectToCharacterPage(item.name)">
+              <template #cover>
+                  <img v-if="item.image_name" :src="`${API_BASE_URI}/images/${topic}/${item.image_name}`" />
+              </template>
+              <a-card-meta :title="item.name">
+                <template #description>{{ item.note }}</template>
+              </a-card-meta>
+            </a-card>
+        </a-list-item>
+      </template>
+    </a-list>
+
+  </a-modal>
 
 </template>
 
 <script>
 import { defineComponent, ref, reactive, watch, toRefs, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import VChart from "vue-echarts";
 
@@ -22,6 +47,8 @@ export default defineComponent({
   },
   setup(props) {
     const API_BASE_URI = axios.defaults.baseURL;
+
+    const router = useRouter();
 
     const simplifyNote = (note) => {
       if (note) {
@@ -51,10 +78,10 @@ export default defineComponent({
       tooltip: {
         trigger: "item",
         formatter: (param) => {
-          let template = param.data.name
+          let template = param.data.name;
           if (param.data.name) {
-            template += '</br>'
             if (param.data.note) {
+              template += '<br/><br/>'
               template += '<div style="width: 100px">' + simplifyNote(param.data.note) + '</div>';
             }
           }
@@ -117,7 +144,6 @@ export default defineComponent({
     })
 
     const init = () => {
-
       axios.get(`/api/topics/${props.topic}/mainline`).then(response => {
 
         vuechartOption.value.series[0].categories = response.data.categories;
@@ -131,14 +157,52 @@ export default defineComponent({
       }, response => {
         console.log(`Fail to get characters for topic: ${props.topic}`);
       });
-
     }
+
+
+    const redirectToCharacterPage = (character_name) => {
+      router.push({ path: `/topics/${props.topic}/characters/${character_name}` })
+    }
+
+    const isModalVisible = ref(false);
+    const modalTitle = ref("");
+    const modalNote = ref("");
+    const modalRelatedCharacters = ref([]);
+
+    const handleModalOk = (e) => {
+      isModalVisible.value = false;
+    };
+
+    const doubleClickGraph = (params) => {
+      isModalVisible.value = true;
+      modalTitle.value = params.data.name;
+      modalNote.value = params.data.note;
+
+      // Get related characters
+      modalRelatedCharacters.value.splice(0);
+      axios.post(`/api/topics/${props.topic}/related_characters`, {
+        text: params.data.note
+      }).then(response => {
+        modalRelatedCharacters.value.push(...response.data.characters);
+      }, response => {
+        console.log(`Fail to get related characters for topic: ${props.topic}`);
+      });
+    }
+
 
     return {
       API_BASE_URI,
 
       init,
       vuechartOption,
+      doubleClickGraph,
+
+      isModalVisible,
+      handleModalOk,
+      modalTitle,
+      modalNote,
+      modalRelatedCharacters,
+      redirectToCharacterPage
     }
 
   }

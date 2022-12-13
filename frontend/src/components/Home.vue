@@ -15,19 +15,19 @@
           <router-link :to='`/topics/${currentTopicName}/characters`'>{{ $t('message.Characters') }}</router-link>
         </a-menu-item>
         <a-menu-item key="4">
-          <router-link :to='`/topics/${currentTopicName}/cards`'>{{ $t('message.Cards') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/mainline`'>{{ $t('message.Mainline') }}</router-link>
         </a-menu-item>
         <a-menu-item key="5">
-          <router-link :to='`/topics/${currentTopicName}/paths`'>{{ $t('message.Paths') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/cards`'>{{ $t('message.Cards') }}</router-link>
         </a-menu-item>
         <a-menu-item key="6">
-          <router-link to='/topics/edit'>{{ $t('message.Topics') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/paths`'>{{ $t('message.Paths') }}</router-link>
         </a-menu-item>
         <a-menu-item key="7">
-          <router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>{{ $t('message.Edit') }}</router-link>
+          <router-link to='/topics/edit'>{{ $t('message.Topics') }}</router-link>
         </a-menu-item>
         <a-menu-item key="8">
-          <router-link :to='`/topics/${currentTopicName}/mainline`'>{{ $t('message.Mainline') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>{{ $t('message.Edit') }}</router-link>
         </a-menu-item>
 
         <!-- TODO: float:right does not work-->
