@@ -19,6 +19,7 @@ import AddCharacterWizard from './components/AddCharacterWizard.vue';
 import EditCharacters from './components/EditCharacters.vue';
 import EditRelations from './components/EditRelations.vue';
 import EditGroups from './components/EditGroups.vue';
+import EditMainlines from './components/EditMainlines.vue';
 import ChooseTopic from './components/ChooseTopic.vue';
 import MainlineDetail from './components/MainlineDetail.vue';
 
@@ -46,7 +47,8 @@ const routes = [
       { path: 'addcharacter', component: AddCharacterWizard, props: true },
       { path: 'characters', component: EditCharacters, props: true },
       { path: 'relations', component: EditRelations, props: true },
-      { path: 'groups', component: EditGroups, props: true }
+      { path: 'groups', component: EditGroups, props: true },
+      { path: 'mainlines', component: EditMainlines, props: true }
     ]
   },
   { path: '/topics/:topic/cards', component: CharactersCards, props: true },
@@ -137,6 +139,7 @@ const messages = {
       EditAllCharacters: "Edit All Characters",
       EditAllRelations: "Edit All Relations",
       EditAllGroups: "Edit All Groups",
+      EditAllMainlines: "Edit All Mainlines",
       WizardToAddNewCharacter: "Wizard to add new character",
       CreateCharacter: "Create Character",
       AddRelations: "Add Relations",
@@ -161,6 +164,12 @@ const messages = {
       GroupName: "Group Name",
       AddToGroup: "Add To Group",
       GroupsTable: "Groups Table",
+      AddMainlineEvent: "Add Mainline Event",
+      BranchName: "Branch name",
+      EventName: "Event name",
+      PreviousEvent: "Previous event",
+      FinalEvent: "Final event",
+      MainlinesTable: "Mainlines Table"
     }
   },
   简体中文: {
@@ -235,6 +244,7 @@ const messages = {
       EditAllCharacters: "编辑所有角色",
       EditAllRelations: "编辑所有关系",
       EditAllGroups: "编辑所有分组",
+      EditAllMainlines: "编辑所有主线",
       WizardToAddNewCharacter: "添加新角色向导",
       CreateCharacter: "创建角色",
       AddRelations: "添加关系",
@@ -259,7 +269,13 @@ const messages = {
       GroupName: "分组名字",
       AddToGroup: "添加到分组",
       GroupsTable: "分组表格",
-    },
+      AddMainlineEvent: "添加主线事件",
+      BranchName: "主线名",
+      EventName: "事件名",
+      PreviousEvent: "前置事件",
+      FinalEvent: "最终事件",
+      MainlinesTable: "主线表格"
+    }
   },
   繁體中文: {
     message: {
@@ -333,6 +349,7 @@ const messages = {
       EditAllCharacters: "編輯所有角色",
       EditAllRelations: "編輯所有關係",
       EditAllGroups: "編輯所有分組",
+      EditAllMainlines: "編輯所有主線",
       WizardToAddNewCharacter: "添加新角色嚮導",
       CreateCharacter: "創建角色",
       AddRelations: "添加關係",
@@ -357,8 +374,14 @@ const messages = {
       GroupName: "分組名字",
       AddToGroup: "添加到分組",
       GroupsTable: "分組表格",
-    },
-  }  
+      AddMainlineEvent: "添加主線事件",
+      BranchName: "主線名",
+      EventName: "事件名",
+      PreviousEvent: "前置事件",
+      FinalEvent: "最終事件",
+      MainlinesTable: "主線表格"
+    }
+  }
 }
 
 const i18n = createI18n({

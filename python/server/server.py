@@ -104,7 +104,6 @@ def handle_characters(topic):
             topic, chosen_characters_names)}
         return jsonify(result)
     elif request.method == "POST":
-
         if "name" in request.json and "note" in request.json and "image_name" in request.json:
             name = request.json["name"]
             note = request.json["note"]
@@ -323,13 +322,49 @@ def update_characters_weights(topic):
             result = {"code": -1, "msg": "Algorithm should not be null"}
         return jsonify(result)
 
-@app.route('/api/topics/<topic>/mainline', methods=['GET', 'POST'])
+@app.route('/api/topics/<topic>/mainlines/graph_data', methods=['GET'])
 @cross_origin()
-def handle_mainline(topic):
+def get_mainlines_graph_data(topic):
     if request.method == "GET":
-        result = db_service.get_mainline_data(topic)
+        result = db_service.get_mainlines_graph_data(topic)
+        return jsonify(result)
+
+@app.route('/api/topics/<topic>/mainlines/events', methods=['GET'])
+@cross_origin()
+def get_mainlines_events(topic):
+    if request.method == "GET":
+        result = db_service.get_mainlines_events(topic)
+        return jsonify(result)
+
+@app.route('/api/topics/<topic>/mainlines/branches', methods=['GET'])
+@cross_origin()
+def get_mainlines_branches(topic):
+    if request.method == "GET":
+        result = {"branches": db_service.get_mainlines_branches(topic)}
+        return jsonify(result)
+
+@app.route('/api/topics/<topic>/mainlines', methods=['GET', 'POST'])
+@cross_origin()
+def handle_mainlines(topic):
+    if request.method == "GET":
+        result = {"mainlines": db_service.get_mainlines(topic)}
         return jsonify(result)
     elif request.method == "POST":
+        if "branch" in request.json and "event" in request.json and "note" in request.json and "previous_event" in request.json and "final_event" in request.json:
+            branch = request.json["branch"]
+            event = request.json["event"]
+            note = request.json["note"]
+            previous_event = request.json["previous_event"]
+            final_event = request.json["final_event"]
+            db_service.create_mainline_event(topic, branch, event, note, previous_event, final_event)
+
+        elif "insert_mainlines" in request.json and "update_mainlines" in request.json and "delete_mainlines" in request.json:
+            insert_mainlines = request.json["insert_mainlines"]
+            update_mainlines = request.json["update_mainlines"]
+            delete_mainlines = request.json["delete_mainlines"]
+            db_service.update_mainlines(
+                topic, insert_mainlines, update_mainlines, delete_mainlines)
+
         return jsonify({"code": 0})
 
 @app.route('/api/topics/<topic>/related_characters', methods=['POST'])

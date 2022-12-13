@@ -11,6 +11,8 @@ import pandas as pd
 """
 The configuration of database, support SQLite and Mysql.
 """
+
+
 class DbConfig(object):
     def __init__(self, dbms: str, endpoint: str, username: str = "", password: str = "", db_name: str = "topicland") -> None:
         self.dbms = dbms.lower()
@@ -28,6 +30,7 @@ class DbConfig(object):
     """
     Check if the DBMS is supported or not.
     """
+
     def check_dbms(self) -> None:
         SUPPORTED_DBMS_LIST = ["sqlite", "mysql"]
         if self.dbms not in SUPPORTED_DBMS_LIST:
@@ -38,6 +41,8 @@ class DbConfig(object):
 """
 The helper class to interative with database.
 """
+
+
 class DbService(object):
     def __init__(self, db_config: DbConfig) -> None:
         self.db_config = db_config
@@ -58,6 +63,7 @@ class DbService(object):
     """
     Create the internal database.
     """
+
     def init_database(self) -> None:
         if self.db_config.dbms == "sqlite":
             # No need to create database for sqlite
@@ -71,21 +77,22 @@ class DbService(object):
                 engine_url, echo=True, future=True, pool_size=100, max_overflow=0)
             conn = engine.connect()
 
-            sql = "CREATE DATABASE IF NOT EXISTS `{}`".format(self.db_config.db_name)
+            sql = "CREATE DATABASE IF NOT EXISTS `{}`".format(
+                self.db_config.db_name)
             conn.execute(text(sql))
             conn.close()
 
     """
     Create the internal tables.
     """
+
     def init_tables(self) -> None:
         conn = self.engine.connect()
 
-        
         topic_index = "INDEX (`topic`),"
         if self.db_config.dbms == "sqlite":
             topic_index = ""
-        
+
         unique_key = "UNIQUE KEY (`name`),"
         if self.db_config.dbms == "sqlite":
             unique_key = ""
@@ -150,6 +157,24 @@ class DbService(object):
         """.format(unique_key, topic_index)
         conn.execute(text(sql))
 
+        unique_key = "UNIQUE KEY (`topic`, `event`),"
+        if self.db_config.dbms == "sqlite":
+            unique_key = ""
+        sql = """
+        CREATE TABLE IF NOT EXISTS `mainlines` (
+            `topic` varchar(64) NOT NULL,
+            `branch` varchar(64) NOT NULL,
+            `event` varchar(64) NOT NULL,
+            `note` varchar(64) DEFAULT NULL,
+            `previous_event` varchar(64) DEFAULT NULL,
+            `final_event` varchar(64) DEFAULT NULL,
+            {}
+            {}
+            FOREIGN KEY (`topic`) REFERENCES `topics`(`name`)
+        )
+        """.format(unique_key, topic_index)
+        conn.execute(text(sql))
+
         if self.db_config.dbms == "sqlite":
             # Create indexes for sqlite which may not create before
             sql = "CREATE INDEX IF NOT EXISTS characters_topic_index ON characters (topic)"
@@ -161,12 +186,16 @@ class DbService(object):
             sql = "CREATE INDEX IF NOT EXISTS groups_topic_index ON groupx (topic)"
             conn.execute(text(sql))
 
+            sql = "CREATE INDEX IF NOT EXISTS mainlines_topic_index ON mainlines (topic)"
+            conn.execute(text(sql))
+
         conn.commit()
         conn.close()
 
     """
     Get all topics.
     """
+
     def get_topics(self) -> list:
         conn = self.engine.connect()
         sql = "SELECT name, official FROM topics"
@@ -176,6 +205,7 @@ class DbService(object):
     """
     Get names of all topics.
     """
+
     def get_topics_names(self) -> list:
         conn = self.engine.connect()
         sql = "SELECT name FROM topics"
@@ -206,6 +236,7 @@ class DbService(object):
             ]
         }
     """
+
     def get_all_topics_statistics(self) -> map:
         conn = self.engine.connect()
         sql = "SELECT name FROM topics"
@@ -274,6 +305,7 @@ class DbService(object):
             ]
         }
     """
+
     def get_topics_statistics(self, count) -> map:
         conn = self.engine.connect()
         if self.db_config.dbms == "sqlite":
@@ -284,7 +316,8 @@ class DbService(object):
         result = conn.execute(text(sql), params).all()
         topic_count = len(result)
 
-        names_str = ",".join(["'{}'".format(name_tuple[0]) for name_tuple in result])
+        names_str = ",".join(["'{}'".format(name_tuple[0])
+                             for name_tuple in result])
 
         statistics = {}
         for item in result:
@@ -297,21 +330,24 @@ class DbService(object):
                 "groups": 0
             }
 
-        sql = "SELECT topic, count(*) FROM characters WHERE topic IN ({}) GROUP BY topic".format(names_str)
+        sql = "SELECT topic, count(*) FROM characters WHERE topic IN ({}) GROUP BY topic".format(
+            names_str)
         result = conn.execute(text(sql)).all()
         for item in result:
             topic_name = item[0]
             count = item[1]
             statistics[topic_name]["characters"] = count
 
-        sql = "SELECT topic, count(*) FROM relations WHERE topic IN ({}) GROUP BY topic".format(names_str)
+        sql = "SELECT topic, count(*) FROM relations WHERE topic IN ({}) GROUP BY topic".format(
+            names_str)
         result = conn.execute(text(sql)).all()
         for item in result:
             topic_name = item[0]
             count = item[1]
             statistics[topic_name]["relations"] = count
 
-        sql = "SELECT topic, count(DISTINCT group_name) FROM groupx WHERE topic IN ({}) GROUP BY topic".format(names_str)
+        sql = "SELECT topic, count(DISTINCT group_name) FROM groupx WHERE topic IN ({}) GROUP BY topic".format(
+            names_str)
         result = conn.execute(text(sql)).all()
         for item in result:
             topic_name = item[0]
@@ -338,11 +374,12 @@ class DbService(object):
         "groups": 5
     }
     """
+
     def get_one_topic_statistics(self, topic: str) -> map:
         conn = self.engine.connect()
-        
+
         return_result = {
-            "topic": topic,            
+            "topic": topic,
         }
         params = {"topic": topic}
 
@@ -368,6 +405,7 @@ class DbService(object):
     """
     Create one topic with name.
     """
+
     def create_topic(self, name: str) -> list:
         conn = self.engine.connect()
         sql = "INSERT INTO topics (name) VALUES (:name)"
@@ -379,28 +417,31 @@ class DbService(object):
     """
     Create one topic with name if not exists.
     """
+
     def create_topic_if_not_exist(self, name: str) -> list:
         conn = self.engine.connect()
         sql = "INSERT INTO topics (name) SELECT :name WHERE not exists (SELECT name FROM topics WHERE name=:name)"
         params = {"name": name}
         conn.execute(text(sql), params)
         conn.commit()
-        conn.close()        
+        conn.close()
 
     """
     Create one official topic with name if not exists.
     """
+
     def create_official_topic_if_not_exist(self, name: str) -> list:
         conn = self.engine.connect()
         sql = "INSERT INTO topics (name, official) SELECT :name, true WHERE not exists (SELECT name FROM topics WHERE name=:name)"
         params = {"name": name}
         conn.execute(text(sql), params)
         conn.commit()
-        conn.close()    
+        conn.close()
 
     """
     Delete one topic with name.
     """
+
     def delete_topic(self, topic_name: str) -> list:
         conn = self.engine.connect()
         params = {"topic": topic_name}
@@ -423,6 +464,7 @@ class DbService(object):
     """
     Get all characters from single topic.
     """
+
     def get_characters(self, topic: str, chosen_node_names: list = []) -> list:
         conn = self.engine.connect()
         if len(chosen_node_names) > 0:
@@ -430,7 +472,8 @@ class DbService(object):
             names_str = ",".join(["'{}'".format(name)
                                  for name in chosen_node_names])
             # TODO: Execute with params
-            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic and name IN ({})".format(names_str)
+            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic and name IN ({})".format(
+                names_str)
         else:
             sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic"
 
@@ -443,6 +486,7 @@ class DbService(object):
     """
     Get character detail.
     """
+
     def get_character(self, topic: str, name: str) -> list:
         conn = self.engine.connect()
         sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic AND name=:name"
@@ -456,12 +500,14 @@ class DbService(object):
     """
     Get characters names from some groups.
     """
+
     def get_characters_names(self, topic: str, chosen_groups: list) -> list:
         conn = self.engine.connect()
         if len(chosen_groups) > 0:
             group_str = ",".join(["'{}'".format(name)
                                  for name in chosen_groups])
-            sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(group_str)
+            sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(
+                group_str)
         else:
             sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic"
         params = {"topic": topic}
@@ -473,10 +519,12 @@ class DbService(object):
     """
     Create one character.
     """
+
     def create_character(self, topic: str, name: str, note: str, image_name: str) -> None:
         conn = self.engine.connect()
         sql = "INSERT INTO characters (topic, name, note, image_name) VALUES (:topic, :name, :note, :image_name)"
-        params = [{"topic": topic, "name": name, "note": note, "image_name": image_name}]
+        params = [{"topic": topic, "name": name,
+                   "note": note, "image_name": image_name}]
         conn.execute(text(sql), params)
         conn.commit()
         conn.close()
@@ -484,6 +532,7 @@ class DbService(object):
     """
     Get relations from single topic.
     """
+
     def get_relations(self, topic: str) -> None:
         conn = self.engine.connect()
         sql = "SELECT source, target, relation, note FROM relations WHERE topic=:topic"
@@ -496,6 +545,7 @@ class DbService(object):
     """
     Get groups from single topic.
     """
+
     def get_groups(self, topic: str) -> list:
         conn = self.engine.connect()
         sql = "SELECT group_name, character_name FROM groupx WHERE topic=:topic"
@@ -506,12 +556,73 @@ class DbService(object):
         return [{"group_name": row[0], "character_name": row[1]} for row in result]
 
     """
+    Get mainlines from single topic.
+    """
+
+    def get_mainlines(self, topic: str) -> list:
+        conn = self.engine.connect()
+        sql = "SELECT branch, event, note, previous_event, final_event FROM mainlines WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
+
+        conn.close()
+        return [{"branch": row[0], "event": row[1], "note": row[2], "previous_event": row[3], "final_event": row[4]} for row in result]
+
+    """
+    Get mainlines events from single topic.
+
+    Return data should be like this.
+    {
+        "events": [
+            {
+                "branch": "Main",
+                "event": "Start"
+            }
+        ]
+    }
+    """
+
+    def get_mainlines_events(self, topic: str) -> list:
+        conn = self.engine.connect()
+
+        sql = "SELECT branch, event FROM mainlines WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
+
+        conn.close()
+        return {"events": [{"branch": row[0], "event": row[1]} for row in result]}
+
+    def get_mainlines_branches(self, topic: str) -> list:
+        conn = self.engine.connect()
+
+        sql = "SELECT DISTINCT(branch) FROM mainlines WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
+
+        conn.close()
+        return [row[0] for row in result]
+
+    """
+    Create one mainline event.
+    """
+
+    def create_mainline_event(self, topic: str, branch: str, event: str, note: str, previous_event: str, final_event: str) -> None:
+        conn = self.engine.connect()
+        sql = "INSERT INTO mainlines (topic, branch, event, note, previous_event, final_event) VALUES (:topic, :branch, :event, :note, :previous_event, :final_event)"
+        params = [{"topic": topic, "branch": branch, "event": event, "note": note,
+                   "previous_event": previous_event, "final_event": final_event}]
+        conn.execute(text(sql), params)
+        conn.commit()
+        conn.close()
+
+    """
     Get group_names from single topic.
     """
+
     def get_groups_names(self, topic: str) -> list:
         conn = self.engine.connect()
         sql = "SELECT DISTINCT(group_name) FROM groupx WHERE topic=:topic"
-        params = {"topic": topic}            
+        params = {"topic": topic}
         result = conn.execute(text(sql), params).all()
 
         conn.close()
@@ -534,6 +645,7 @@ class DbService(object):
         }
     ]
     """
+
     def get_groups_and_characters(self, topic: str) -> list:
         conn = self.engine.connect()
         sql = """
@@ -597,12 +709,14 @@ class DbService(object):
     """
     Get characters names from some groups.
     """
+
     def get_characters_names_in_groups(self, topic: str, chosen_groups: list) -> list:
         conn = self.engine.connect()
         if len(chosen_groups) > 0:
             group_str = ",".join(["'{}'".format(name)
                                  for name in chosen_groups])
-            sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(group_str)
+            sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic and group_name IN ({})".format(
+                group_str)
         else:
             sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic"
 
@@ -615,6 +729,7 @@ class DbService(object):
     """
     Update characters table.
     """
+
     def update_characters(self, topic: str, insert_characters: list, update_characters: list, delete_characters: list) -> None:
         conn = self.engine.connect()
 
@@ -642,10 +757,12 @@ class DbService(object):
     """
     Create one relation.
     """
+
     def create_relation(self, topic: str, source: str, target: str, relation: str, note: str) -> None:
         conn = self.engine.connect()
         sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
-        params = {"topic": topic, "source": source, "target": target, "relation": relation, "note": note}
+        params = {"topic": topic, "source": source,
+                  "target": target, "relation": relation, "note": note}
         conn.execute(text(sql), params)
         conn.commit()
         conn.close()
@@ -667,6 +784,7 @@ class DbService(object):
         }
     ]
     """
+
     def add_relations_for_character(self, topic: str, character_name: str, upstream_relations: array, downstream_relations: array) -> None:
         conn = self.engine.connect()
         sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
@@ -681,6 +799,7 @@ class DbService(object):
     """
     Update relations table.
     """
+
     def update_relations(self, topic: str, insert_relations: list, update_relations: list, delete_relations: list) -> None:
         conn = self.engine.connect()
 
@@ -710,10 +829,12 @@ class DbService(object):
     """
     Create one group.
     """
+
     def create_group(self, topic: str, group_name: str, character_name: str) -> None:
         conn = self.engine.connect()
         sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES (:topic, :group_name, :character_name)"
-        params = {"topic": topic, "group_name": group_name, "character_name": character_name}
+        params = {"topic": topic, "group_name": group_name,
+                  "character_name": character_name}
         conn.execute(text(sql), params)
         conn.commit()
         conn.close()
@@ -721,10 +842,12 @@ class DbService(object):
     """
     Join the groups for single character.
     """
+
     def join_groups(self, topic: str, character_name: str, groups_names: array) -> None:
         conn = self.engine.connect()
         sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES (:topic, :group_name, :character_name)"
-        params = [{"topic": topic, "character_name": character_name, "group_name": group_name} for group_name in groups_names]
+        params = [{"topic": topic, "character_name": character_name,
+                   "group_name": group_name} for group_name in groups_names]
         conn.execute(text(sql), params)
         conn.commit()
         conn.close()
@@ -732,6 +855,7 @@ class DbService(object):
     """
     Update groupx table.
     """
+
     def update_groups(self, topic: str, insert_groups: list, update_groups: list, delete_groups: list) -> None:
         conn = self.engine.connect()
 
@@ -751,8 +875,37 @@ class DbService(object):
         conn.close()
 
     """
+    Update mainlines table.
+    """
+
+    def update_mainlines(self, topic: str, insert_mainlines: list, update_mainlines: list, delete_mainlines: list) -> None:
+        conn = self.engine.connect()
+
+        if len(insert_mainlines) > 0:
+            sql = "INSERT INTO mainlines (topic, branch, event, note, previous_event, final_event) VALUES (:topic, :branch, :event, :note, :previous_event, :final_event)"
+            params = [{"topic": topic, "branch": insert_mainline["branch"], "event": insert_mainline["event"], "note": insert_mainline["note"],
+                       "previous_event": insert_mainline["previous_event"], "final_event": insert_mainline["final_event"]} for insert_mainline in insert_mainlines]
+            conn.execute(text(sql), params)
+
+        if len(update_mainlines) > 0:
+            sql = "UPDATE mainlines SET branch=:branch, note=:note, previous_event=:previous_event, final_event=:final_event WHERE topic=:topic AND event=:event"
+            params = [{"topic": topic, "branch": update_mainline["branch"], "event": update_mainline["event"], "note": update_mainline["note"],
+                       "previous_event": update_mainline["previous_event"], "final_event": update_mainline["final_event"]} for update_mainline in update_mainlines]
+            conn.execute(text(sql), params)
+
+        if len(delete_mainlines) > 0:
+            sql = "DELETE FROM mainlines WHERE topic=:topic AND event=:event"
+            params = [{"topic": topic, "event": delete_mainline["event"]}
+                      for delete_mainline in delete_mainlines]
+            conn.execute(text(sql), params)
+
+        conn.commit()
+        conn.close()
+
+    """
     Compute character and character paths.
     """
+
     def compute_paths(self, topic: str, source: str, target: str, cutoff: int = -1, only_directed: bool = False) -> list:
         util = networkx_util.NetworkxUtil(self.engine, topic)
         # TODO: Add more info for front-end
@@ -761,38 +914,47 @@ class DbService(object):
     """
     Get the nodes and edges for characters which are in single path.
     """
+
     def get_path_data(self, topic: str, characters_names: array) -> list:
         if len(characters_names) > 0:
             conn = self.engine.connect()
 
-            characters_names_str = ",".join(["'{}'".format(name) for name in characters_names])
-            sql = "SELECT name, image_name FROM characters WHERE topic=:topic and name IN ({})".format(characters_names_str)
+            characters_names_str = ",".join(
+                ["'{}'".format(name) for name in characters_names])
+            sql = "SELECT name, image_name FROM characters WHERE topic=:topic and name IN ({})".format(
+                characters_names_str)
             params = {"topic": topic}
             characters_result = conn.execute(text(sql), params).all()
-            characters_data = [{"name": row[0], "image_name": row[1]} for row in characters_result]
+            characters_data = [{"name": row[0], "image_name": row[1]}
+                               for row in characters_result]
 
             source_target_pair_list = []
             for i in range(len(characters_names) - 1):
                 # Add the data for forward relation
-                source_target_pair_list.append({"source": characters_names[i], "target": characters_names[i+1]})
+                source_target_pair_list.append(
+                    {"source": characters_names[i], "target": characters_names[i+1]})
                 # Add the data for backward relation
-                source_target_pair_list.append({"source": characters_names[i+1], "target": characters_names[i]})
+                source_target_pair_list.append(
+                    {"source": characters_names[i+1], "target": characters_names[i]})
 
             # Example string: (source='Dorio' AND target='Maine') OR (source='Maine' AND target='Dorio')
-            source_target_condiction_str = " OR ".join(["(source='{}' AND target='{}')".format(source_target_pair["source"], source_target_pair["target"]) for source_target_pair in source_target_pair_list])
-            sql = "SELECT source, target, relation FROM relations WHERE topic=:topic AND ({})".format(source_target_condiction_str)
+            source_target_condiction_str = " OR ".join(["(source='{}' AND target='{}')".format(
+                source_target_pair["source"], source_target_pair["target"]) for source_target_pair in source_target_pair_list])
+            sql = "SELECT source, target, relation FROM relations WHERE topic=:topic AND ({})".format(
+                source_target_condiction_str)
             relations_result = conn.execute(text(sql), params).all()
-            relations_data = [{"source": row[0], "target": row[1], "relation": row[2]} for row in relations_result]
+            relations_data = [{"source": row[0], "target": row[1],
+                               "relation": row[2]} for row in relations_result]
 
             conn.close()
             return {"characters": characters_data, "relations": relations_data}
-        else:        
+        else:
             return {"characters": [], "relations": []}
-
 
     """
     Get the upstream characters of single character.
     """
+
     def get_upstream_characters(self, topic: str, name: str) -> None:
         conn = self.engine.connect()
         sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT source FROM relations WHERE topic=:topic AND target=:target)"
@@ -815,6 +977,7 @@ class DbService(object):
         }
     ]
     """
+
     def get_upstream_characters_and_relations(self, topic: str, character_name: str) -> None:
         conn = self.engine.connect()
 
@@ -829,10 +992,10 @@ class DbService(object):
         conn.close()
         return [{"name": row[0], "image_name": row[1], "relation": row[2], "relation_note": row[3]} for row in result]
 
-
     """
     Get the downstream characters of single character.
     """
+
     def get_downstream_characters(self, topic: str, name: str) -> None:
         conn = self.engine.connect()
         sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT target FROM relations WHERE topic=:topic AND source=:source)"
@@ -855,6 +1018,7 @@ class DbService(object):
         }
     ]
     """
+
     def get_downstream_characters_and_relations(self, topic: str, character_name: str) -> None:
         conn = self.engine.connect()
 
@@ -872,6 +1036,7 @@ class DbService(object):
     """
     Update the characters weights from single topic.
     """
+
     def update_characters_weights(self, topic: str, algorithm: str) -> None:
         util = networkx_util.NetworkxUtil(self.engine, topic)
         util.update_characters_weight(algorithm)
@@ -879,6 +1044,7 @@ class DbService(object):
     """
     Export one topic data to specified directory.
     """
+
     def export_topic(self, topic, export_dir):
         print("Try to export topic: {}, to directory: {}".format(topic, export_dir))
         export_topic_dir = "{}/{}".format(export_dir, topic)
@@ -903,12 +1069,18 @@ class DbService(object):
         sql = "SELECT * FROM groupx WHERE topic='{}'".format(topic)
         DbService.excute_sql_export_csv(conn, sql, export_file_path)
 
+        # Export mainlines
+        export_file_path = export_topic_dir + "/mainlines.csv"
+        sql = "SELECT * FROM mainlines WHERE topic='{}'".format(topic)
+        DbService.excute_sql_export_csv(conn, sql, export_file_path)
+
         # Export image files
         source_image_path = "./dist/images/" + topic
         target_image_path = export_topic_dir + "/images/"
         if os.path.exists(source_image_path):
             if os.path.exists(target_image_path):
-                logging.warn("Image path of {} exists, remove first".format(target_image_path))
+                logging.warn(
+                    "Image path of {} exists, remove first".format(target_image_path))
                 shutil.rmtree(target_image_path)
             shutil.copytree(source_image_path, target_image_path)
 
@@ -917,6 +1089,7 @@ class DbService(object):
     """
     Export all topics data to specified directory.
     """
+
     def export_all_topics(self, export_dir, is_official=False):
         conn = self.engine.connect()
 
@@ -930,17 +1103,18 @@ class DbService(object):
         params = {"official": is_official}
         result = conn.execute(text(sql), params)
         topics_names = [t[0] for t in result.all()]
-        
+
         # Export topics one by one
         for topic in topics_names:
-            logging.info("Try to export topic: {} in path: {}".format(topic, export_dir))
+            logging.info(
+                "Try to export topic: {} in path: {}".format(topic, export_dir))
             self.export_topic(topic, export_dir)
 
     """
     Execute SQL and export result to CSV file.
     """
     @staticmethod
-    def excute_sql_export_csv(connection, sql: str , csv_file_path: str) -> None:
+    def excute_sql_export_csv(connection, sql: str, csv_file_path: str) -> None:
         # Execute SQL
         result = connection.execute(text(sql))
 
@@ -956,6 +1130,7 @@ class DbService(object):
     """
     Load one topic data from specified directory.
     """
+
     def import_topic(self, topic, import_dir, official=False):
         print("Try to import topic: {}, from directory: {}".format(topic, import_dir))
         import_topic_dir = "{}/{}".format(import_dir, topic)
@@ -972,9 +1147,14 @@ class DbService(object):
             self.create_topic_if_not_exist(topic)
 
         # Load data from csv files to tables
-        DbService.load_csv_to_table(import_topic_dir + "/characters.csv", self.engine, "characters")
-        DbService.load_csv_to_table(import_topic_dir + "/relations.csv", self.engine, "relations")
-        DbService.load_csv_to_table(import_topic_dir + "/groups.csv", self.engine, "groupx")
+        DbService.load_csv_to_table(
+            import_topic_dir + "/characters.csv", self.engine, "characters")
+        DbService.load_csv_to_table(
+            import_topic_dir + "/relations.csv", self.engine, "relations")
+        DbService.load_csv_to_table(
+            import_topic_dir + "/groups.csv", self.engine, "groupx")
+        DbService.load_csv_to_table(
+            import_topic_dir + "/mainlines.csv", self.engine, "mainlines")
 
         # Copy image files to dist
         source_image_path = import_topic_dir + "/images/"
@@ -984,7 +1164,8 @@ class DbService(object):
                 os.makedirs(target_image_path)
             files = os.listdir(source_image_path)
             for fname in files:
-                shutil.copy2(os.path.join(source_image_path, fname), target_image_path)
+                shutil.copy2(os.path.join(
+                    source_image_path, fname), target_image_path)
 
     """
     Load CSV file to table of database.
@@ -993,24 +1174,28 @@ class DbService(object):
     def load_csv_to_table(csv_path: str, engine, table_name: str) -> None:
         with open(csv_path, 'r') as file:
             data_df = pd.read_csv(file)
-            # TODO: Can not append data or re-import which may erase table or import duplicate data 
-            data_df.to_sql(table_name, con=engine, index=False, if_exists='append')
+            # TODO: Can not append data or re-import which may erase table or import duplicate data
+            data_df.to_sql(table_name, con=engine,
+                           index=False, if_exists='append')
 
     """
     Import all topics data from the specified directory.
     """
+
     def import_all_topics(self, import_dir, is_official=False):
-        topic_name_list = [f for f in 
-            os.listdir(import_dir) 
-            if os.path.isdir(os.path.join(import_dir, f)) and not f.startswith(".")
-        ]
+        topic_name_list = [f for f in
+                           os.listdir(import_dir)
+                           if os.path.isdir(os.path.join(import_dir, f)) and not f.startswith(".")
+                           ]
         for topic_name in topic_name_list:
-            logging.info("Try to import topic: {} in path: {}".format(topic_name, import_dir))
+            logging.info("Try to import topic: {} in path: {}".format(
+                topic_name, import_dir))
             self.import_topic(topic_name, import_dir, is_official)
 
     """
     Set the topic as official topic.
     """
+
     def set_topic_official(self, topic):
         conn = self.engine.connect()
 
@@ -1020,7 +1205,6 @@ class DbService(object):
 
         conn.commit()
         conn.close()
-
 
     """
     Get the data of mainline.
@@ -1056,7 +1240,8 @@ class DbService(object):
         }
     ]
     """
-    def get_mainline_data(self, topic: str) -> None:
+
+    def get_mainlines_graph_data(self, topic: str) -> None:
         conn = self.engine.connect()
 
         return_result = {"categories": [], "nodes": [], "edges": []}
@@ -1078,7 +1263,7 @@ class DbService(object):
                 return 120
             else:
                 return 80
-        
+
         return_result["nodes"] = [{
             "category": row[0],
             "name": row[1],
@@ -1096,10 +1281,12 @@ class DbService(object):
             final_event = row[2]
 
             if previous_event and previous_event != "" and previous_event != " ":
-                return_result["edges"].append({"source": previous_event, "target": event})
+                return_result["edges"].append(
+                    {"source": previous_event, "target": event})
 
             if final_event and final_event != "" and final_event != " ":
-                return_result["edges"].append({"source": event, "target": final_event})
+                return_result["edges"].append(
+                    {"source": event, "target": final_event})
 
         conn.close()
         return return_result
@@ -1115,6 +1302,7 @@ class DbService(object):
         }
     ]
     """
+
     def get_related_characters(self, topic: str, text_str: str) -> None:
         conn = self.engine.connect()
 
@@ -1125,15 +1313,18 @@ class DbService(object):
         params = {"topic": topic}
         result = conn.execute(text(sql), params).all()
 
-        # Check if character name is in the text content
-        related_character_names = [row[0] for row in result if row[0] in text_str]
+        # Check if character name is in the text content, match without case
+        related_character_names = [
+            row[0] for row in result if row[0].lower() in text_str.lower()]
 
         if len(related_character_names) > 0:
             names_str = ",".join(["'{}'".format(name)
                                  for name in related_character_names])
-            sql = "SELECT name, image_name FROM characters WHERE topic=:topic and name IN ({})".format(names_str)
+            sql = "SELECT name, image_name FROM characters WHERE topic=:topic and name IN ({})".format(
+                names_str)
             result = conn.execute(text(sql), params).all()
-            return_result = [{"name": row[0], "image_name": row[1]} for row in result]
-        
+            return_result = [{"name": row[0], "image_name": row[1]}
+                             for row in result]
+
         conn.close()
         return return_result

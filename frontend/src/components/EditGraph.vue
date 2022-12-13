@@ -15,6 +15,9 @@
       <a-breadcrumb-item>
         <router-link :to='`/topics/${topic}/edit/groups`'>{{$t('message.EditAllGroups')}}</router-link>
       </a-breadcrumb-item>
+      <a-breadcrumb-item>
+        <router-link :to='`/topics/${topic}/edit/mainlines`'>{{$t('message.EditAllMainlines')}}</router-link>
+      </a-breadcrumb-item>
     </a-breadcrumb>
 
     <div :style="{ background: '#fff', padding: '24px', minHeight: '280px' }">

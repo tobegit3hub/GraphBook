@@ -121,7 +121,8 @@ export default defineComponent({
           cursor: 'pointer',
           emphasis: {
             scale: true,
-            focus: 'adjacency'
+            // TODO: Not the chain of this element, refer to https://echarts.apache.org/en/option.html#series-graph
+            focus: 'series'
           },
           lineStyle: {
             color: '#3d3d3f',
@@ -144,7 +145,7 @@ export default defineComponent({
     })
 
     const init = () => {
-      axios.get(`/api/topics/${props.topic}/mainline`).then(response => {
+      axios.get(`/api/topics/${props.topic}/mainlines/graph_data`).then(response => {
 
         vuechartOption.value.series[0].categories = response.data.categories;
 
