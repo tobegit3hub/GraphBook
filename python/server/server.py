@@ -152,6 +152,14 @@ def import_all_topics():
         db_service.import_all_topics(path, is_official)
         return jsonify({"code": 0})
 
+@app.route('/api/topics/<topic>/official', methods=['PUT'])
+@cross_origin()
+def set_topic_official(topic):
+    if request.method == "PUT":
+        db_service.set_topic_official(topic)
+        result = {"code": 0}
+        return jsonify(result)
+
 @app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])
 @cross_origin()
 def get_character(topic, character):

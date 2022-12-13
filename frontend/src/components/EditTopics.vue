@@ -34,6 +34,22 @@
     </a-form>
 
     <br />
+    <!-- Form to set topic official -->
+    <a-form layout="inline" :model="setOfficialTopicFormState" @finish="handleSetOfficialTopicFinish"
+      @finishFailed="handleFinishFailed">
+      <a-form-item>
+        <a-select v-model:value="setOfficialTopicFormState.name" show-search placeholder="Select topic" style="width: 200px"
+          :options="selectTopicOptions" >
+        </a-select>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" html-type="submit">
+          {{$t('message.SetOfficialTopic')}}
+        </a-button>
+      </a-form-item>
+    </a-form>
+
+    <br />
     <!-- Form to export topic -->
     <a-form layout="inline" :model="exportTopicFormState" @finish="handleExportTopic" >
       <a-form-item>
@@ -107,15 +123,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted } from 'vue'
-import axios from 'axios'
-import type { UnwrapRef } from 'vue';
-import { useRouter, useRoute } from 'vue-router'
 import type { FormProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import SelectTypes from 'ant-design-vue/es/select';
+import axios from 'axios';
+import type { UnwrapRef } from 'vue';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
 import AllTopicList from './AllTopicList.vue';
-import { string } from 'vue-types';
 
 type SelectItem = {
   value: string;
@@ -159,6 +172,10 @@ export default defineComponent({
       name: ''
     });
 
+    const setOfficialTopicFormState: UnwrapRef<CreateDeleteTopicFormState> = reactive({
+      name: ''
+    });
+
     const exportTopicFormState: UnwrapRef<ImportExportTopicFormState> = reactive({
       topic: '',
       path: '',
@@ -195,6 +212,16 @@ export default defineComponent({
       axios.delete(`/api/topics/${deleteTopicFormState.name}`)
         .then(response => {
           message.success('Success to delete topic: ' + deleteTopicFormState.name);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    };
+
+    const handleSetOfficialTopicFinish: FormProps['onFinish'] = values => {
+      axios.put(`/api/topics/${setOfficialTopicFormState.name}/official`)
+        .then(response => {
+          message.success('Success to set offical topic: ' + setOfficialTopicFormState.name);
         })
         .catch(error => {
           console.log(error);
@@ -288,10 +315,11 @@ export default defineComponent({
       chosenTopicName,
       createTopicFormState,
       handleCreateTopicFinish,
-
       deleteTopicFormState,
       handleDeleteTopicFinish,
       handleFinishFailed,
+      setOfficialTopicFormState,
+      handleSetOfficialTopicFinish,
 
       selectTopicOptions,
       filterOption,

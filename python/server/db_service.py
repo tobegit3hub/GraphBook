@@ -1009,6 +1009,20 @@ class DbService(object):
             self.import_topic(topic_name, import_dir, is_official)
 
     """
+    Set the topic as official topic.
+    """
+    def set_topic_official(self, topic):
+        conn = self.engine.connect()
+
+        sql = "UPDATE topics SET official=true WHERE name=:topic"
+        params = {"topic": topic}
+        conn.execute(text(sql), params)
+
+        conn.commit()
+        conn.close()
+
+
+    """
     Get the data of mainline.
 
     Return data should be like this.
