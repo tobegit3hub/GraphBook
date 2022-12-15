@@ -20,5 +20,5 @@ mysql -uroot -proot < ./drop_database.sql
 
 # Import topics and start
 cd ../../python/server/
-./import_official_topics.py ./topicland_website.py
-nohup ./server.py ./topicland_website.py  &
+./import_official_topics.py ./topicland_website.ini
+nohup ./server.py ./topicland_website.ini  &
