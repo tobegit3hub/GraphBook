@@ -4,9 +4,10 @@ import os
 import sys
 import logging
 import configparser
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, abort, Response
 from flask_cors import CORS, cross_origin
 import db_service
+from functools import wraps
 
 logger = logging.getLogger("topicland")
 
@@ -34,7 +35,18 @@ all_config = dict(ini_config.items('server'))
 all_config.update(dict(ini_config.items('db')))
 print("Load init config file: {} and get all config: {}".format(
     ini_config_path, all_config))
+read_only = all_config["read_only"].lower() == "true"
 
+def read_only_decorator(f):
+    @wraps(f)
+    def decorated_func(*args, **kwargs):
+        if read_only:
+            res = Response( "Server is in read-only mode and the API is not accessable")
+            abort(res)
+        else:
+            return f(*args, **kwargs)
+    return decorated_func
+    
 """
 Init database service.
 """
@@ -52,19 +64,23 @@ Render the vue generated single page app.
 def index():
     return render_template("index.html")
 
-
-@app.route('/api/topics', methods=['GET', 'POST'])
+@app.route('/api/topics', methods=['GET'])
 @cross_origin()
-def handle_topics():
+def get_topics():
     if request.method == "GET":
         result = {"topics": db_service.get_topics()}
         return jsonify(result)
-    elif request.method == "POST":
+
+@app.route('/api/topics', methods=['POST'])
+@cross_origin()
+@read_only_decorator
+def update_topics():
+    if request.method == "POST":
         name = request.json["name"]
         db_service.create_topic(name)
         return jsonify({"code": 0})
 
-@app.route('/api/topics/names', methods=['GET', 'POST'])
+@app.route('/api/topics/names', methods=['GET'])
 @cross_origin()
 def get_topics_names():
     if request.method == "GET":
@@ -85,25 +101,29 @@ def get_topics_statistics():
             result = db_service.get_all_topics_statistics()
         return jsonify(result)
 
-
 @app.route('/api/topics/<topic>', methods=['DELETE'])
 @cross_origin()
+@read_only_decorator
 def delete_topic(topic):
     if request.method == "DELETE":
         db_service.delete_topic(topic)
         return jsonify({"code": 0})
 
-
-@app.route('/api/topics/<topic>/characters', methods=['GET', 'POST'])
+@app.route('/api/topics/<topic>/characters', methods=['GET'])
 @cross_origin()
-def handle_characters(topic):
+def get_characters(topic):
     if request.method == "GET":
         chosen_characters_names = request.args.getlist(
             'chosen_characters_names[]')
         result = {"characters": db_service.get_characters(
             topic, chosen_characters_names)}
         return jsonify(result)
-    elif request.method == "POST":
+
+@app.route('/api/topics/<topic>/characters', methods=['POST'])
+@cross_origin()
+@read_only_decorator
+def update_characters(topic):
+    if request.method == "POST":
         if "name" in request.json and "note" in request.json and "image_name" in request.json:
             name = request.json["name"]
             note = request.json["note"]
@@ -119,6 +139,7 @@ def handle_characters(topic):
 
 @app.route('/api/topics/<topic>/export', methods=['POST'])
 @cross_origin()
+@read_only_decorator
 def handle_topic_export(topic):
     if request.method == "POST":
         path = request.json["path"]
@@ -127,6 +148,7 @@ def handle_topic_export(topic):
 
 @app.route('/api/topics/<topic>/import', methods=['POST'])
 @cross_origin()
+@read_only_decorator
 def handle_topic_import(topic):
     if request.method == "POST":
         path = request.json["path"]
@@ -135,6 +157,7 @@ def handle_topic_import(topic):
 
 @app.route('/api/topics/export_all', methods=['POST'])
 @cross_origin()
+@read_only_decorator
 def export_all_topics():
     if request.method == "POST":
         path = request.json["path"]
@@ -144,6 +167,7 @@ def export_all_topics():
 
 @app.route('/api/topics/import_all', methods=['POST'])
 @cross_origin()
+@read_only_decorator
 def import_all_topics():
     if request.method == "POST":
         path = request.json["path"]
@@ -153,6 +177,7 @@ def import_all_topics():
 
 @app.route('/api/topics/<topic>/official', methods=['PUT'])
 @cross_origin()
+@read_only_decorator
 def set_topic_official(topic):
     if request.method == "PUT":
         db_service.set_topic_official(topic)
@@ -163,9 +188,7 @@ def set_topic_official(topic):
 @cross_origin()
 def get_character(topic, character):
     if request.method == "GET":
-        result = {
-            "character": db_service.get_character(topic, character),
-        }
+        result = {"character": db_service.get_character(topic, character)}
         return jsonify(result)
 
 @app.route('/api/topics/<topic>/characters/<character>/relations', methods=['GET'])
@@ -191,6 +214,7 @@ def get_characters_names(topic):
 
 @app.route('/api/topics/<topic>/character_image', methods=['POST'])
 @cross_origin()
+@read_only_decorator
 def upload_character_image(topic):
     if request.method == "POST":
         IMAGES_DIR = "./dist/images/"
@@ -211,15 +235,18 @@ def upload_character_image(topic):
 
         return jsonify({'code': 0})
 
-
-@app.route('/api/topics/<topic>/relations', methods=['GET', 'POST'])
+@app.route('/api/topics/<topic>/relations', methods=['GET'])
 @cross_origin()
-def handle_relations(topic):
+def get_relations(topic):
     if request.method == "GET":
         result = {"relations": db_service.get_relations(topic)}
         return jsonify(result)
 
-    elif request.method == "POST":
+@app.route('/api/topics/<topic>/relations', methods=['POST'])
+@cross_origin()
+@read_only_decorator
+def update_relations(topic):
+    if request.method == "POST":
         if "source" in request.json and "target" in request.json and "relation" in request.json:
             source = request.json["source"]
             target = request.json["target"]
@@ -240,14 +267,18 @@ def handle_relations(topic):
                 topic, insert_relations, update_relations, delete_relations)
         return jsonify({"code": 0})
 
-
-@app.route('/api/topics/<topic>/groups', methods=['GET', 'POST'])
+@app.route('/api/topics/<topic>/groups', methods=['GET'])
 @cross_origin()
-def handle_groups(topic):
+def get_groups(topic):
     if request.method == "GET":
         result = {"groups": db_service.get_groups(topic)}
         return jsonify(result)
-    elif request.method == "POST":
+
+@app.route('/api/topics/<topic>/groups', methods=['POST'])
+@cross_origin()
+@read_only_decorator
+def update_groups(topic):
+    if request.method == "POST":
         if "group_name" in request.json and "character_name" in request.json:
             group_name = request.json["group_name"]
             character_name = request.json["character_name"]
@@ -264,7 +295,6 @@ def handle_groups(topic):
                 topic, insert_groups, update_groups, delete_groups)
 
         return jsonify({"code": 0})
-
 
 @app.route('/api/topics/<topic>/groups_names', methods=['GET'])
 @cross_origin()
@@ -312,6 +342,7 @@ def get_path_data(topic):
 
 @app.route('/api/topics/<topic>/weights', methods=['PUT'])
 @cross_origin()
+@read_only_decorator
 def update_characters_weights(topic):
     if request.method == "PUT":
         if "algorithm" in request.json:
@@ -343,13 +374,18 @@ def get_mainlines_branches(topic):
         result = {"branches": db_service.get_mainlines_branches(topic)}
         return jsonify(result)
 
-@app.route('/api/topics/<topic>/mainlines', methods=['GET', 'POST'])
+@app.route('/api/topics/<topic>/mainlines', methods=['GET'])
 @cross_origin()
-def handle_mainlines(topic):
+def get_mainlines(topic):
     if request.method == "GET":
         result = {"mainlines": db_service.get_mainlines(topic)}
         return jsonify(result)
-    elif request.method == "POST":
+
+@app.route('/api/topics/<topic>/mainlines', methods=['POST'])
+@cross_origin()
+@read_only_decorator
+def update_mainlines(topic):
+    if request.method == "POST":
         if "branch" in request.json and "event" in request.json and "note" in request.json and "previous_event" in request.json and "final_event" in request.json:
             branch = request.json["branch"]
             event = request.json["event"]

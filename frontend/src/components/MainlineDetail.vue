@@ -3,7 +3,7 @@
 
   <br />
   <!-- Echarts Graph -->
-  <v-chart class="chart" :option="vuechartOption" @dblclick="doubleClickGraph" />
+  <v-chart class="chart" :option="vuechartOption" @click="clickGraph" />
 
   <!-- The modal to show single event -->
   <a-modal v-model:visible="isModalVisible" :title="modalTitle" @ok="handleModalOk">
@@ -174,7 +174,7 @@ export default defineComponent({
       isModalVisible.value = false;
     };
 
-    const doubleClickGraph = (params) => {
+    const clickGraph = (params) => {
       isModalVisible.value = true;
       modalTitle.value = params.data.name;
       modalNote.value = params.data.note;
@@ -196,7 +196,7 @@ export default defineComponent({
 
       init,
       vuechartOption,
-      doubleClickGraph,
+      clickGraph,
 
       isModalVisible,
       handleModalOk,
