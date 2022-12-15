@@ -38,12 +38,9 @@
         </a-menu-item>
 
         <a-menu-item key="10" :disabled="true" style="float:rigt">
-          {{ $t('message.Languages') }}
-          <select v-model="$i18n.locale">
-            <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang">
-              {{ lang }}
-            </option>
-          </select>
+          <a-select v-model:value="$i18n.locale" style="width: 100px"
+            :options="selectLanguageOptions">
+          </a-select>
         </a-menu-item>
       </a-menu>
     </a-layout-header>
@@ -79,14 +76,14 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
 
-    const langs = [
-      "English",
-      "简体中文",
-      "繁體中文"
-    ]
-
     const currentTopicName = ref<string>("");
     const selectTopicOptions = ref<SelectTypes['options']>([]);
+
+    const selectLanguageOptions = ref<SelectTypes['options']>([
+      { "value": "English", "label": "English" },
+      { "value": "简体中文", "label": "简体中文" },
+      { "value": "繁體中文", "label": "繁體中文" }
+    ]);
 
     const filterOption = (input: string, option: any) => {
       return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -142,7 +139,7 @@ export default defineComponent({
       filterOption,
       handleChangeTopic,
 
-      langs
+      selectLanguageOptions
     };
   }
 
