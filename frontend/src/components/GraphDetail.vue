@@ -62,6 +62,10 @@
     <!-- The drawer to edit graph -->
     <a-drawer v-model:visible="isEditGraphDrawerVisible" :title="$t('message.GraphParameters')" placement="right">
 
+      <p>{{ $t('message.ShowTitle') }}</p>
+      <a-switch v-model:checked="isShowTitle" @change="init" />
+
+      <br /><br />
       <p>{{ $t('message.ImageMode') }}</p>
       <a-switch v-model:checked="isDisplayImage" @change="init" />
 
@@ -147,6 +151,7 @@ export default defineComponent({
     const vuechartOption = ref({
       backgroundColor: '#f6f5f3',
       title: {
+        show: true,
         text: props.topic,
         textStyle: {
           fontWeight: 700,
@@ -446,9 +451,9 @@ export default defineComponent({
       stopIncreaseCharacters();
     }
 
+    const isShowTitle = ref(true);
+
     const isDisplayImage = ref(true);
-
-
 
     watch(() => props.topic, (first, second) => {
       // Watch the props and update the graph
@@ -490,6 +495,8 @@ export default defineComponent({
 
     const init = () => {
 
+      vuechartOption.value.title.show = isShowTitle.value;
+
       axios.get(`/api/topics/${props.topic}/characters`).then(response => {
         // The list of character names, used for choose characters to display
         var characterNameList = []
@@ -529,6 +536,7 @@ export default defineComponent({
       chnageLineCurveness,
       changeIsEnableScale,
 
+      isShowTitle,
       isDisplayImage,
       symbolSize,
       labelFontSize,
