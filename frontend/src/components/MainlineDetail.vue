@@ -11,7 +11,7 @@
     <p>{{ modalNote }}</p>
 
     <br/>
-    <h3>Related Characters</h3>
+    <h3>{{ $t('message.RelatedCharacters') }}</h3>
     <a-list :grid="{ gutter: 16, column: 4 }" :data-source="modalRelatedCharacters">
       <template #renderItem="{ item }">
         <a-list-item>

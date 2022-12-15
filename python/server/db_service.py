@@ -165,7 +165,7 @@ class DbService(object):
             `topic` varchar(64) NOT NULL,
             `branch` varchar(64) NOT NULL,
             `event` varchar(64) NOT NULL,
-            `note` varchar(64) DEFAULT NULL,
+            `note` varchar(4096) DEFAULT NULL,
             `previous_event` varchar(64) DEFAULT NULL,
             `final_event` varchar(64) DEFAULT NULL,
             {}

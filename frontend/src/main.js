@@ -113,6 +113,8 @@ const messages = {
       Downstream: "Downstream",
       Relation: "Relation",
       ImageName: "Image name",
+      // Mainlines
+      RelatedCharacters: "Related Characters",
       // Paths
       ComputePaths: "Compute Paths",
       SourceUser: "SourceUser",
@@ -218,6 +220,8 @@ const messages = {
       Downstream: "下游",
       Relation: "关系",
       ImageName: "图片名",
+      // Mainlines
+      RelatedCharacters: "相关角色",
       // Paths
       ComputePaths: "计算路径",
       SourceUser: "源用户",
@@ -323,6 +327,8 @@ const messages = {
       Downstream: "下游",
       Relation: "關係",
       ImageName: "圖片名",
+      // Mainlines
+      RelatedCharacters: "相關角色",      
       // Paths
       ComputePaths: "計算路徑",
       SourceUser: "源用户",
