@@ -15,7 +15,7 @@
           <router-link :to='`/topics/${currentTopicName}/characters`'>{{ $t('message.Characters') }}</router-link>
         </a-menu-item>
         <a-menu-item key="4">
-          <router-link :to='`/topics/${currentTopicName}/mainline`'>{{ $t('message.Mainline') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/mainlines`'>{{ $t('message.Mainlines') }}</router-link>
         </a-menu-item>
         <a-menu-item key="5">
           <router-link :to='`/topics/${currentTopicName}/cards`'>{{ $t('message.Cards') }}</router-link>
