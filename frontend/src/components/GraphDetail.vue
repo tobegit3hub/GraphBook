@@ -3,7 +3,7 @@
 
   <br />
   <!-- Echarts Graph -->
-  <v-chart class="chart" :option="vuechartOption" @dblclick="handleDoubleClickGraph" />
+  <v-chart class="chart" :option="vuechartOption" @click="handleClickGraph" />
 
   <div v-show="!onlyGraph">
     <!-- The modal to show character -->
@@ -240,7 +240,7 @@ export default defineComponent({
       isCharacterModalVisible.value = false;
     };
 
-    const handleDoubleClickGraph = (params) => {
+    const handleClickGraph = (params) => {
       isCharacterModalVisible.value = true;
       currentCharacterModalName.value = params.data.name;
       currentCharacterModalWeight.value = params.data.weight;
@@ -549,7 +549,7 @@ export default defineComponent({
       handleEnableCharacterWeight,
 
       vuechartOption,
-      handleDoubleClickGraph,
+      handleClickGraph,
 
       isEditGraphDrawerVisible,
       showEditGraphDrawer,
