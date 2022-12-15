@@ -415,10 +415,19 @@ def get_related_characters(topic):
         return jsonify(result)
 
 def main():
-  app.run(host=ini_config["server"]["host"],
+    if "ssl_pem" in ini_config["server"] and "ssl_key" in ini_config["server"]:
+        app.run(host=ini_config["server"]["host"],
           port=int(ini_config["server"]["port"]),
           threaded=True,
-          debug=(ini_config["server"]["debug"].lower() == "true"))
+          debug=(ini_config["server"]["debug"].lower() == "true"),
+          ssl_context=(ini_config["server"]["ssl_pem"], ini_config["server"]["ssl_key"])
+         )
+    else:
+        app.run(host=ini_config["server"]["host"],
+          port=int(ini_config["server"]["port"]),
+          threaded=True,
+          debug=(ini_config["server"]["debug"].lower() == "true")
+        )
 
 
 if __name__ == "__main__":
