@@ -585,7 +585,7 @@ class DbService(object):
     def get_mainlines_events(self, topic: str) -> list:
         conn = self.engine.connect()
 
-        sql = "SELECT branch, event FROM mainlines WHERE topic=:topic"
+        sql = "SELECT branch, event FROM mainlines WHERE topic=:topic ORDER BY branch"
         params = {"topic": topic}
         result = conn.execute(text(sql), params).all()
 
