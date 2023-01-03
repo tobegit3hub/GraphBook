@@ -198,7 +198,13 @@ class DbService(object):
 
     def get_topics(self) -> list:
         conn = self.engine.connect()
-        sql = "SELECT name, official FROM topics"
+
+        # TODO: Support order by for SQLite
+        if self.db_config.dbms == "sqlite":
+          sql = "SELECT name, official FROM topics"
+        else:
+          sql = "SELECT name, official FROM topics ORDER BY CONVERT(name USING gbk);"
+
         result = conn.execute(text(sql))
         return [{"name": row[0], "official": row[1]} for row in result.all()]
 
