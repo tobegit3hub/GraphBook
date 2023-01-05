@@ -38,13 +38,23 @@
     <br />
     <!-- Detail of character -->
     <h1>{{ character.name }}</h1>
-    <p><b>{{ $t('message.Name') }}:</b> {{ character.name }}</p>
-    <p><b>{{ $t('message.Weight') }}:</b> {{ character.weight }}</p>
-    <p><b>{{ $t('message.Note') }}:</b> {{ character.note }}</p>
-    <p><b>{{ $t('message.ImageName') }}:</b> {{ character.image_name }}</p>
+    <p>{{ $t('message.Name') }}: {{ character.name }}</p>
+    <p>{{ $t('message.Weight') }}: {{ character.weight }}</p>
+    <p>{{ $t('message.Note') }}: {{ character.note }}</p>
+    <p>{{ $t('message.ImageName') }}: {{ character.image_name }}</p>
     <a-image v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`"
       width="280px" />
   </div>
+
+  <br/>
+  <h2>Groups</h2>
+  <a-list :data-source="characterGroups">
+      <template #renderItem="{ item }">
+        <a-list-item>
+          {{ item }}
+        </a-list-item>
+      </template>
+    </a-list>
 
   <br /><br />
   <!-- The graph of all associated characters -->
@@ -98,6 +108,8 @@ export default defineComponent({
         }]
     })
 
+    const characterGroups = ref([]);
+
     const isUpstream = ref(true)
     const handleUpstreamSwitchChange = () => {
       if (isUpstream.value) {
@@ -138,6 +150,13 @@ export default defineComponent({
     });
 
     const init = () => {
+      characterGroups.value.splice(0);
+      axios.get(`/api/topics/${props.topic}/characters/${props.character_name}/groups`).then(response => {
+        characterGroups.value.push(...response.data.groups)
+      }, response => {
+        console.log(`Fail to get character groups for character: ${props.character_name}`);
+      });
+
       axios.get(`/api/topics/${props.topic}/characters/${props.character_name}/relations`)
         .then(response => {
           character.value = response.data.character;
@@ -200,6 +219,8 @@ export default defineComponent({
       API_BASE_URI,
 
       character,
+      characterGroups,
+
       vuechartOption,
       handleClickCharacter,
       isUpstream,

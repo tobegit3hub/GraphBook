@@ -522,6 +522,23 @@ class DbService(object):
         conn.close()
         return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
 
+
+    """
+    Get character groups.
+    """
+
+    def get_character_groups(self, topic: str, character: str) -> list:
+        conn = self.engine.connect()
+
+        sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic"
+        sql = "SELECT group_name FROM groupx WHERE topic=:topic AND character_name=:character_name"
+        params = {"topic": topic, "character_name": character}
+        result = conn.execute(text(sql), params).all()
+
+        conn.close()
+        return [row[0] for row in result]
+
+
     """
     Create one character.
     """

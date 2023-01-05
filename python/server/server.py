@@ -202,6 +202,13 @@ def get_character_relatioins(topic, character):
         }
         return jsonify(result)
 
+@app.route('/api/topics/<topic>/characters/<character>/groups', methods=['GET'])
+@cross_origin()
+def get_character_groups(topic, character):
+    if request.method == "GET":
+        result = {"groups": db_service.get_character_groups(topic, character)}
+        return jsonify(result)
+
 @app.route('/api/topics/<topic>/characters_names', methods=['GET'])
 @cross_origin()
 def get_characters_names(topic):
