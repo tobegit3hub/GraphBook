@@ -317,6 +317,13 @@ def get_groups_and_characters(topic):
         result = {"groups_and_characters": db_service.get_groups_and_characters(topic)}
         return jsonify(result)
 
+@app.route('/api/topics/<topic>/groups/<group>/characters', methods=['GET'])
+@cross_origin()
+def get_group_characters(topic, group):
+    if request.method == "GET":
+        result = {"characters": db_service.get_group_characters(topic, group)}
+        return jsonify(result)
+
 @app.route('/api/topics/<topic>/paths', methods=['GET'])
 @cross_origin()
 def get_node_node_paths(topic):

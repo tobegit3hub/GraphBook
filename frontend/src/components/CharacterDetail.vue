@@ -51,7 +51,7 @@
   <a-list :data-source="characterGroups">
       <template #renderItem="{ item }">
         <a-list-item>
-          {{ item }}
+          <router-link :to='`/topics/${topic}/groups/${item}`'>{{ item }}</router-link>
         </a-list-item>
       </template>
     </a-list>

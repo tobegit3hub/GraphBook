@@ -52,11 +52,8 @@ const routes = [
       { path: 'mainlines', component: EditMainlines, props: true }
     ]
   },
-  { path: '/topics/:topic/groups', component: GroupsList, props: true,
-    children: [
-      { path: ':group', component: GroupDetail, props: true }
-    ]
-  },
+  { path: '/topics/:topic/groups', component: GroupsList, props: true },
+  { path: '/topics/:topic/groups/:group', component: GroupDetail, props: true },
   { path: '/topics/:topic/paths', component: ComputePaths, props: true },
   { path: '/topics/edit', component: EditTopics, props: true },
   { path: '/topics/choose', component: ChooseTopic },

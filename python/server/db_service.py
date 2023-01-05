@@ -729,6 +729,40 @@ class DbService(object):
         conn.close()
         return return_list
 
+
+    """
+    Get get characters of one group.
+
+    Return data should be like this.
+    [
+        {
+            "name": "bar",
+            "weight: 0.5,
+            "note": "bar",
+            "image_path": "bar"
+        }
+    ]
+    """
+
+    def get_group_characters(self, topic: str, group: str) -> list:
+        characters_names = self.get_characters_names_in_group(topic, group)
+        return self.get_characters(topic, characters_names)
+
+    """
+    Get characters names from one group.
+    """
+
+    def get_characters_names_in_group(self, topic: str, group_name: str) -> list:
+        conn = self.engine.connect()
+
+        sql = "SELECT DISTINCT(character_name) FROM groupx WHERE topic=:topic AND group_name=:group_name"
+
+        params = {"topic": topic, "group_name": group_name}
+        result = conn.execute(text(sql), params).all()
+
+        conn.close()
+        return [row[0] for row in result]
+
     """
     Get characters names from some groups.
     """

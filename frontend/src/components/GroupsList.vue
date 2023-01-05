@@ -6,7 +6,8 @@
     <div v-for="groupCharactersItem in groupCharactersData">
 
       <br/>
-      <h2>{{ groupCharactersItem.group_name }}</h2>
+
+      <h2><router-link :to='`/topics/${topic}/groups/${groupCharactersItem.group_name}`'>{{ groupCharactersItem.group_name }}</router-link></h2>
 
       <a-row :gutter="16">
         <div v-for="character in groupCharactersItem.characters" >
