@@ -51,7 +51,7 @@
 
     <a-layout-footer style="text-align: center">
       <div>
-        <a href="https://github.com/topicland/TopicLand" target="_blank">TopicLand</a> ©2022 <a href="https://beian.miit.gov.cn/" target="_blank">{{$t('message.ICP_MESSAGE')}}</a>
+        <a href="https://github.com/topicland/TopicLand" target="_blank">TopicLand</a> © 2022-2023 <a href="https://beian.miit.gov.cn/" target="_blank">{{$t('message.ICP_MESSAGE')}}</a>
       </div>
     </a-layout-footer>
   </a-layout>
