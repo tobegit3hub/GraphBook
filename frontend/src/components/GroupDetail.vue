@@ -9,7 +9,7 @@
     <div v-for="character in groupCharactersData">
       <a-card hoverable @click="redirectToCharacterPage(character.name)">
         <template #cover>
-            <img v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
+            <a-image width="280px" :preview="false" v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
         </template>
         <a-card-meta :title="character.name">
           <template #description>{{ character.note }}</template>

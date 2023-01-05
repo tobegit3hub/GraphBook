@@ -47,7 +47,7 @@
   </div>
 
   <br/>
-  <h2>Groups</h2>
+  <h2>{{$t('message.Groups')}}</h2>
   <a-list :data-source="characterGroups">
       <template #renderItem="{ item }">
         <a-list-item>
