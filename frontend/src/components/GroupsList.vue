@@ -46,7 +46,7 @@ interface GroupCharactersData {
 }
 
 export default defineComponent({
-  name: "CharactersCards",
+  name: "GroupsList",
   props: {
     topic: String,
   },

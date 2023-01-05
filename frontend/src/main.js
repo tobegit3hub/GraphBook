@@ -10,7 +10,8 @@ import App from './App.vue'
 import HomeTopicList from './components/HomeTopicList.vue';
 import GraphDetail from './components/GraphDetail.vue';
 import ComputePaths from './components/ComputePaths.vue'
-import CharactersCards from './components/CharactersCards.vue'
+import GroupsList from './components/GroupsList.vue'
+import GroupDetail from './components/GroupDetail.vue'
 import ChooseCharacters from './components/ChooseCharacters.vue';
 import CharacterDetail from './components/CharacterDetail.vue';
 import EditTopics from './components/EditTopics.vue';
@@ -51,7 +52,11 @@ const routes = [
       { path: 'mainlines', component: EditMainlines, props: true }
     ]
   },
-  { path: '/topics/:topic/cards', component: CharactersCards, props: true },
+  { path: '/topics/:topic/groups', component: GroupsList, props: true,
+    children: [
+      { path: ':group', component: GroupDetail, props: true }
+    ]
+  },
   { path: '/topics/:topic/paths', component: ComputePaths, props: true },
   { path: '/topics/edit', component: EditTopics, props: true },
   { path: '/topics/choose', component: ChooseTopic },
@@ -74,7 +79,6 @@ const messages = {
       Graph: 'Graph',
       Characters: "Characters",
       Edit: "Edit",
-      Cards: "Cards",
       Paths: "Paths",
       Topics: "Topics",
       Mainlines: "Mainlines",
@@ -182,7 +186,6 @@ const messages = {
       Graph: '关系图',
       Characters: "角色",
       Edit: "编辑",
-      Cards: "卡片",
       Paths: "路径",
       Topics: "主题",
       Mainlines: "主线",
@@ -290,7 +293,6 @@ const messages = {
       Graph: '關係圖',
       Characters: "角色",
       Edit: "編輯",
-      Cards: "卡片",
       Paths: "路徑",
       Topics: "主題",
       Mainlines: "主線",
