@@ -213,10 +213,7 @@ class DbService(object):
     """
 
     def get_topics_names(self) -> list:
-        conn = self.engine.connect()
-        sql = "SELECT name FROM topics"
-        result = conn.execute(text(sql))
-        return [t[0] for t in result.all()]
+        return [topic["name"] for topic in self.get_topics()]
 
     """
     Deprecated: Do not return is_official data.
