@@ -814,10 +814,13 @@ class DbService(object):
 
     def create_relation(self, topic: str, source: str, target: str, relation: str, note: str) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
-        params = {"topic": topic, "source": source,
-                  "target": target, "relation": relation, "note": note}
-        conn.execute(text(sql), params)
+
+        if source != "" and target != "" and relation != "":
+            sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
+            params = {"topic": topic, "source": source,
+                    "target": target, "relation": relation, "note": note}
+            conn.execute(text(sql), params)
+
         conn.commit()
         conn.close()
 
@@ -841,11 +844,16 @@ class DbService(object):
 
     def add_relations_for_character(self, topic: str, character_name: str, upstream_relations: array, downstream_relations: array) -> None:
         conn = self.engine.connect()
+
+        # Ignore the null and empty item
+        valid_upstream_relations = [r for r in upstream_relations if r and r["source"] != "" and r["target"] != "" and r["relation"] != ""]
+        valid_downstream_relations = [r for r in downstream_relations if r and r["source"] != "" and r["target"] != "" and r["relation"] != ""]
+        
         sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
         upstream_params = [{"topic": topic, "source": upstream_relation["character_name"], "target": character_name,
-                            "relation": upstream_relation["relation"], "note": upstream_relation["note"]} for upstream_relation in upstream_relations]
+                            "relation": upstream_relation["relation"], "note": upstream_relation["note"]} for upstream_relation in valid_upstream_relations]
         downstream_params = [{"topic": topic, "source": character_name, "target": downstream_relation["character_name"],
-                              "relation": downstream_relation["relation"], "note": downstream_relation["note"]} for downstream_relation in downstream_relations]
+                              "relation": downstream_relation["relation"], "note": downstream_relation["note"]} for downstream_relation in valid_downstream_relations]
         conn.execute(text(sql), upstream_params + downstream_params)
         conn.commit()
         conn.close()
@@ -858,17 +866,23 @@ class DbService(object):
         conn = self.engine.connect()
 
         if len(insert_relations) > 0:
+
+            valid_insert_relations = [r for r in insert_relations if r and r["source"] != "" and r["target"] != "" and r["relation"] != ""]
+
             sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
             params = [{"topic": topic, "source": insert_relation["source"], "target": insert_relation["target"],
                        "relation": insert_relation["relation"], "note": insert_relation["note"]
-                       } for insert_relation in insert_relations]
+                       } for insert_relation in valid_insert_relations]
             conn.execute(text(sql), params)
 
         if len(update_relations) > 0:
+
+            valid_update_relations = [r for r in update_relations if r and r["source"] != "" and r["target"] != "" and r["relation"] != ""]
+
             sql = "UPDATE relations SET relation=:relation, note=:note WHERE topic=:topic AND source=:source AND target=:target"
             params = [{"topic": topic, "relation": update_relation["relation"], "note": update_relation["note"],
                        "source": update_relation["source"], "target": update_relation["target"]
-                       } for update_relation in update_relations]
+                       } for update_relation in valid_update_relations]
             conn.execute(text(sql), params)
 
         if len(delete_relations) > 0:
