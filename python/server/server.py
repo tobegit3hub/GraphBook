@@ -191,6 +191,17 @@ def get_character(topic, character):
         result = {"character": db_service.get_character(topic, character)}
         return jsonify(result)
 
+@app.route('/api/topics/<topic>/characters/<character>/name', methods=['PUT'])
+@cross_origin()
+@read_only_decorator
+def rename_character(topic, character):
+    if request.method == "PUT":
+        old_name = character
+        new_name = request.json["new_name"]
+        db_service.rename_character(topic, old_name, new_name)
+        result = {"code": 0}
+        return jsonify(result)
+
 @app.route('/api/topics/<topic>/characters/<character>/relations', methods=['GET'])
 @cross_origin()
 def get_character_relatioins(topic, character):

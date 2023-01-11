@@ -109,6 +109,8 @@ const messages = {
       // Characters
       ChooseCharacter: "Choose Character",
       Character: "Character",
+      CharacterName: "Character Name",
+      NewName: "New Name",
       CharacterList: "Character List",
       AssociatedCharacters: "Associated Characters",
       Upstream: "Upstream",
@@ -216,6 +218,8 @@ const messages = {
       // Characters
       ChooseCharacter: "选择角色",
       Character: "角色",
+      CharacterName: "角色名字",
+      NewName: "新名字",
       CharacterList: "角色列表",
       AssociatedCharacters: "关联角色",
       Upstream: "上游",
@@ -323,6 +327,8 @@ const messages = {
       // Characters
       ChooseCharacter: "選擇角色",
       Character: "角色",
+      CharacterName: "角色名字",
+      NewName: "新名字",
       CharacterList: "角色列表",
       AssociatedCharacters: "關聯角色",
       Upstream: "上游",

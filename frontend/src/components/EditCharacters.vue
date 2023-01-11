@@ -1,9 +1,8 @@
 
 <template>
 
-  <h1>{{$t('message.CreateCharacter')}}</h1>
+  <h1>{{ $t('message.CreateCharacter') }}</h1>
   <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
-
     <a-form-item :label="$t('message.Name')" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
       <a-input v-model:value="formState.name" />
     </a-form-item>
@@ -17,29 +16,48 @@
         list-type="picture" :multiple="false">
         <a-button>
           <upload-outlined></upload-outlined>
-          {{$t('message.UploadImage')}}
+          {{ $t('message.UploadImage') }}
         </a-button>
       </a-upload>
     </a-form-item>
 
     <a-form-item>
       <a-button type="primary" html-type="submit" :disabled="formState.name === ''">
-        {{$t('message.Submit')}}
+        {{ $t('message.Submit') }}
       </a-button>
     </a-form-item>
   </a-form>
 
+  <br /><br />
+  <h1>{{ $t('message.RenameCharacter') }}</h1>
+  <a-form layout="inline" :model="renameFormState" @finish="handleSubmitRenameForm" @finishFailed="handleSubmitFormFailed">
 
-  <br/><br/>
-  <h1>{{$t('message.UpdateCharactersWeights')}}</h1>
+    <a-form-item :label="$t('message.CharacterName')" :rules="[{ required: true, message: 'Please input source name!' }]">
+      <a-input v-model:value="renameFormState.character_name" />
+    </a-form-item>
+
+    <a-form-item :label="$t('message.NewName')" :rules="[{ required: true, message: 'Please input target name!' }]">
+      <a-input v-model:value="renameFormState.new_name" />
+    </a-form-item>
+
+    <a-form-item>
+      <a-button type="primary" html-type="submit"
+        :disabled="renameFormState.character_name === '' && renameFormState.new_name === ''">
+        {{ $t('message.Submit') }}
+      </a-button>
+    </a-form-item>
+  </a-form>
+
+  <br /><br />
+  <h1>{{ $t('message.UpdateCharactersWeights') }}</h1>
   <a-select v-model:value="updateWeightsAlgorithm" :placeholder="$t('message.Algorithm')" style="width: 300px"
-          :options=updateWeightsAlgorithmOptions></a-select>
+    :options=updateWeightsAlgorithmOptions></a-select>
   <a-button type="primary" @click="updateCharactersWeights">
-    {{$t('message.Submit')}}
+    {{ $t('message.Submit') }}
   </a-button>
 
-  <br/><br/><br/>
-  <h1>{{$t('message.CharactersTable')}}</h1>
+  <br /><br /><br />
+  <h1>{{ $t('message.CharactersTable') }}</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #name_edit="{ row }">
       <vxe-input v-model="row.name"></vxe-input>
@@ -77,6 +95,11 @@ interface FormState {
   image_name: string;
 }
 
+interface RenameFormState {
+  character_name: string;
+  new_name: string;
+}
+
 export default defineComponent({
   name: "EditCharacters",
   components: {
@@ -87,7 +110,7 @@ export default defineComponent({
   },
   setup(props) {
     const API_BASE_URI = axios.defaults.baseURL;
-    
+
     const vxeTable = ref<VxeGridInstance>()
     const vxeTableOptions = reactive<VxeGridProps>({
       border: true,
@@ -176,6 +199,7 @@ export default defineComponent({
       image_name: ''
     });
 
+
     const handleSubmitForm: FormProps['onFinish'] = values => {
 
       let image_name = formState.image_name
@@ -204,6 +228,27 @@ export default defineComponent({
       console.log("Fail to submit form: " + errors);
     };
 
+
+
+    const renameFormState: UnwrapRef<RenameFormState> = reactive({
+      character_name: '',
+      new_name: '',
+    });
+
+    const handleSubmitRenameForm: FormProps['onFinish'] = values => {
+
+      axios.put(`/api/topics/${props.topic}/characters/${renameFormState.character_name}/name`, {
+        new_name: renameFormState.new_name
+      })
+      .then(function (response) {
+        message.success('Success to rename character name');
+        initTableData();
+      })
+      .catch(function (error) {
+        message.error('Fail to rename character names, ' + error);
+      });
+    };
+
     const initTableData = () => {
       axios.get(`/api/topics/${props.topic}/characters`)
         .then(response => {
@@ -216,7 +261,7 @@ export default defineComponent({
 
     const updateWeightsAlgorithm = ref(undefined);
     const updateWeightsAlgorithmOptions = ref([
-      { value: "PageRank", label: "PageRank" }, 
+      { value: "PageRank", label: "PageRank" },
       { value: "NondirectedPageRank", label: "PageRank(Nondirected Graph)" }]
     )
 
@@ -230,7 +275,7 @@ export default defineComponent({
         .catch(function (error) {
           message.error('Fail to update characters weights, ' + error);
         });
-        initTableData();
+      initTableData();
     }
 
     onMounted(() => {
@@ -249,6 +294,9 @@ export default defineComponent({
       formState,
       handleSubmitForm,
       handleSubmitFormFailed,
+
+      renameFormState,
+      handleSubmitRenameForm,
 
       updateCharactersWeights,
       updateWeightsAlgorithm,

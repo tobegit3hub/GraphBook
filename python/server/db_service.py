@@ -501,6 +501,32 @@ class DbService(object):
         return {"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]}
 
     """
+    Rename character.
+    """
+
+    def rename_character(self, topic: str, old_name: str, new_name):
+        conn = self.engine.connect()
+
+        params = {"topic": topic, "old_name": old_name, "new_name": new_name}
+        
+        sql = "UPDATE characters SET name=:new_name WHERE topic=:topic AND name=:old_name";
+        conn.execute(text(sql), params)
+
+        sql = "UPDATE relations SET source=:new_name WHERE topic=:topic AND source=:old_name";
+        conn.execute(text(sql), params)
+
+        sql = "UPDATE relations SET target=:new_name WHERE topic=:topic AND target=:old_name";
+        conn.execute(text(sql), params)
+
+        sql = "UPDATE groupx SET character_name=:new_name WHERE topic=:topic AND character_name=:old_name";
+        conn.execute(text(sql), params)
+
+        conn.commit()
+        conn.close()
+
+
+
+    """
     Get characters names from some groups.
     """
 
