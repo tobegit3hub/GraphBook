@@ -846,8 +846,8 @@ class DbService(object):
         conn = self.engine.connect()
 
         # Ignore the null and empty item
-        valid_upstream_relations = [r for r in upstream_relations if r and r["source"] != "" and r["target"] != "" and r["relation"] != ""]
-        valid_downstream_relations = [r for r in downstream_relations if r and r["source"] != "" and r["target"] != "" and r["relation"] != ""]
+        valid_upstream_relations = [r for r in upstream_relations if r and r["character_name"] != "" and r["relation"] != ""]
+        valid_downstream_relations = [r for r in downstream_relations if r and r["character_name"] != "" and r["relation"] != ""]
         
         sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
         upstream_params = [{"topic": topic, "source": upstream_relation["character_name"], "target": character_name,
