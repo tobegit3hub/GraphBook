@@ -1301,6 +1301,33 @@ class DbService(object):
         conn.close()
 
     """
+    Clear the unused images of one topic.
+    """
+
+    def clear_unused_images(self, topic):
+        conn = self.engine.connect()
+
+        sql = "SELECT image_name FROM characters WHERE topic=:topic"
+        params = {"topic": topic}
+        result = conn.execute(text(sql), params).all()
+        keep_images_names = [row[0] for row in result]
+
+        
+        topic_image_path = "./dist/images/" + topic
+        if os.path.exists(topic_image_path):
+            # List all files
+            local_file_list = os.listdir(topic_image_path)
+
+            for image_name in local_file_list:
+                # Delete the unsed image file
+                if image_name not in keep_images_names:
+                    image_file_path = os.path.join(topic_image_path, image_name)
+                    if os.path.isfile(image_file_path):
+                        os.remove(image_file_path)
+
+        conn.close()
+
+    """
     Get the data of mainline.
 
     Return data should be like this.

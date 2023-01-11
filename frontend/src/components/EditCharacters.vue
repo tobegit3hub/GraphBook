@@ -57,6 +57,12 @@
   </a-button>
 
   <br /><br /><br />
+  <h1>{{ $t('message.UpdateCharactersWeights') }}</h1>
+  <a-button type="primary" @click="clearUnusedImages">
+    {{ $t('message.ClearUnusedImages') }}
+  </a-button>
+
+  <br /><br /><br />
   <h1>{{ $t('message.CharactersTable') }}</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #name_edit="{ row }">
@@ -278,6 +284,16 @@ export default defineComponent({
       initTableData();
     }
 
+    const clearUnusedImages = () => {
+      axios.delete(`/api/topics/${props.topic}/unused_images`)
+        .then(response => {
+          message.success('Success to clear unused images');
+        })
+        .catch(error => {
+          message.error('Fail to clear unused images');
+        });
+    }
+
     onMounted(() => {
       initTableData();
     })
@@ -300,7 +316,9 @@ export default defineComponent({
 
       updateCharactersWeights,
       updateWeightsAlgorithm,
-      updateWeightsAlgorithmOptions
+      updateWeightsAlgorithmOptions,
+
+      clearUnusedImages
     }
   }
 })

@@ -184,6 +184,15 @@ def set_topic_official(topic):
         result = {"code": 0}
         return jsonify(result)
 
+@app.route('/api/topics/<topic>/unused_images', methods=['DELETE'])
+@cross_origin()
+@read_only_decorator
+def clear_unused_images(topic):
+    if request.method == "DELETE":
+        db_service.clear_unused_images(topic)
+        result = {"code": 0}
+        return jsonify(result)
+
 @app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])
 @cross_origin()
 def get_character(topic, character):
