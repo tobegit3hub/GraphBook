@@ -524,8 +524,6 @@ class DbService(object):
         conn.commit()
         conn.close()
 
-
-
     """
     Get characters names from some groups.
     """
@@ -1326,6 +1324,15 @@ class DbService(object):
                         os.remove(image_file_path)
 
         conn.close()
+
+    """
+    Get the data of one topic for render 3D graph.
+    """
+
+    def get_3d_graph_data(self, topic):
+        nodes = [{"id": c["name"], "name": c["name"], "val": c["weight"]*10 if c["weight"] else 1} for c in self.get_characters(topic)]
+        links = [{"source": r["source"], "target": r["target"]} for r in self.get_relations(topic)]
+        return {"nodes": nodes, "links": links}
 
     """
     Get the data of mainline.

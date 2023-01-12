@@ -2,14 +2,21 @@
 <template>
 
   <br />
-  <!-- Echarts Graph -->
-  <v-chart class="chart" :option="vuechartOption" @click="handleClickGraph" />
+
+  <div v-show="!isShow2D">
+    <VueForceGraph3D class="three_dimention_graph" :graphData="threeDimentionGraphData" width="1600" height="800" />
+  </div>
+
+  <div v-show="isShow2D">
+    <!-- Echarts Graph -->
+    <v-chart class="chart" :option="vuechartOption" @click="handleClickGraph" />
+  </div>
 
   <div v-show="!onlyGraph">
     <!-- The modal to show character -->
     <a-modal v-model:visible="isCharacterModalVisible" :title="currentCharacterModalName" @ok="handleCharacterModalOk">
       <p>{{ $t('message.Name') }}: <router-link :to='`/topics/${topic}/characters/${currentCharacterModalName}`'>{{
-          currentCharacterModalName
+        currentCharacterModalName
       }}</router-link>
       </p>
       <p>{{ $t('message.Weight') }}: {{ currentCharacterModalWeight }}</p>
@@ -23,6 +30,8 @@
     <!-- Edit Graph -->
     <br />
     <h2>{{ $t('message.Edit') }}</h2>
+    <a-switch checked-children="2D" un-checked-children="3D" v-model:checked="isShow2D" />
+    &nbsp;&nbsp;&nbsp;
     <a-button type="primary" @click="showEditGraphDrawer">{{ $t('message.GraphParameters') }}</a-button>
 
     <br /><br />
@@ -138,6 +147,8 @@ export default defineComponent({
         return null;
       }
     };
+
+    const isShow2D = ref(true);
 
     const symbolSize = ref(80);
     const labelFontSize = ref(15);
@@ -281,6 +292,9 @@ export default defineComponent({
       img.src = imgSrc;
     }
 
+
+    /* 3D Graph */
+    const threeDimentionGraphData = ref();
 
     // Copy the original data and only update the data of vuechart
     const updateGraphCharactersData = (charactersInfos) => {
@@ -493,8 +507,14 @@ export default defineComponent({
       init();
     })
 
+    const init3DGraph = () => {
+      axios.get(`/api/topics/${props.topic}/3d_graph_data`).then(response => {
+        threeDimentionGraphData.value = response.data;
+      }, response => {
+        console.log(`Fail to get 3d graph data for topic: ${props.topic}`);
+      });
+    }
     const init = () => {
-
       vuechartOption.value.title.show = isShowTitle.value;
 
       axios.get(`/api/topics/${props.topic}/characters`).then(response => {
@@ -523,11 +543,14 @@ export default defineComponent({
         console.log(`Fail to get relations for topic: ${props.topic}`);
       });
 
+      init3DGraph();
     }
 
     return {
       API_BASE_URI,
       init,
+
+      isShow2D,
 
       changeSymbolFontSize,
       changeEdgeFontSize,
@@ -573,7 +596,7 @@ export default defineComponent({
       handleStopPlayGraph,
       playGraphInterval,
 
-
+      threeDimentionGraphData
     }
 
   }

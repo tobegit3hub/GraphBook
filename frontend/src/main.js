@@ -5,6 +5,7 @@ import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
 import axios from 'axios'
 import "echarts"
+import { VueForceGraph3D } from 'vue-force-graph';
 
 import App from './App.vue'
 import HomeTopicList from './components/HomeTopicList.vue';
@@ -414,4 +415,5 @@ const app = createApp(App)
 app.use(router)
 app.use(useTable)
 app.use(i18n)
+app.use(VueForceGraph3D)
 app.mount('#app')

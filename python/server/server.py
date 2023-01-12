@@ -193,6 +193,13 @@ def clear_unused_images(topic):
         result = {"code": 0}
         return jsonify(result)
 
+@app.route('/api/topics/<topic>/3d_graph_data', methods=['GET'])
+@cross_origin()
+def get_3d_graph_data(topic):
+    if request.method == "GET":
+        result = db_service.get_3d_graph_data(topic)
+        return jsonify(result)
+
 @app.route('/api/topics/<topic>/characters/<character>', methods=['GET'])
 @cross_origin()
 def get_character(topic, character):
