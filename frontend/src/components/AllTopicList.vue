@@ -7,7 +7,7 @@
   <a-list item-layout="horizontal" :data-source="topics">
     <template #renderItem="{ item }">
       <a-list-item>          
-        <router-link :to='`/topics/${item.name}/graph`'>
+        <router-link :to='`/topics/${item.name}`'>
           {{ item.name }}
           <!-- Show official icon if it is -->
           <span v-show="(item.official == 1)">

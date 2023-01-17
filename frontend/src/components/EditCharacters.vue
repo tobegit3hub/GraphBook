@@ -32,8 +32,10 @@
   <h1>{{ $t('message.RenameCharacter') }}</h1>
   <a-form layout="inline" :model="renameFormState" @finish="handleSubmitRenameForm" @finishFailed="handleSubmitFormFailed">
 
-    <a-form-item :label="$t('message.CharacterName')" :rules="[{ required: true, message: 'Please input source name!' }]">
-      <a-input v-model:value="renameFormState.character_name" />
+    <a-form-item>
+      <span>{{ $t('message.CharacterName') }}: &nbsp;</span>
+      <a-select v-model:value="renameFormState.character_name" show-search style="width: 200px"
+        :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
     <a-form-item :label="$t('message.NewName')" :rules="[{ required: true, message: 'Please input target name!' }]">
@@ -92,8 +94,13 @@ import { defineComponent, reactive, ref, onMounted } from 'vue'
 import type { UnwrapRef } from 'vue';
 import { message } from 'ant-design-vue';
 import { VXETable, VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
-import type { FormProps, UploadProps } from 'ant-design-vue';
+import type { SelectProps, FormProps, UploadProps } from 'ant-design-vue';
 import { UploadOutlined } from '@ant-design/icons-vue';
+
+type SelectItem = {
+  value: string;
+  label: string;
+};
 
 interface FormState {
   name: string;
@@ -235,6 +242,11 @@ export default defineComponent({
     };
 
 
+    const filterOption = (input: string, option: any) => {
+      return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+    };
+
+    const selectCharacterOptions = ref<SelectProps['options']>([]);
 
     const renameFormState: UnwrapRef<RenameFormState> = reactive({
       character_name: '',
@@ -296,6 +308,18 @@ export default defineComponent({
 
     onMounted(() => {
       initTableData();
+
+      axios.get(`/api/topics/${props.topic}/characters`)
+        .then(response => {
+          const selectItems: SelectItem[] = [];
+          response.data.characters.forEach(character => {
+            selectItems.push({ "value": character.name, "label": character.name })
+          });
+          selectCharacterOptions.value = [...selectItems];
+        })
+        .catch(error => {
+          console.log(error);
+        });
     })
 
     return {
@@ -311,6 +335,8 @@ export default defineComponent({
       handleSubmitForm,
       handleSubmitFormFailed,
 
+      filterOption,
+      selectCharacterOptions,
       renameFormState,
       handleSubmitRenameForm,
 
