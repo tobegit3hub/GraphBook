@@ -114,8 +114,8 @@ class DbService(object):
             `topic` varchar(64) NOT NULL,
             `name` varchar(64) NOT NULL,
             `alias` varchar(256) DEFAULT NULL,
-            `weight` float DEFAULT NULL,
             `note` varchar(4096) DEFAULT NULL,
+            `weight` float DEFAULT NULL,
             PRIMARY KEY (`topic`, `name`),
             {}
             {}
@@ -1215,11 +1215,72 @@ class DbService(object):
         # Write data
         csv_writer.writerows(result.cursor.fetchall())
 
+
+    def import_topic(self, topic, import_dir, official=False):
+        print("Try to import topic: {}, from directory: {}".format(topic, import_dir))
+        import_topic_dir = "{}/{}".format(import_dir, topic)
+
+        # Check if directory exists or not
+        if not os.path.exists(import_topic_dir):
+            logging.error("Import path of {} does not exit, exit now")
+            return
+
+        # Create topic if not exists
+        if official:
+            self.create_official_topic_if_not_exist(topic)
+        else:
+            self.create_topic_if_not_exist(topic)
+
+        DbService.load_characters_table(import_topic_dir + "/characters.md", self.engine)
+        DbService.load_relations_table(import_topic_dir + "/relations.md", self.engine)
+        DbService.load_groups_table(import_topic_dir + "/groups.md", self.engine)
+        #DbService.load_story_table(import_topic_dir + "/story.md", self.engine)
+
     """
     Load one topic data from specified directory.
     """
 
-    def import_topic(self, topic, import_dir, official=False):
+    def old_import_topic(self, topic, import_dir, official=False):
+        print("Try to import topic: {}, from directory: {}".format(topic, import_dir))
+        import_topic_dir = "{}/{}".format(import_dir, topic)
+
+        # Check if directory exists or not
+        if not os.path.exists(import_topic_dir):
+            logging.error("Import path of {} does not exit, exit now")
+            return
+
+        # Create topic if not exists
+        if official:
+            self.create_official_topic_if_not_exist(topic)
+        else:
+            self.create_topic_if_not_exist(topic)
+
+        # Load data from csv files to tables
+        DbService.load_csv_to_table(
+            import_topic_dir + "/characters.csv", self.engine, "characters")
+        DbService.load_csv_to_table(
+            import_topic_dir + "/relations.csv", self.engine, "relations")
+        DbService.load_csv_to_table(
+            import_topic_dir + "/groups.csv", self.engine, "groupx")
+        DbService.load_csv_to_table(
+            import_topic_dir + "/mainlines.csv", self.engine, "mainlines")
+
+        # Copy image files to dist
+        source_image_path = import_topic_dir + "/images/"
+        if os.path.exists(source_image_path):
+            target_image_path = "./dist/images/" + topic + "/"
+            if not os.path.exists(target_image_path):
+                os.makedirs(target_image_path)
+            files = os.listdir(source_image_path)
+            for fname in files:
+                shutil.copy2(os.path.join(
+                    source_image_path, fname), target_image_path)
+                
+    """
+    Load one topic data from specified directory.
+    """
+
+    def import_topic_csv(self, topic, import_dir, official=False):
         print("Try to import topic: {}, from directory: {}".format(topic, import_dir))
         import_topic_dir = "{}/{}".format(import_dir, topic)
 
@@ -1265,6 +1326,81 @@ class DbService(object):
             # TODO: Can not append data or re-import which may erase table or import duplicate data
             data_df.to_sql(table_name, con=engine,
                            index=False, if_exists='append')
+
+    
+    # tobe1
+    @staticmethod
+    def load_characters_table(file_path: str, engine) -> None:
+        conn = engine.connect()
+
+        with open(file_path, 'r') as file:
+            for line_number, content in enumerate(file, 1):
+                if line_number == 1 or line_number == 2:
+                    continue
+                else:
+                    # | 1Q84 | 阿翼 | | 女主人从宗教团体“先驱”中救回的10岁女童，于柳宅失踪。 | 0.0237206 |
+                    # ['', ' 1Q84 ', ' 阿翼 ', ' ', ' 女主人从宗教团体“先驱”中救回的10岁女童，于柳宅失踪。 ', ' 0.0237206 ', '\n']
+                    items = content.split('|')
+                    weight = float(items[5].strip()) if items[5].strip() else 0
+                    sql = "INSERT INTO characters (topic, name, alias, note, weight) VALUES (:topic, :name, :alias, :note, :weight)"
+                    params = [{"topic": items[1].strip(), "name": items[2].strip(), "alias": items[3].strip(), "note": items[4].strip(), "weight": weight}]
+                    conn.execute(text(sql), params)
+                        
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def load_relations_table(file_path: str, engine) -> None:
+        conn = engine.connect()
+
+        with open(file_path, 'r') as file:
+            for line_number, content in enumerate(file, 1):
+                if line_number == 1 or line_number == 2:
+                    continue
+                else:
+                    items = content.split('|')
+                    sql = "INSERT INTO relations (topic, source, target, relation, note) VALUES (:topic, :source, :target, :relation, :note)"
+                    params = [{"topic": items[1].strip(), "source": items[2].strip(), "target": items[3].strip(), "relation": items[4].strip(), "note": items[5].strip()}]
+                    conn.execute(text(sql), params)
+                        
+        conn.commit()
+        conn.close()
+
+
+    @staticmethod
+    def load_groups_table(file_path: str, engine) -> None:
+        conn = engine.connect()
+
+        with open(file_path, 'r') as file:
+            for line_number, content in enumerate(file, 1):
+                if line_number == 1 or line_number == 2:
+                    continue
+                else:
+                    items = content.split('|')
+                    sql = "INSERT INTO groupx (topic, group_name, character_name) VALUES (:topic, :group_name, :character_name)"
+                    params = [{"topic": items[1].strip(), "group_name": items[2].strip(), "character_name": items[3].strip()}]
+                    conn.execute(text(sql), params)
+                        
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def load_story_table(file_path: str, engine) -> None:
+        conn = engine.connect()
+
+        with open(file_path, 'r') as file:
+            for line_number, content in enumerate(file, 1):
+                if line_number == 1 or line_number == 2:
+                    continue
+                else:
+                    items = content.split('|')
+                    sql = "INSERT INTO story (topic, branch, event, previous, note, final) VALUES (:topic, :branch, :event, :note, :previous, :final)"
+                    params = [{"topic": items[1].strip(), "branch": items[2].strip(), "event": items[3].strip(), "note": items[4].strip(), "previous": items[5].strip(), "final": items[6].strip()}]
+                    conn.execute(text(sql), params)
+                        
+        conn.commit()
+        conn.close()
+
 
     """
     Import all topics data from the specified directory.

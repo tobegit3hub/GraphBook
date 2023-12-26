@@ -24,7 +24,11 @@ def main():
 
     # TODO: Only support to run in current directory
     official_topics_path = "../../Topics/"
+
+    #official_topics_path = "/Users/tobe/code/Topics"
+
     topic_name_list = [f for f in os.listdir(official_topics_path) if os.path.isdir(os.path.join(official_topics_path, f))]
+    #topic_name_list = ["1Q84"]
 
     for topic_name in topic_name_list:
         logging.info("Try to import topic: {} in path: {}".format(topic_name, official_topics_path))
