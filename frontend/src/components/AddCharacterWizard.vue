@@ -1,14 +1,14 @@
 
 <template>
 
-  <h1>{{$t('message.WizardToAddNewCharacter')}}</h1>
+  <h1>{{$t('WizardToAddNewCharacter')}}</h1>
 
   <br/>
   <div>
     <a-steps :current="currentStep">
-      <a-step :title="$t('message.CreateCharacter')" />
-      <a-step :title="$t('message.AddRelations')" />
-      <a-step :title="$t('message.JoinGroups')" />
+      <a-step :title="$t('CreateCharacter')" />
+      <a-step :title="$t('AddRelations')" />
+      <a-step :title="$t('JoinGroups')" />
     </a-steps>
 
     <div :style="{ background: '#fff', margin: '24px', padding: '24px' }">
@@ -17,28 +17,21 @@
       <div v-show="currentStep === 0">
         <a-form :model="createCharacterFormState" @finish="submitCreateCharacterForm">
 
-          <a-form-item :label="$t('message.Name')" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
+          <a-form-item :label="$t('Name')" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
             <a-input v-model:value="createCharacterFormState.name" />
           </a-form-item>
 
-          <a-form-item :label="$t('message.Note')" name="note">
+          <a-form-item :label="$t('Alias')" name="alias">
+            <a-input v-model:value="createCharacterFormState.alias" />
+          </a-form-item>
+
+          <a-form-item :label="$t('Note')" name="note">
             <a-textarea auto-size v-model:value="createCharacterFormState.note" />
           </a-form-item>
 
           <a-form-item>
-            <a-upload v-model:fileList="uploadImageFileList" :action="`${API_BASE_URI}/api/topics/${topic}/character_image`"
-              list-type="picture" :multiple="false">
-              <a-button>
-                <upload-outlined></upload-outlined>
-                {{$t('message.UploadImage')}}
-              </a-button>
-            </a-upload>
-
-          </a-form-item>
-
-          <a-form-item>
             <a-button type="primary" html-type="submit" :disabled="createCharacterFormState.name === ''">
-              {{$t('message.Submit')}}
+              {{$t('Submit')}}
             </a-button>
           </a-form-item>
         </a-form>
@@ -54,17 +47,17 @@
 
           <a-form layout="inline">
             <a-form-item>
-              <span>{{$t('message.UpstreamCharacter')}}: </span>
+              <span>{{$t('UpstreamCharacter')}}: </span>
               <a-select v-model:value="addRelationItem.character_name" show-search placeholder="Select character"
                 style="width: 200px" :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
             </a-form-item>
 
-            <a-form-item :label="$t('message.Relation')" name="relation">
+            <a-form-item :label="$t('Relation')" name="relation">
               <!-- TODO: not work of :rules="[{ required: true, message: 'Please input relation!' }]" -->
               <a-input v-model:value="addRelationItem.relation" />
             </a-form-item>
 
-            <a-form-item :label="$t('message.Note')" name="note">
+            <a-form-item :label="$t('Note')" name="note">
               <a-input v-model:value="addRelationItem.note" />
             </a-form-item>
 
@@ -78,7 +71,7 @@
         <a-form-item>
           <a-button type="dashed" style="width: 60%" @click="addUpstreamRelationItem">
             <PlusOutlined />
-            {{$t('message.AddUpstreamRelation')}}
+            {{$t('AddUpstreamRelation')}}
           </a-button>
         </a-form-item>
       </a-form>
@@ -90,17 +83,17 @@
 
           <a-form layout="inline">
             <a-form-item>
-              <span>{{$t('message.DownstreamCharacter')}}: </span>
+              <span>{{$t('DownstreamCharacter')}}: </span>
               <a-select v-model:value="addRelationItem.character_name" show-search placeholder="Select character"
                 style="width: 200px" :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
             </a-form-item>
 
-            <a-form-item :label="$t('message.Relation')" name="relation">
+            <a-form-item :label="$t('Relation')" name="relation">
               <!-- TODO: not work of :rules="[{ required: true, message: 'Please input relation!' }]" -->
               <a-input v-model:value="addRelationItem.relation" />
             </a-form-item>
 
-            <a-form-item :label="$t('message.Note')" name="note">
+            <a-form-item :label="$t('Note')" name="note">
               <a-input v-model:value="addRelationItem.note" />
             </a-form-item>
 
@@ -114,7 +107,7 @@
         <a-form-item>
           <a-button type="dashed" style="width: 60%" @click="addDownstreamRelationItem">
             <PlusOutlined />
-            {{$t('message.AddDownstreamRelation')}}
+            {{$t('AddDownstreamRelation')}}
           </a-button>
         </a-form-item>
       </a-form>
@@ -122,7 +115,7 @@
       <a-form>
         <a-form-item>
           <a-button type="primary" html-type="submit" @click="submitAddRelationsForm">
-            {{$t('message.Submit')}}
+            {{$t('Submit')}}
           </a-button>
         </a-form-item>
       </a-form>
@@ -135,7 +128,7 @@
       <a-form :model="joinGroupsForm">
         <a-form-item v-for="(joinGroupItem, index) in joinGroupsForm.joinGroupItems" :key="joinGroupItem.key">
 
-          <span>{{$t('message.Group')}}: </span>
+          <span>{{$t('Group')}}: </span>
           <a-select v-model:value="joinGroupItem.group_name" show-search placeholder="Select group" style="width: 200px"
             :options="selectGroupOptions" :filter-option="filterOption"></a-select>
 
@@ -150,16 +143,16 @@
         </a-form-item>
         <a-form-item>
           <a-button type="primary" html-type="submit" @click="submitJoinGroupsForm">
-            {{$t('message.Submit')}}
+            {{$t('Submit')}}
           </a-button>
         </a-form-item>
       </a-form>
     </div>
 
-    <a-button v-if="currentStep > 0" style="margin-left: 8px" @click="prevStep">{{$t('message.PreviousStep')}}</a-button>
-    <a-button v-if="currentStep < totalStepCount - 1" type="primary" @click="nextStep">{{$t('message.NextStep')}}</a-button>
+    <a-button v-if="currentStep > 0" style="margin-left: 8px" @click="prevStep">{{$t('PreviousStep')}}</a-button>
+    <a-button v-if="currentStep < totalStepCount - 1" type="primary" @click="nextStep">{{$t('NextStep')}}</a-button>
     <a-button v-if="currentStep == totalStepCount - 1" type="primary" @click="refreshCurrentPage">
-      {{$t('message.Done')}}
+      {{$t('Done')}}
     </a-button>
 
   </div>
@@ -184,8 +177,8 @@ interface SelectItem {
 
 interface CreateCharacterFormState {
   name: string;
+  alias: string;
   note: string;
-  image_name: string;
 }
 
 interface AddRelationItem {
@@ -226,26 +219,17 @@ export default defineComponent({
     };
 
     /* Create character */
-    const uploadImageFileList = ref<UploadProps['fileList']>([]);
     const createCharacterFormState: UnwrapRef<CreateCharacterFormState> = reactive({
       name: '',
+      alias: '',
       note: '',
-      image_name: ''
     });
 
     const submitCreateCharacterForm: FormProps['onFinish'] = values => {
-      let image_name = createCharacterFormState.image_name
-
-      if (uploadImageFileList.value?.length != null) {
-        if (uploadImageFileList.value.length > 0) {
-          image_name = uploadImageFileList.value[uploadImageFileList.value.length - 1].name
-        }
-      }
-
       axios.post(`/api/topics/${props.topic}/characters`, {
         "name": createCharacterFormState.name,
+        "alias": createCharacterFormState.alias,
         "note": createCharacterFormState.note,
-        "image_name": image_name
       })
         .then(response => {
           message.success(`Success to add character: ${createCharacterFormState.name}`);
@@ -409,7 +393,6 @@ export default defineComponent({
       nextStep,
       prevStep,
 
-      uploadImageFileList,
       createCharacterFormState,
       submitCreateCharacterForm,
 

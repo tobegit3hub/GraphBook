@@ -1,31 +1,31 @@
 
 <template>
 
-  <h1>{{ $t('message.AddMainlineEvent') }}</h1>
+  <h1>{{ $t('AddMainlineEvent') }}</h1>
   <a-form :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
 
-    <a-form-item :label="$t('message.BranchName')" :rules="[{ required: true, message: 'Please input branch name!' }]">
+    <a-form-item :label="$t('BranchName')" :rules="[{ required: true, message: 'Please input branch name!' }]">
       <a-select v-model:value="formState.branch" show-search style="width: 200px" :options="selectBranchOptions"
         :filter-option="filterOption"></a-select>
       <a-input v-model:value="formState.branch" />
     </a-form-item>
 
-    <a-form-item :label="$t('message.EventName')" :rules="[{ required: true, message: 'Please input event name!' }]">
+    <a-form-item :label="$t('EventName')" :rules="[{ required: true, message: 'Please input event name!' }]">
       <a-input v-model:value="formState.event" />
     </a-form-item>
 
-    <a-form-item :label="$t('message.Note')">
+    <a-form-item :label="$t('Note')">
       <a-textarea auto-size v-model:value="formState.note" />
     </a-form-item>
 
     <a-form-item>
-      <span>{{ $t('message.PreviousEvent') }}: &nbsp;</span>
+      <span>{{ $t('PreviousEvent') }}: &nbsp;</span>
       <a-select v-model:value="formState.previous_event" show-search style="width: 200px" :options="selectEventOptions"
         :filter-option="filterOption"></a-select>
     </a-form-item>
 
     <a-form-item>
-      <span>{{ $t('message.FinalEvent') }}: &nbsp;</span>
+      <span>{{ $t('FinalEvent') }}: &nbsp;</span>
       <a-select v-model:value="formState.final_event" show-search style="width: 200px" :options="selectEventOptions"
         :filter-option="filterOption"></a-select>
     </a-form-item>
@@ -33,13 +33,13 @@
     <a-form-item>
       <a-button type="primary" html-type="submit"
         :disabled="formState.group_name === '' || formState.character_name === ''">
-        {{ $t('message.Submit') }}
+        {{ $t('Submit') }}
       </a-button>
     </a-form-item>
   </a-form>
 
   <br />
-  <h1>{{ $t('message.MainlinesTable') }}</h1>
+  <h1>{{ $t('MainlinesTable') }}</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #branch_edit="{ row }">
       <vxe-input v-model="row.branch"></vxe-input>

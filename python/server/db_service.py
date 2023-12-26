@@ -113,9 +113,9 @@ class DbService(object):
         CREATE TABLE IF NOT EXISTS `characters` (
             `topic` varchar(64) NOT NULL,
             `name` varchar(64) NOT NULL,
+            `alias` varchar(256) DEFAULT NULL,
             `weight` float DEFAULT NULL,
             `note` varchar(4096) DEFAULT NULL,
-            `image_name` varchar(4096) DEFAULT NULL,
             PRIMARY KEY (`topic`, `name`),
             {}
             {}
@@ -475,16 +475,16 @@ class DbService(object):
             names_str = ",".join(["'{}'".format(name)
                                  for name in chosen_node_names])
             # TODO: Execute with params
-            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic and name IN ({})".format(
+            sql = "SELECT name, alias, weight, note FROM characters WHERE topic=:topic and name IN ({})".format(
                 names_str)
         else:
-            sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic"
+            sql = "SELECT name, alias, weight, note FROM characters WHERE topic=:topic"
 
         params = {"topic": topic}
         result = conn.execute(text(sql), params).all()
 
         conn.close()
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
+        return [{"name": row[0], "alias": row[1], "weight": row[2], "note": row[3]} for row in result]
 
     """
     Get character detail.
@@ -492,13 +492,13 @@ class DbService(object):
 
     def get_character(self, topic: str, name: str) -> list:
         conn = self.engine.connect()
-        sql = "SELECT name, weight, note, image_name FROM characters WHERE topic=:topic AND name=:name"
+        sql = "SELECT name, alias, weight, note FROM characters WHERE topic=:topic AND name=:name"
         params = {"topic": topic, "name": name}
         result = conn.execute(text(sql), params)
         row = result.all()[0]
 
         conn.close()
-        return {"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]}
+        return {"name": row[0], "alias": row[1], "weight": row[2], "note": row[3]}
 
     """
     Rename character.
@@ -541,7 +541,7 @@ class DbService(object):
         result = conn.execute(text(sql), params).all()
 
         conn.close()
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
+        return [{"name": row[0], "alias": row[1], "weight": row[2], "note": row[3]} for row in result]
 
 
     """
@@ -564,11 +564,11 @@ class DbService(object):
     Create one character.
     """
 
-    def create_character(self, topic: str, name: str, note: str, image_name: str) -> None:
+    def create_character(self, topic: str, name: str, alias: str, note: str) -> None:
         conn = self.engine.connect()
-        sql = "INSERT INTO characters (topic, name, note, image_name) VALUES (:topic, :name, :note, :image_name)"
-        params = [{"topic": topic, "name": name,
-                   "note": note, "image_name": image_name}]
+        sql = "INSERT INTO characters (topic, name, alias, note) VALUES (:topic, :name, :alias, :note)"
+        params = [{"topic": topic, "name": name, "alias": alias,
+                   "note": note}]
         conn.execute(text(sql), params)
         conn.commit()
         conn.close()
@@ -693,7 +693,7 @@ class DbService(object):
     def get_groups_and_characters(self, topic: str) -> list:
         conn = self.engine.connect()
         sql = """
-        SELECT name, note, image_name, group_name 
+        SELECT name, note, group_name 
         FROM characters 
         RIGHT JOIN 
             (select topic, character_name, group_name FROM groupx WHERE topic=:topic AND character_name IS NOT NULL AND character_name <> '') AS t2 
@@ -710,7 +710,6 @@ class DbService(object):
                 {
                     "name": "character1",
                     "note": "note1",
-                    "image_name": "image_name1"
                 }
             ]
         }
@@ -719,16 +718,14 @@ class DbService(object):
         for row in result:
             character_name = row[0]
             note = row[1]
-            image_name = row[2]
-            group_name = row[3]
+            group_name = row[2]
 
             if group_name not in group_characters_map:
                 group_characters_map[group_name] = []
 
             group_characters_map[group_name].append({
                 "name": character_name,
-                "note": note,
-                "image_name": image_name
+                "note": note
             })
 
         return_list = []
@@ -738,12 +735,12 @@ class DbService(object):
                 "characters": character_data_map
             })
 
-        sql = "SELECT name, note, image_name FROM characters WHERE topic=:topic"
+        sql = "SELECT name, note FROM characters WHERE topic=:topic"
         params = {"topic": topic}
         result = conn.execute(text(sql), params).all()
         the_group_all = {
             "group_name": "All Characters",
-            "characters": [{"name": row[0], "note": row[1], "image_name": row[2]} for row in result]
+            "characters": [{"name": row[0], "note": row[1]} for row in result]
         }
         return_list.append(the_group_all)
 
@@ -758,6 +755,7 @@ class DbService(object):
     [
         {
             "name": "bar",
+            "alias": null,
             "weight: 0.5,
             "note": "bar",
             "image_path": "bar"
@@ -812,14 +810,14 @@ class DbService(object):
         conn = self.engine.connect()
 
         if len(insert_characters) > 0:
-            sql = "INSERT INTO characters (topic, name, note, image_name) VALUES (:topic, :name, :note, :image_name)"
+            sql = "INSERT INTO characters (topic, name, note) VALUES (:topic, :name, :note)"
             params = [{"topic": topic, "name": insert_character["name"], "note": insert_character["note"],
-                       "image_name": insert_character["image_name"]} for insert_character in insert_characters]
+                       } for insert_character in insert_characters]
             conn.execute(text(sql), params)
 
         if len(update_characters) > 0:
-            sql = "UPDATE characters SET note=:note, image_name=:image_name WHERE topic=:topic AND name=:name"
-            params = [{"topic": topic, "note": update_character["note"], "image_name": update_character["image_name"],
+            sql = "UPDATE characters SET note=:note WHERE topic=:topic AND name=:name"
+            params = [{"topic": topic, "note": update_character["note"],
                        "name": update_character["name"]} for update_character in update_characters]
             conn.execute(text(sql), params)
 
@@ -1013,11 +1011,11 @@ class DbService(object):
 
             characters_names_str = ",".join(
                 ["'{}'".format(name) for name in characters_names])
-            sql = "SELECT name, image_name FROM characters WHERE topic=:topic and name IN ({})".format(
+            sql = "SELECT name FROM characters WHERE topic=:topic and name IN ({})".format(
                 characters_names_str)
             params = {"topic": topic}
             characters_result = conn.execute(text(sql), params).all()
-            characters_data = [{"name": row[0], "image_name": row[1]}
+            characters_data = [{"name": row[0]}
                                for row in characters_result]
 
             source_target_pair_list = []
@@ -1049,12 +1047,12 @@ class DbService(object):
 
     def get_upstream_characters(self, topic: str, name: str) -> None:
         conn = self.engine.connect()
-        sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT source FROM relations WHERE topic=:topic AND target=:target)"
+        sql = "SELECT name, alias, weight, note FROM characters WHERE name in (SELECT source FROM relations WHERE topic=:topic AND target=:target)"
         params = {"topic": topic, "target": name}
         result = conn.execute(text(sql), params).all()
 
         conn.close()
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
+        return [{"name": row[0], "alias": row[1], "weight": row[2], "note": row[3]} for row in result]
 
     """
     Get the upstream characters and relations of single character.
@@ -1063,7 +1061,6 @@ class DbService(object):
     [
         {
             "name": "foo",
-            "image_name": "foo.png",
             "relation": "bar",
             "relation_note": "bar"
         }
@@ -1074,7 +1071,7 @@ class DbService(object):
         conn = self.engine.connect()
 
         sql = """
-        SELECT name, image_name, relation, relation_note FROM characters
+        SELECT name, relation, relation_note FROM characters
         RIGHT JOIN 
             (SELECT topic, source, relation, note AS relation_note FROM relations WHERE topic=:topic AND target=:target) As t2 
             ON characters.name = t2.source AND characters.topic = t2.topic
@@ -1082,7 +1079,7 @@ class DbService(object):
         params = {"topic": topic, "target": character_name}
         result = conn.execute(text(sql), params).all()
         conn.close()
-        return [{"name": row[0], "image_name": row[1], "relation": row[2], "relation_note": row[3]} for row in result]
+        return [{"name": row[0], "relation": row[1], "relation_note": row[2]} for row in result]
 
     """
     Get the downstream characters of single character.
@@ -1090,12 +1087,12 @@ class DbService(object):
 
     def get_downstream_characters(self, topic: str, name: str) -> None:
         conn = self.engine.connect()
-        sql = "SELECT name, weight, note, image_name FROM characters WHERE name in (SELECT target FROM relations WHERE topic=:topic AND source=:source)"
+        sql = "SELECT name, alias, weight, note FROM characters WHERE name in (SELECT target FROM relations WHERE topic=:topic AND source=:source)"
         params = {"topic": topic, "source": name}
         result = conn.execute(text(sql), params).all()
 
         conn.close()
-        return [{"name": row[0], "weight": row[1], "note": row[2], "image_name": row[3]} for row in result]
+        return [{"name": row[0], "alias": row[1], "weight": row[2], "note": row[3]} for row in result]
 
     """
     Get the downstream characters and relations of single character.
@@ -1104,7 +1101,6 @@ class DbService(object):
     [
         {
             "name": "foo",
-            "image_name": "foo.png",
             "relation": "bar",
             "relation_note": "bar"
         }
@@ -1115,7 +1111,7 @@ class DbService(object):
         conn = self.engine.connect()
 
         sql = """
-        SELECT name, image_name, relation, relation_note FROM characters
+        SELECT name, relation, relation_note FROM characters
         RIGHT JOIN 
             (SELECT topic, target, relation, note AS relation_note FROM relations WHERE topic=:topic AND source=:source) As t2 
             ON characters.name = t2.target AND characters.topic = t2.topic
@@ -1123,7 +1119,7 @@ class DbService(object):
         params = {"topic": topic, "source": character_name}
         result = conn.execute(text(sql), params).all()
         conn.close()
-        return [{"name": row[0], "image_name": row[1], "relation": row[2], "relation_note": row[3]} for row in result]
+        return [{"name": row[0], "relation": row[2], "relation_note": row[3]} for row in result]
 
     """
     Update the characters weights from single topic.
@@ -1298,33 +1294,7 @@ class DbService(object):
         conn.commit()
         conn.close()
 
-    """
-    Clear the unused images of one topic.
-    """
-
-    def clear_unused_images(self, topic):
-        conn = self.engine.connect()
-
-        sql = "SELECT image_name FROM characters WHERE topic=:topic"
-        params = {"topic": topic}
-        result = conn.execute(text(sql), params).all()
-        keep_images_names = [row[0] for row in result]
-
-        
-        topic_image_path = "./dist/images/" + topic
-        if os.path.exists(topic_image_path):
-            # List all files
-            local_file_list = os.listdir(topic_image_path)
-
-            for image_name in local_file_list:
-                # Delete the unsed image file
-                if image_name not in keep_images_names:
-                    image_file_path = os.path.join(topic_image_path, image_name)
-                    if os.path.isfile(image_file_path):
-                        os.remove(image_file_path)
-
-        conn.close()
-
+   
     """
     Get the data of one topic for render 3D graph.
     """
@@ -1426,7 +1396,6 @@ class DbService(object):
     [
         {
             "name": "",
-            "image_name": ""
         }
     ]
     """
@@ -1448,10 +1417,10 @@ class DbService(object):
         if len(related_character_names) > 0:
             names_str = ",".join(["'{}'".format(name)
                                  for name in related_character_names])
-            sql = "SELECT name, image_name FROM characters WHERE topic=:topic and name IN ({})".format(
+            sql = "SELECT name FROM characters WHERE topic=:topic and name IN ({})".format(
                 names_str)
             result = conn.execute(text(sql), params).all()
-            return_result = [{"name": row[0], "image_name": row[1]}
+            return_result = [{"name": row[0]}
                              for row in result]
 
         conn.close()

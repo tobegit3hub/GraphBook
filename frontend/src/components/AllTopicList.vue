@@ -2,7 +2,7 @@
 <template>
 
   <!-- List of all topics -->
-  <h1> {{ $t('message.TopicsList') }}</h1>
+  <h1> {{ $t('TopicsList') }}</h1>
 
   <a-list item-layout="horizontal" :data-source="topics">
     <template #renderItem="{ item }">

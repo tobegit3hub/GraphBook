@@ -1,16 +1,16 @@
 
 <template>
 
-  <h1>{{$t('message.CreateGroup')}}</h1>
+  <h1>{{$t('CreateGroup')}}</h1>
   <a-input-group compact>
-    <a-input v-model:value="createGroupName" style="width: calc(100% - 200px)" :placeholder="$t('message.GroupName')" />
+    <a-input v-model:value="createGroupName" style="width: calc(100% - 200px)" :placeholder="$t('GroupName')" />
     <a-button type="primary" @click="handleCreateGroup">
-      {{$t('message.Submit')}}
+      {{$t('Submit')}}
     </a-button>
   </a-input-group>
 
   <br/><br/>
-  <h1>{{$t('message.AddToGroup')}}</h1>
+  <h1>{{$t('AddToGroup')}}</h1>
   <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
 
     <a-form-item>
@@ -26,14 +26,14 @@
     <a-form-item>
       <a-button type="primary" html-type="submit"
         :disabled="formState.group_name === '' || formState.character_name === ''">
-        {{$t('message.Submit')}}
+        {{$t('Submit')}}
       </a-button>
     </a-form-item>
   </a-form>
 
   <br /><br />
 
-  <h1>{{$t('message.GroupsTable')}}</h1>
+  <h1>{{$t('GroupsTable')}}</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #group_name_edit="{ row }">
       <vxe-input v-model="row.group_name"></vxe-input>

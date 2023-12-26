@@ -7,31 +7,31 @@
   </a-modal>
 
   <div style="padding: 20px">
-    <h1>{{$t('message.ComputePaths')}}</h1>
+    <h1>{{$t('ComputePaths')}}</h1>
 
     <a-form layout="inline">
       <a-form-item>
-        <a-select v-model:value="computePathSource" show-search :placeholder="$t('message.SourceUser')" style="width: 200px"
+        <a-select v-model:value="computePathSource" show-search :placeholder="$t('SourceUser')" style="width: 200px"
           :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
       </a-form-item>
 
       <a-form-item>
-        <a-select v-model:value="computePathTarget" show-search :placeholder="$t('message.TargetUser')" style="width: 200px"
+        <a-select v-model:value="computePathTarget" show-search :placeholder="$t('TargetUser')" style="width: 200px"
           :options="computePathOptions" :filter-option="computePathFilterOption"></a-select>
       </a-form-item>
 
       <a-form-item>
-        <a-select v-model:value="isComputePathOnlyDirected" :placeholder="$t('message.OnlyDirected')" style="width: 200px"
+        <a-select v-model:value="isComputePathOnlyDirected" :placeholder="$t('OnlyDirected')" style="width: 200px"
           :options=computePathOnlyDirectedOptions></a-select>
       </a-form-item>
 
       <a-form-item>
-        <a-input v-model:value="computePathCutoff" :placeholder="$t('message.CutoffDegree')" />
+        <a-input v-model:value="computePathCutoff" :placeholder="$t('CutoffDegree')" />
       </a-form-item>
 
       <a-form-item>
         <a-button type="primary" @click="handleClickComputePaths">
-          {{$t('message.Compute')}}
+          {{$t('Compute')}}
         </a-button>
       </a-form-item>
     </a-form>
@@ -184,10 +184,6 @@ export default defineComponent({
         formatter: (param) => {
           let template = param.data.name
           if (param.data.name) {
-            if (param.data.image_name) {
-              template += '</br>'
-              template += `<img src='${API_BASE_URI}/images/${props.topic}/${param.data.image_name}' width="150">`;
-            }
           }
           return template;
         }

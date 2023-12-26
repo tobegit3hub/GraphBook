@@ -11,13 +11,13 @@
     <p>{{ modalNote }}</p>
 
     <br/>
-    <h3>{{ $t('message.RelatedCharacters') }}</h3>
+    <h3>{{ $t('RelatedCharacters') }}</h3>
     <a-list :grid="{ gutter: 16, column: 4 }" :data-source="modalRelatedCharacters">
       <template #renderItem="{ item }">
         <a-list-item>
           <a-card hoverable @click="redirectToCharacterPage(item.name)">
               <template #cover>
-                  <img v-if="item.image_name" :src="`${API_BASE_URI}/images/${topic}/${item.image_name}`" />
+                  
               </template>
               <a-card-meta :title="item.name">
                 <template #description>{{ item.note }}</template>

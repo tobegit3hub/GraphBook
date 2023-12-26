@@ -124,11 +124,11 @@ def get_characters(topic):
 @read_only_decorator
 def update_characters(topic):
     if request.method == "POST":
-        if "name" in request.json and "note" in request.json and "image_name" in request.json:
+        if "name" in request.json and "alias" in request.json and "note" in request.json:
             name = request.json["name"]
+            alias = request.json["alias"]
             note = request.json["note"]
-            image_name = request.json["image_name"]
-            db_service.create_character(topic, name, note, image_name)
+            db_service.create_character(topic, name, alias, note)
         elif "insert_characters" in request.json and "update_characters" in request.json and "delete_characters" in request.json:
             insert_characters = request.json["insert_characters"]
             update_characters = request.json["update_characters"]
@@ -181,15 +181,6 @@ def import_all_topics():
 def set_topic_official(topic):
     if request.method == "PUT":
         db_service.set_topic_official(topic)
-        result = {"code": 0}
-        return jsonify(result)
-
-@app.route('/api/topics/<topic>/unused_images', methods=['DELETE'])
-@cross_origin()
-@read_only_decorator
-def clear_unused_images(topic):
-    if request.method == "DELETE":
-        db_service.clear_unused_images(topic)
         result = {"code": 0}
         return jsonify(result)
 

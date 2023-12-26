@@ -4,19 +4,19 @@
   <a-layout class="layout">
     <a-breadcrumb style="margin: 16px 0">
       <a-breadcrumb-item>
-        <router-link :to='`/topics/${topic}/edit/addcharacter`'>{{$t('message.AddCharacterWizard')}}</router-link>
+        <router-link :to='`/topics/${topic}/edit/addcharacter`'>{{$t('AddCharacterWizard')}}</router-link>
       </a-breadcrumb-item>
       <a-breadcrumb-item>
-        <router-link :to='`/topics/${topic}/edit/characters`'>{{$t('message.EditAllCharacters')}}</router-link>
+        <router-link :to='`/topics/${topic}/edit/characters`'>{{$t('EditAllCharacters')}}</router-link>
       </a-breadcrumb-item>
       <a-breadcrumb-item>
-        <router-link :to='`/topics/${topic}/edit/relations`'>{{$t('message.EditAllRelations')}}</router-link>
+        <router-link :to='`/topics/${topic}/edit/relations`'>{{$t('EditAllRelations')}}</router-link>
       </a-breadcrumb-item>
       <a-breadcrumb-item>
-        <router-link :to='`/topics/${topic}/edit/groups`'>{{$t('message.EditAllGroups')}}</router-link>
+        <router-link :to='`/topics/${topic}/edit/groups`'>{{$t('EditAllGroups')}}</router-link>
       </a-breadcrumb-item>
       <a-breadcrumb-item>
-        <router-link :to='`/topics/${topic}/edit/mainlines`'>{{$t('message.EditAllMainlines')}}</router-link>
+        <router-link :to='`/topics/${topic}/edit/mainlines`'>{{$t('EditAllMainlines')}}</router-link>
       </a-breadcrumb-item>
     </a-breadcrumb>
 

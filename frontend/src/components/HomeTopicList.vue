@@ -6,18 +6,18 @@
     <a-col :span="8">
 
       <br />
-      <h1>{{ $t('message.Topics') }}</h1>
+      <h1>{{ $t('Topics') }}</h1>
 
-      <a-select v-model:value="selectTopicName" show-search :placeholder="$t('message.SearchFromTopics', {topic_count: topic_count})"
+      <a-select v-model:value="selectTopicName" show-search :placeholder="$t('SearchFromTopics', {topic_count: topic_count})"
         style="width: 250px" :options="selectTopicOptions" @change="changeSelectTopic">
       </a-select>
-      <a-button @click="resetSelectTopic">{{ $t('message.Reset') }}</a-button>
+      <a-button @click="resetSelectTopic">{{ $t('Reset') }}</a-button>
 
       <br /><br />
       <a-list item-layout="horizontal" :data-source="topicsListData">
         <template #renderItem="{ item }">
           <a-list-item>
-            <a-list-item-meta :description="$t('message.TopicStatisticsFormat', {character_count: item.character_count, relation_count: item.relation_count, group_count: item.group_count})">
+            <a-list-item-meta :description="$t('TopicStatisticsFormat', {character_count: item.character_count, relation_count: item.relation_count, group_count: item.group_count})">
               <template #title>
                 <router-link :to='`/topics/${item.name}`'>
                   {{ item.name }}

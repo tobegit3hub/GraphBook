@@ -1,7 +1,7 @@
 
 <template>
 
-  <h1>{{$t('message.AddRelation')}}</h1>
+  <h1>{{$t('AddRelation')}}</h1>
   <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
 
     <a-form-item>
@@ -14,25 +14,25 @@
         :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
-    <a-form-item :label="$t('message.Relation')" name="relation" :rules="[{ required: true, message: 'Please input relation!' }]">
+    <a-form-item :label="$t('Relation')" name="relation" :rules="[{ required: true, message: 'Please input relation!' }]">
       <a-input v-model:value="formState.relation" />
     </a-form-item>
 
-    <a-form-item :label="$t('message.Note')" name="note">
+    <a-form-item :label="$t('Note')" name="note">
       <a-input v-model:value="formState.note" />
     </a-form-item>
 
     <a-form-item>
       <a-button type="primary" html-type="submit"
         :disabled="formState.source === '' || formState.target === '' || formState.relation === ''">
-        {{$t('message.Submit')}}
+        {{$t('Submit')}}
       </a-button>
     </a-form-item>
   </a-form>
 
   <br /><br />
 
-  <h1>{{$t('message.RelationsTable')}}</h1>
+  <h1>{{$t('RelationsTable')}}</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #source_edit="{ row }">
       <vxe-input v-model="row.source"></vxe-input>

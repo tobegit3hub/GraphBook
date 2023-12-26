@@ -1,13 +1,13 @@
 
 <template>
 
-  <h1>{{ $t('message.CreateCharacter') }}</h1>
+  <h1>{{ $t('CreateCharacter') }}</h1>
   <a-form layout="inline" :model="formState" @finish="handleSubmitForm" @finishFailed="handleSubmitFormFailed">
-    <a-form-item :label="$t('message.Name')" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
+    <a-form-item :label="$t('Name')" name="name" :rules="[{ required: true, message: 'Please input name!' }]">
       <a-input v-model:value="formState.name" />
     </a-form-item>
 
-    <a-form-item :label="$t('message.Note')" name="note">
+    <a-form-item :label="$t('Note')" name="note">
       <a-input v-model:value="formState.note" />
     </a-form-item>
 
@@ -16,56 +16,56 @@
         list-type="picture" :multiple="false">
         <a-button>
           <upload-outlined></upload-outlined>
-          {{ $t('message.UploadImage') }}
+          {{ $t('UploadImage') }}
         </a-button>
       </a-upload>
     </a-form-item>
 
     <a-form-item>
       <a-button type="primary" html-type="submit" :disabled="formState.name === ''">
-        {{ $t('message.Submit') }}
+        {{ $t('Submit') }}
       </a-button>
     </a-form-item>
   </a-form>
 
   <br /><br />
-  <h1>{{ $t('message.RenameCharacter') }}</h1>
+  <h1>{{ $t('RenameCharacter') }}</h1>
   <a-form layout="inline" :model="renameFormState" @finish="handleSubmitRenameForm" @finishFailed="handleSubmitFormFailed">
 
     <a-form-item>
-      <span>{{ $t('message.CharacterName') }}: &nbsp;</span>
+      <span>{{ $t('CharacterName') }}: &nbsp;</span>
       <a-select v-model:value="renameFormState.character_name" show-search style="width: 200px"
         :options="selectCharacterOptions" :filter-option="filterOption"></a-select>
     </a-form-item>
 
-    <a-form-item :label="$t('message.NewName')" :rules="[{ required: true, message: 'Please input target name!' }]">
+    <a-form-item :label="$t('NewName')" :rules="[{ required: true, message: 'Please input target name!' }]">
       <a-input v-model:value="renameFormState.new_name" />
     </a-form-item>
 
     <a-form-item>
       <a-button type="primary" html-type="submit"
         :disabled="renameFormState.character_name === '' && renameFormState.new_name === ''">
-        {{ $t('message.Submit') }}
+        {{ $t('Submit') }}
       </a-button>
     </a-form-item>
   </a-form>
 
   <br /><br />
-  <h1>{{ $t('message.UpdateCharactersWeights') }}</h1>
-  <a-select v-model:value="updateWeightsAlgorithm" :placeholder="$t('message.Algorithm')" style="width: 300px"
+  <h1>{{ $t('UpdateCharactersWeights') }}</h1>
+  <a-select v-model:value="updateWeightsAlgorithm" :placeholder="$t('Algorithm')" style="width: 300px"
     :options=updateWeightsAlgorithmOptions></a-select>
   <a-button type="primary" @click="updateCharactersWeights">
-    {{ $t('message.Submit') }}
+    {{ $t('Submit') }}
   </a-button>
 
   <br /><br /><br />
-  <h1>{{ $t('message.UpdateCharactersWeights') }}</h1>
+  <h1>{{ $t('UpdateCharactersWeights') }}</h1>
   <a-button type="primary" @click="clearUnusedImages">
-    {{ $t('message.ClearUnusedImages') }}
+    {{ $t('ClearUnusedImages') }}
   </a-button>
 
   <br /><br /><br />
-  <h1>{{ $t('message.CharactersTable') }}</h1>
+  <h1>{{ $t('CharactersTable') }}</h1>
   <vxe-grid ref="vxeTable" v-bind="vxeTableOptions" v-on="vxeTableHandler">
     <template #name_edit="{ row }">
       <vxe-input v-model="row.name"></vxe-input>
@@ -75,9 +75,6 @@
     </template>
     <template #weight_edit="{ row }">
       <vxe-input v-model="row.weight"></vxe-input>
-    </template>
-    <template #image_name_edit="{ row }">
-      <vxe-input v-model="row.image_name"></vxe-input>
     </template>
 
     <template #operate="{ row }" slot-scope="scope">
@@ -105,7 +102,6 @@ type SelectItem = {
 interface FormState {
   name: string;
   note: string;
-  image_name: string;
 }
 
 interface RenameFormState {
@@ -146,7 +142,6 @@ export default defineComponent({
         { field: 'name', title: 'Name', editRender: {}, slots: { edit: 'name_edit' } },
         { field: 'note', title: 'Note', editRender: {}, slots: { edit: 'note_edit' } },
         { field: 'weight', title: 'Weight', slots: { edit: 'weight_edit' } },
-        { field: 'image_name', title: 'Image name', editRender: {}, slots: { edit: 'image_name_edit' } },
         { title: 'Delete', width: 200, slots: { default: 'operate' } }
       ],
       toolbarConfig: {
@@ -209,24 +204,13 @@ export default defineComponent({
     const formState: UnwrapRef<FormState> = reactive({
       name: '',
       note: '',
-      image_name: ''
     });
 
 
     const handleSubmitForm: FormProps['onFinish'] = values => {
-
-      let image_name = formState.image_name
-
-      if (uploadImageFileList.value?.length != null) {
-        if (uploadImageFileList.value.length > 0) {
-          image_name = uploadImageFileList.value[uploadImageFileList.value.length - 1].name
-        }
-      }
-
       axios.post(`/api/topics/${props.topic}/characters`, {
         "name": formState.name,
         "note": formState.note,
-        "image_name": image_name
       })
         .then(response => {
           message.success(`Success to add character: ${formState.name}`);

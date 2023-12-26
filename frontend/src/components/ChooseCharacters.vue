@@ -4,21 +4,21 @@
   <div style="background-color: #ececec; padding: 20px">
 
     <!-- Form to choose characteer -->
-    <h1>{{$t('message.ChooseCharacter')}}</h1>
-    <a-select v-model:value="currentSelectedCharacter" show-search :placeholder="$t('message.Character')" style="width: 200px"
+    <h1>{{$t('ChooseCharacter')}}</h1>
+    <a-select v-model:value="currentSelectedCharacter" show-search :placeholder="$t('Character')" style="width: 200px"
       :options="selectCharacterOptions" :filter-option="filterOption" @change="changeSelectedCharacter"></a-select>
 
     <br /><br />
     <!-- Only show when not selecting character -->
     <div v-if="!currentSelectedCharacter">
-      <h1>{{$t('message.CharacterList')}}</h1>
+      <h1>{{$t('CharacterList')}}</h1>
       <a-row :gutter="16">
         <div v-for="character in characters" @click="chooseCharacterFromImage(character.name)">
           <a-col :span="4">
             <a-card hoverable style="width: 240px">
               <!-- 240px by default-->
               <template #cover>
-                <img v-if="character.image_name" :src="`${API_BASE_URI}/images/${topic}/${character.image_name}`" />
+                
               </template>
               <a-card-meta :title="character.name">
                 <template #description>{{ character.note }}</template>

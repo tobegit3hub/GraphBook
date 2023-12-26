@@ -2,12 +2,13 @@
 
 <!-- The modal to show character -->
 <a-modal v-model:visible="isShowCharacterModal" title="Character Detail" @ok="handleCharacterModalOk">
-
   <p>{{ $t('Name') }}: 
     <router-link :to='`/topics/${topic}/characters/${currentCharacter.name}`'>{{
       currentCharacter.name
     }}</router-link>
   </p>
+
+  <p>{{ $t('Alias') }}: {{ currentCharacter.alias }}</p>
 
   <p>{{ $t('Weight') }}: {{ currentCharacter.weight }}</p>
 
@@ -17,7 +18,6 @@
 
 <!-- The modal to show relation -->
 <a-modal v-model:visible="isShowRelationModal" title="Relation Detail" @ok="handleRelationModalOk">
-
   <a-row justify="space-around" align="middle">
     <a-col :span="4">
       <p>{{ $t('Name') }}: 
@@ -57,7 +57,7 @@
     <a-form-item
       :label="$t('Choose character')">
       <a-select show-search v-model:value="chooseCharacterForm.name" @select="handleChooseCharacter">
-        <option v-for="character in allCharacters" :value="character.name">{{ character.name }}</option>
+        <option v-for="character in allCharacters" :value="character.name + ' (' + character.alias + ')'">{{ character.name }}</option>
       </a-select>
     </a-form-item>
   </a-form>
