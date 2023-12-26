@@ -6,28 +6,28 @@
       <div class="logo" />
       <a-menu theme="dark" mode="horizontal" :style="{ lineHeight: '64px' }">
         <a-menu-item key="1">
-          <router-link to='/'>{{ $t('message.Home') }}</router-link>
+          <router-link to='/'>{{ $t('Home') }}</router-link>
         </a-menu-item>
         <a-menu-item key="2">
-          <router-link :to='`/topics/${currentTopicName}/graph`'>{{ $t('message.Graph') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/graph`'>{{ $t('Graph') }}</router-link>
         </a-menu-item>
         <a-menu-item key="3">
-          <router-link :to='`/topics/${currentTopicName}/characters`'>{{ $t('message.Characters') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/characters`'>{{ $t('Characters') }}</router-link>
         </a-menu-item>
         <a-menu-item key="4">
-          <router-link :to='`/topics/${currentTopicName}/mainlines`'>{{ $t('message.Mainlines') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/mainlines`'>{{ $t('Mainlines') }}</router-link>
         </a-menu-item>
         <a-menu-item key="5">
-          <router-link :to='`/topics/${currentTopicName}/groups`'>{{ $t('message.Groups') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/groups`'>{{ $t('Groups') }}</router-link>
         </a-menu-item>
         <a-menu-item key="6">
-          <router-link :to='`/topics/${currentTopicName}/paths`'>{{ $t('message.Paths') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/paths`'>{{ $t('Paths') }}</router-link>
         </a-menu-item>
         <a-menu-item key="7">
-          <router-link to='/topics/edit'>{{ $t('message.Topics') }}</router-link>
+          <router-link to='/topics/edit'>{{ $t('Topics') }}</router-link>
         </a-menu-item>
         <a-menu-item key="8">
-          <router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>{{ $t('message.Edit') }}</router-link>
+          <router-link :to='`/topics/${currentTopicName}/edit/addcharacter`'>{{ $t('Edit') }}</router-link>
         </a-menu-item>
 
         <!-- TODO: float:right does not work-->
@@ -37,6 +37,7 @@
           </a-select>
         </a-menu-item>
 
+        <!-- TODO: support i18n -->
         <a-menu-item key="10" :disabled="true" style="float:rigt">
           <a-select v-model:value="$i18n.locale" style="width: 100px"
             :options="selectLanguageOptions">
@@ -51,7 +52,7 @@
 
     <a-layout-footer style="text-align: center">
       <div>
-        <a href="https://github.com/topicland/TopicLand" target="_blank">TopicLand</a> © 2022-2023 <a href="https://beian.miit.gov.cn/" target="_blank">{{$t('message.ICP_MESSAGE')}}</a>
+        <a href="https://github.com/topicland/TopicLand" target="_blank">TopicLand</a> © 2022-2023 <a href="https://beian.miit.gov.cn/" target="_blank">{{$t('ICP_MESSAGE')}}</a>
       </div>
     </a-layout-footer>
   </a-layout>
@@ -80,9 +81,8 @@ export default defineComponent({
     const selectTopicOptions = ref<SelectTypes['options']>([]);
 
     const selectLanguageOptions = ref<SelectTypes['options']>([
-      { "value": "English", "label": "English" },
-      { "value": "简体中文", "label": "简体中文" },
-      { "value": "繁體中文", "label": "繁體中文" }
+      { "value": "en", "label": "en" },
+      { "value": "zh", "label": "zh" }
     ]);
 
     const filterOption = (input: string, option: any) => {
