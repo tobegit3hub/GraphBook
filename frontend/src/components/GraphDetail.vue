@@ -1,5 +1,54 @@
 <template>
 
+<!-- The modal to show character -->
+<a-modal v-model:visible="isShowCharacterModal" title="Character Detail" @ok="handleCharacterModalOk">
+
+  <p>{{ $t('Name') }}: 
+    <router-link :to='`/topics/${topic}/characters/${currentCharacter.name}`'>{{
+      currentCharacter.name
+    }}</router-link>
+  </p>
+
+  <p>{{ $t('Weight') }}: {{ currentCharacter.weight }}</p>
+
+  <p>{{ $t('Note') }}:</p>
+  <p>{{ currentCharacter.note }}</p>
+</a-modal>
+
+<!-- The modal to show relation -->
+<a-modal v-model:visible="isShowRelationModal" title="Relation Detail" @ok="handleRelationModalOk">
+
+  <a-row justify="space-around" align="middle">
+    <a-col :span="4">
+      <p>{{ $t('Name') }}: 
+      <router-link :to='`/topics/${topic}/characters/${currentCharacter.name}`'>{{
+        currentCharacter.name
+      }}</router-link>
+    </p>
+
+    <p>{{ $t('Weight') }}: {{ currentCharacter.weight }}</p>
+
+    <p>{{ $t('Note') }}:</p>
+    <p>{{ currentCharacter.note }}</p>
+    </a-col>
+    <a-col :span="4">
+      <p class="height-50">Sample relation</p>
+    </a-col>
+    <a-col :span="4">
+      <p>{{ $t('Name') }}: 
+      <router-link :to='`/topics/${topic}/characters/${currentTargetCharacter.name}`'>{{
+        currentTargetCharacter.name
+      }}</router-link>
+    </p>
+
+    <p>{{ $t('Weight') }}: {{ currentTargetCharacter.weight }}</p>
+
+    <p>{{ $t('Note') }}:</p>
+    <p>{{ currentTargetCharacter.note }}</p>
+    </a-col>
+  </a-row>
+</a-modal>
+
 <div v-if="!onlyGraph">
   <!-- Choose the character -->
   <br/>
@@ -46,7 +95,10 @@ export default {
       // Modal
       isShowConfigModal: false,
       isShowCharacterModal: false,
-      isShowEdgeModal: false,
+      isShowRelationModal: false,
+      currentCharacter: null,
+      currentTargetCharacter: null,
+      currentRelation: "",
 
       // Graph config
       graphConfig: {
@@ -167,16 +219,60 @@ export default {
 
     },
 
-    
+    handleCharacterModalOk() {
+      this.isShowCharacterModal = false;
+    },
+
+    handleRelationModalOk() {
+      this.isShowRelationModal = false;
+    },
+
+    // Click the graph
     handleClickGraph(params) {
+      
+      if (params.data.name) { // Click the node
+        
+
+        const characterName = params.data.name;
+        axios.get(`/api/topics/${this.topic}/characters/${characterName}`).then(response => {
+          this.currentCharacter = response.data.character;
+
+          this.isShowCharacterModal = true;
+        });
+      } else if (params.data.source && params.data.target) { // Click the edge
+        
+
+        const sourceCharacterName = params.data.source;
+        const targetCharacterName = params.data.target;
+
+        axios.get(`/api/topics/${this.topic}/characters/${sourceCharacterName}`).then(response => {
+          this.currentCharacter = response.data.character;  
+        });
+
+        axios.get(`/api/topics/${this.topic}/characters/${targetCharacterName}`).then(response => {
+          this.currentTargetCharacter = response.data.character;
+
+          this.isShowRelationModal = true;
+        });
+
+        /*
+        axios.get(`/api/topics/${this.topic}/relations/${sourceName}/${targetName}`).then(response => {
+          this.currentRelation = response.data.relation;
+
+          this.isShowEdgeModal = true;
+        });
+        */
+      }
+
       /*
-      isCharacterModalVisible.value = true;
-      currentCharacterModalName.value = params.data.name;
-      currentCharacterModalWeight.value = params.data.weight;
-      currentCharacterModalImageName.value = params.data.image_name;
-      //currentModalImagePath.value = params.data.symbol;
-      currentModalNote.value = params.data.note;
+      const characterName = params.data.name;
+      axios.get(`/api/topics/${this.topic}/characters/${characterName}`).then(response => {
+        this.currentCharacter = response.data.character;
+
+        this.isShowCharacterModal = true;
+      });
       */
+
     },
 
   },
